@@ -93,10 +93,10 @@ class TaskFilter extends StatelessWidget {
                   backgroundColor: chipBackground,
                   shape: StadiumBorder(
                     side: BorderSide(
-                      color: isDarkMode ? Colors.grey[600]! : Colors.grey,
+                      color: isDarkMode ? Colors.grey.shade600 : Colors.grey,
                     ),
                   ),
-                  selectedColor: (isDarkMode ? Colors.grey[700] : Colors.grey).withAlpha(isDarkMode ? 100 : 26),
+                  selectedColor: (isDarkMode ? Colors.grey.shade700 : Colors.grey).withAlpha(isDarkMode ? 100 : 26),
                   labelStyle: TextStyle(
                     color: isDarkMode ? AppColors.darkTextColor : AppColors.lightTextColor,
                   ),
