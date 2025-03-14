@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'constants/app_theme.dart';
 import 'constants/app_texts.dart';
 import 'screens/splash_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,9 @@ void main() async {
   // Initialize date formatting for Turkish locale
   await initializeDateFormatting('tr_TR', null);
 
+  // Initialize notification service
+  await NotificationService().initNotification();
+  
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
@@ -46,8 +50,41 @@ class ThemeProvider with ChangeNotifier {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final NotificationService _notificationService = NotificationService();
+  
+  @override
+  void initState() {
+    super.initState();
+    
+    // Request iOS permissions
+    _requestPermissions();
+    
+    // Listen to notification clicks
+    _listenToNotificationStream();
+  }
+  
+  void _requestPermissions() {
+    _notificationService.requestIOSPermissions();
+  }
+  
+  void _listenToNotificationStream() {
+    _notificationService.onNotificationClick.stream.listen((String? payload) {
+      if (payload != null && payload.isNotEmpty) {
+        // Handle notification click - opens specific task
+        debugPrint('Notification payload: $payload');
+        // You can navigate to a specific screen using this payload
+        // Navigator.push(context, MaterialPageRoute(builder: (_) => SpecificTaskScreen(taskId: int.parse(payload))));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
