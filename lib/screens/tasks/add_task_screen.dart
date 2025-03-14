@@ -120,7 +120,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void _showAddCategoryDialog() {
     final TextEditingController categoryNameController =
         TextEditingController();
-    final Color selectedColor = Colors.blue;
+    const Color selectedColor = Colors.blue;
 
     showDialog(
       context: context,
@@ -150,7 +150,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.value,
+                    color: selectedColor.toARGB32(),
                     userId: widget.userId,
                   );
 
@@ -173,6 +173,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           );
                         });
 
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(AppTexts.categoryAdded),
@@ -351,7 +352,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                     width: 12,
                                     height: 12,
                                     decoration: BoxDecoration(
-                                      color: Color(category.color),
+                                      color: Color(category.color & 0xFFFFFFFF),
                                       shape: BoxShape.circle,
                                     ),
                                   ),

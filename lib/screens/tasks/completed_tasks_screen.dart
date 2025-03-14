@@ -299,7 +299,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                             orElse:
                                                 () => Category(
                                                   name: 'Kategori Yok',
-                                                  color: Colors.grey.value,
+                                                  color: Color(Colors.grey.toARGB32()),
                                                 ),
                                           )
                                           : null;

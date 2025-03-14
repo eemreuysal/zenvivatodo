@@ -64,10 +64,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (widget.task.categoryId != null) {
       _selectedCategory = _categories.firstWhere(
         (c) => c.id == widget.task.categoryId,
-        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value),
+        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Color(Colors.grey.toARGB32())),
       );
     } else {
-      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value);
+      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Color(Colors.grey.toARGB32()));
     }
 
     _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
@@ -142,7 +142,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   void _showAddCategoryDialog() {
     final TextEditingController categoryNameController =
         TextEditingController();
-    final Color selectedColor = Colors.blue;
+    const Color selectedColor = Colors.blue;
 
     showDialog(
       context: context,
@@ -195,6 +195,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                           );
                         });
                         
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(AppTexts.categoryAdded),
@@ -204,6 +205,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       }
                     } else {
                       if (mounted) {
+                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -216,6 +218,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     }
                   } catch (e) {
                     if (mounted) {
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
@@ -368,7 +371,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                                 width: 12,
                                 height: 12,
                                 decoration: BoxDecoration(
-                                  color: Color(category.color),
+                                  color: Color(category.color & 0xFFFFFFFF),
                                   shape: BoxShape.circle,
                                 ),
                               ),

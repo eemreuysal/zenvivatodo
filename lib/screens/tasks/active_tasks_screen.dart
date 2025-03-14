@@ -298,7 +298,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
                                             orElse:
                                                 () => Category(
                                                   name: 'Kategori Yok',
-                                                  color: Colors.grey.value,
+                                                  color: Color(Colors.grey.toARGB32()),
                                                 ),
                                           )
                                           : null;

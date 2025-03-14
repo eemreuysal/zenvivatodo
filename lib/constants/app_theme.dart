@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
+  static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: AppColors.primaryColor,
       secondary: AppColors.secondaryColor,
-      background: AppColors.lightBackground,
       surface: AppColors.lightCardColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onBackground: AppColors.lightTextColor,
       onSurface: AppColors.lightTextColor,
     ),
     scaffoldBackgroundColor: AppColors.lightBackground,
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primaryColor,
       foregroundColor: Colors.white,
       elevation: 0,
@@ -76,20 +74,18 @@ class AppTheme {
     ),
   );
 
-  static ThemeData darkTheme = ThemeData(
+  static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: AppColors.primaryColor,
       secondary: AppColors.secondaryColor,
-      background: AppColors.darkBackground,
       surface: AppColors.darkCardColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onBackground: AppColors.darkTextColor,
       onSurface: AppColors.darkTextColor,
     ),
     scaffoldBackgroundColor: AppColors.darkBackground,
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.darkCardColor,
       foregroundColor: AppColors.darkTextColor,
       elevation: 0,

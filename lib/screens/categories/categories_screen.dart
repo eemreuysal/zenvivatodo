@@ -181,31 +181,29 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
-                    children:
-                        colorOptions.map((color) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedColor = color;
-                              });
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                                border:
-                                    selectedColor == color
-                                        ? Border.all(
-                                          color: Colors.black,
-                                          width: 2,
-                                        )
-                                        : null,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                    children: colorOptions.map((color) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedColor = color;
+                          });
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: selectedColor == color
+                                ? Border.all(
+                                    color: Colors.black,
+                                    width: 2,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -221,7 +219,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
                       final category = Category(
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.value,
+                        color: selectedColor.toARGB32(),
                         userId: widget.userId,
                       );
 
@@ -234,6 +232,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           _loadCategories();
 
                           if (mounted) {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(AppTexts.categoryAdded),
@@ -243,6 +242,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           }
                         } else {
                           if (mounted) {
+                            if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
@@ -290,7 +290,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       Colors.purple,
       Colors.teal,
     ];
-    Color selectedColor = Color(category.color);
+    Color selectedColor = Color(category.color & 0xFFFFFFFF);
 
     showDialog(
       context: context,
@@ -316,31 +316,29 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
-                    children:
-                        colorOptions.map((color) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedColor = color;
-                              });
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                                border:
-                                    selectedColor.value == color.value
-                                        ? Border.all(
-                                          color: Colors.black,
-                                          width: 2,
-                                        )
-                                        : null,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                    children: colorOptions.map((color) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedColor = color;
+                          });
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: selectedColor.toARGB32() == color.toARGB32()
+                                ? Border.all(
+                                    color: Colors.black,
+                                    width: 2,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -357,7 +355,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       final updatedCategory = Category(
                         id: category.id,
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.value,
+                        color: selectedColor.toARGB32(),
                         userId: category.userId,
                       );
 
@@ -426,85 +424,81 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         ),
       ),
       body: SafeArea(
-        child:
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _categories.isEmpty
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _categories.isEmpty
                 ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Henüz kategori eklenmemiş',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomButton(
-                        text: AppTexts.addCategory,
-                        onPressed: _showAddCategoryDialog,
-                        width: 200,
-                      ),
-                    ],
-                  ),
-                )
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Henüz kategori eklenmemiş',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 16),
+                        CustomButton(
+                          text: AppTexts.addCategory,
+                          onPressed: _showAddCategoryDialog,
+                          width: 200,
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _categories.length,
+                    itemBuilder: (context, index) {
+                      final category = _categories[index];
 
-                    // Check if it's a default category (userId is null)
-                    final bool isDefaultCategory = category.userId == null;
+                      // Check if it's a default category (userId is null)
+                      final bool isDefaultCategory = category.userId == null;
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: Color(category.color),
-                            shape: BoxShape.circle,
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Color(category.color & 0xFFFFFFFF),
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          category.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                          title: Text(
+                            category.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        trailing:
-                            isDefaultCategory
-                                ? const Text(
+                          trailing: isDefaultCategory
+                              ? const Text(
                                   'Varsayılan',
                                   style: TextStyle(
                                     fontStyle: FontStyle.italic,
                                     color: Colors.grey,
                                   ),
                                 )
-                                : Row(
+                              : Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.edit_outlined),
-                                      onPressed:
-                                          () =>
-                                              _showEditCategoryDialog(category),
+                                      onPressed: () =>
+                                          _showEditCategoryDialog(category),
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete_outline),
-                                      onPressed:
-                                          () => _showDeleteConfirmation(
-                                            context,
-                                            category,
-                                          ),
+                                      onPressed: () => _showDeleteConfirmation(
+                                        context,
+                                        category,
+                                      ),
                                     ),
                                   ],
                                 ),
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                  ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddCategoryDialog,

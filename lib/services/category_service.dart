@@ -1,6 +1,6 @@
 import '../models/category.dart';
 import 'database_helper.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 
 class CategoryService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();

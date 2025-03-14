@@ -8,8 +8,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// import 'package:zenvivatodo/main.dart';
-import 'package:zenviva/main.dart';
+// Uygulama ana dosyasını import etmek için yorum satırı kaldırılabilir
+// import 'package:zenviva/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

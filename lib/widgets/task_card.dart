@@ -22,7 +22,7 @@ class TaskCard extends StatelessWidget {
   }) : super(key: key);
 
   Color get _priorityColor {
-    switch (Priority.fromValue(task.priority)) {
+    switch (PriorityExtension.fromValue(task.priority)) {
       case Priority.low:
         return AppColors.lowPriorityColor;
       case Priority.medium:
@@ -33,7 +33,7 @@ class TaskCard extends StatelessWidget {
   }
 
   String get _priorityText {
-    return Priority.fromValue(task.priority).name;
+    return PriorityExtension.fromValue(task.priority).name;
   }
 
   @override

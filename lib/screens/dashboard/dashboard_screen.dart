@@ -550,7 +550,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 orElse:
                                                     () => Category(
                                                       name: 'Kategori Yok',
-                                                      color: Colors.grey.value,
+                                                      color: Color(Colors.grey.toARGB32()),
                                                     ),
                                               )
                                               : null;
@@ -626,7 +626,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 orElse:
                                                     () => Category(
                                                       name: 'Kategori Yok',
-                                                      color: Colors.grey.value,
+                                                      color: Color(Colors.grey.toARGB32()),
                                                     ),
                                               )
                                               : null;
