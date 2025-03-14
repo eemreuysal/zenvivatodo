@@ -39,6 +39,7 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -124,13 +125,17 @@ class TaskCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Color(category!.color).withAlpha(25),
+                        color: isDarkMode 
+                          ? Color(category!.color).withAlpha(50)
+                          : Color(category!.color).withAlpha(25),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         category!.name,
                         style: TextStyle(
-                          color: Color(category!.color),
+                          color: isDarkMode
+                            ? _getLighterColor(Color(category!.color))
+                            : Color(category!.color),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -145,13 +150,17 @@ class TaskCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: _priorityColor.withAlpha(25),
+                      color: isDarkMode
+                        ? _priorityColor.withAlpha(50)
+                        : _priorityColor.withAlpha(25),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       _priorityText,
                       style: TextStyle(
-                        color: _priorityColor,
+                        color: isDarkMode
+                            ? _getLighterColor(_priorityColor)
+                            : _priorityColor,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -178,5 +187,13 @@ class TaskCard extends StatelessWidget {
         ),
       ),
     );
+  }
+  
+  // Helper method to get lighter version of a color for dark mode
+  Color _getLighterColor(Color color) {
+    // Convert to HSL for better lightness control
+    HSLColor hsl = HSLColor.fromColor(color);
+    // Increase lightness (0.7 to 0.9 is a good range for visibility)
+    return hsl.withLightness(hsl.lightness < 0.7 ? 0.8 : hsl.lightness).toColor();
   }
 }
