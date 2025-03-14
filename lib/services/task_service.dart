@@ -1,20 +1,20 @@
 import '../models/task.dart';
 import 'database_helper.dart';
-import 'notification_service.dart';
+import 'reminder_service.dart';
 import 'package:flutter/foundation.dart';
 
 class TaskService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-  final NotificationService _notificationService = NotificationService();
+  final ReminderService _reminderService = ReminderService();
 
   Future<bool> addTask(Task task) async {
     try {
       int taskId = await _databaseHelper.insertTask(task);
       
-      // Create notification for the task if it has time set
+      // Add to reminder service if it has time set
       if (taskId > 0 && task.time != null && task.time!.isNotEmpty) {
         task.id = taskId; // Update task with the generated ID
-        await _notificationService.scheduleTaskNotification(task);
+        _reminderService.addTask(task);
       }
       
       return taskId > 0;
@@ -35,7 +35,12 @@ class TaskService {
 
   Future<List<Task>> getActiveTasks(int userId) async {
     try {
-      return await _databaseHelper.getTasks(userId, isCompleted: false);
+      final tasks = await _databaseHelper.getTasks(userId, isCompleted: false);
+      
+      // Update reminder service with active tasks
+      _reminderService.setTasks(tasks);
+      
+      return tasks;
     } catch (e) {
       debugPrint('Error getting active tasks: $e');
       return [];
@@ -59,13 +64,20 @@ class TaskService {
     int? priority,
   }) async {
     try {
-      return await _databaseHelper.getTasks(
+      final tasks = await _databaseHelper.getTasks(
         userId,
         date: date,
         isCompleted: isCompleted,
         categoryId: categoryId,
         priority: priority,
       );
+      
+      // If we're filtering for active tasks, update the reminder service
+      if (isCompleted == false) {
+        _reminderService.setTasks(tasks);
+      }
+      
+      return tasks;
     } catch (e) {
       debugPrint('Error getting filtered tasks: $e');
       return [];
@@ -77,14 +89,14 @@ class TaskService {
       int result = await _databaseHelper.updateTask(task);
       
       if (result > 0) {
-        // Cancel existing notification
+        // Remove old task from reminder service
         if (task.id != null) {
-          await _notificationService.cancelNotification(task.id!);
+          _reminderService.removeTaskById(task.id!);
         }
         
-        // Schedule new notification if the task has time
+        // Add updated task to reminder service if it has time
         if (task.time != null && task.time!.isNotEmpty && !task.isCompleted) {
-          await _notificationService.scheduleTaskNotification(task);
+          _reminderService.addTask(task);
         }
       }
       
@@ -102,11 +114,11 @@ class TaskService {
         isCompleted,
       );
       
-      // If the task is marked as completed, cancel its notification
+      // If the task is marked as completed, remove it from reminders
       if (result > 0 && isCompleted) {
-        await _notificationService.cancelNotification(taskId);
+        _reminderService.removeTaskById(taskId);
       }
-      // If task is uncompleted and has time, reschedule notification
+      // If task is uncompleted and has time, add back to reminder service
       else if (result > 0 && !isCompleted) {
         // Get the task to check if it has time
         List<Map<String, dynamic>> maps = await _databaseHelper.database.then(
@@ -120,7 +132,7 @@ class TaskService {
         if (maps.isNotEmpty) {
           Task task = Task.fromMap(maps.first);
           if (task.time != null && task.time!.isNotEmpty) {
-            await _notificationService.scheduleTaskNotification(task);
+            _reminderService.addTask(task);
           }
         }
       }
@@ -134,8 +146,8 @@ class TaskService {
 
   Future<bool> deleteTask(int taskId) async {
     try {
-      // Cancel the notification first
-      await _notificationService.cancelNotification(taskId);
+      // Remove from reminder service first
+      _reminderService.removeTaskById(taskId);
       
       // Then delete the task
       int result = await _databaseHelper.deleteTask(taskId);
