@@ -21,7 +21,7 @@ class NotificationService {
     
     // Initialize flutter_local_notifications
     const AndroidInitializationSettings initializationSettingsAndroid = 
-      AndroidInitializationSettings('app_icon'); // Uygulamanızın iconunu belirtin
+      AndroidInitializationSettings('app_icon'); // drawable/app_icon.png'deki ikonu kullanır
       
     const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
       requestSoundPermission: true,
