@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/task.dart';
+import 'notification_service.dart';
 
 class ReminderService {
   static final ReminderService _instance = ReminderService._internal();
@@ -11,6 +12,7 @@ class ReminderService {
   final BehaviorSubject<Task> onTaskReminder = BehaviorSubject<Task>();
   Timer? _checkTimer;
   List<Task> _activeTasks = [];
+  final NotificationService _notificationService = NotificationService();
 
   ReminderService._internal();
 
@@ -19,6 +21,12 @@ class ReminderService {
     // Check for reminders every minute
     _checkTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _checkForReminders();
+    });
+    
+    // Listen to the onTaskReminder stream and show notifications
+    onTaskReminder.listen((task) {
+      // Show dialog notification instead of system notification
+      _notificationService.showNotificationDialog(task);
     });
   }
 
