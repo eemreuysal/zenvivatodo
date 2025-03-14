@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'constants/app_theme.dart';
 import 'constants/app_texts.dart';
 import 'screens/splash_screen.dart';
@@ -64,15 +65,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     
-    // Request iOS permissions
-    _requestPermissions();
-    
     // Listen to notification clicks
     _listenToNotificationStream();
-  }
-  
-  void _requestPermissions() {
-    _notificationService.requestIOSPermissions();
   }
   
   void _listenToNotificationStream() {
@@ -84,6 +78,12 @@ class _MyAppState extends State<MyApp> {
         // Navigator.push(context, MaterialPageRoute(builder: (_) => SpecificTaskScreen(taskId: int.parse(payload))));
       }
     });
+  }
+
+  @override
+  void dispose() {
+    AwesomeNotifications().dispose();
+    super.dispose();
   }
 
   @override
