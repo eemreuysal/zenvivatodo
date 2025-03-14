@@ -26,8 +26,8 @@ class NotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS initialization
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
+    final IOSInitializationSettings initializationSettingsIOS =
+        IOSInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
@@ -43,7 +43,11 @@ class NotificationService {
     // Initialize
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onSelectNotification: (String? payload) {
+        if (payload != null && payload.isNotEmpty) {
+          onNotificationClick.add(payload);
+        }
+      },
     );
   }
 
@@ -98,9 +102,9 @@ class NotificationService {
             importance: Importance.high,
             priority: Priority.high,
           ),
-          iOS: DarwinNotificationDetails(),
+          iOS: IOSNotificationDetails(),
         ),
-        androidAllowWhileIdle: true,  // exactAllowWhileIdle yerine bu kullanılacak
+        androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
@@ -153,12 +157,6 @@ class NotificationService {
   void onDidReceiveLocalNotification(
       int id, String? title, String? body, String? payload) {
     debugPrint('Notification received: $id - $title');
-  }
-
-  void onDidReceiveNotificationResponse(NotificationResponse response) {
-    if (response.payload != null && response.payload!.isNotEmpty) {
-      onNotificationClick.add(response.payload);
-    }
   }
 
   // Request notification permissions
