@@ -42,13 +42,13 @@ class AppTheme {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: AppColors.lightSecondaryTextColor.withOpacity(0.3),
+          color: AppColors.lightSecondaryTextColor.withAlpha(76),
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: AppColors.lightSecondaryTextColor.withOpacity(0.3),
+          color: AppColors.lightSecondaryTextColor.withAlpha(76),
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -116,13 +116,13 @@ class AppTheme {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: AppColors.darkSecondaryTextColor.withOpacity(0.3),
+          color: AppColors.darkSecondaryTextColor.withAlpha(76),
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: AppColors.darkSecondaryTextColor.withOpacity(0.3),
+          color: AppColors.darkSecondaryTextColor.withAlpha(76),
         ),
       ),
       focusedBorder: OutlineInputBorder(

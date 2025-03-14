@@ -39,12 +39,12 @@ class TaskFilter extends StatelessWidget {
                     side: BorderSide(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withValues(opacity: 0.5),
+                      ).colorScheme.primary.withOpacity(0.5),
                     ),
                   ),
                   selectedColor: Theme.of(
                     context,
-                  ).colorScheme.primary.withValues(opacity: 0.1),
+                  ).colorScheme.primary.withOpacity(0.1),
                 ),
                 const SizedBox(width: 8),
                 ...categories.map((category) {
@@ -57,10 +57,10 @@ class TaskFilter extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       shape: StadiumBorder(
                         side: BorderSide(
-                          color: Color(category.color).withValues(opacity: 0.5),
+                          color: Color(category.color).withOpacity(0.5),
                         ),
                       ),
-                      selectedColor: Color(category.color).withValues(opacity: 0.1),
+                      selectedColor: Color(category.color).withOpacity(0.1),
                     ),
                   );
                 }).toList(),
@@ -81,7 +81,7 @@ class TaskFilter extends StatelessWidget {
                   shape: const StadiumBorder(
                     side: BorderSide(color: Colors.grey),
                   ),
-                  selectedColor: Colors.grey.withValues(opacity: 0.1),
+                  selectedColor: Colors.grey.withOpacity(0.1),
                 ),
                 const SizedBox(width: 8),
                 _buildPriorityChip(Priority.high),
@@ -116,8 +116,8 @@ class TaskFilter extends StatelessWidget {
       selected: selectedPriority == priority.value,
       onSelected: (_) => onPriorityChanged(priority.value),
       backgroundColor: Colors.transparent,
-      shape: StadiumBorder(side: BorderSide(color: chipColor.withValues(opacity: 0.5))),
-      selectedColor: chipColor.withValues(opacity: 0.1),
+      shape: StadiumBorder(side: BorderSide(color: chipColor.withOpacity(0.5))),
+      selectedColor: chipColor.withOpacity(0.1),
     );
   }
 }

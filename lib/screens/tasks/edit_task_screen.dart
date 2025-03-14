@@ -195,9 +195,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                           );
                         });
                         
-
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(AppTexts.categoryAdded),
                             backgroundColor: AppColors.successColor,
