@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
@@ -5,8 +6,10 @@ import '../../models/task.dart';
 import '../../models/category.dart';
 import '../../services/task_service.dart';
 import '../../services/category_service.dart';
+import '../../services/reminder_service.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
+import '../../widgets/reminder_dialog.dart';
 import 'edit_task_screen.dart';
 
 class ActiveTasksScreen extends StatefulWidget {
@@ -21,17 +24,28 @@ class ActiveTasksScreen extends StatefulWidget {
 class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
   final TaskService _taskService = TaskService();
   final CategoryService _categoryService = CategoryService();
+  final ReminderService _reminderService = ReminderService();
 
   List<Task> _tasks = [];
   List<Category> _categories = [];
   int? _selectedCategoryId;
   int? _selectedPriority;
   bool _isLoading = true;
+  StreamSubscription? _reminderSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    
+    // Listen for task reminders
+    _reminderSubscription = _reminderService.onTaskReminder.listen(_showReminderDialog);
+  }
+  
+  @override
+  void dispose() {
+    _reminderSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -57,6 +71,9 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
           _tasks = tasks;
           _isLoading = false;
         });
+        
+        // Update reminder service with current tasks
+        _reminderService.setTasks(tasks);
       }
     } catch (e) {
       if (mounted) {
@@ -71,6 +88,39 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
         );
       }
     }
+  }
+
+  // Show reminder dialog when a task is about to start
+  void _showReminderDialog(Task task) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ReminderDialog(
+          task: task,
+          onDismiss: () {
+            Navigator.pop(dialogContext);
+          },
+          onViewTask: () {
+            Navigator.pop(dialogContext);
+            _navigateToEditTask(task);
+          },
+        );
+      },
+    );
+  }
+
+  void _navigateToEditTask(Task task) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditTaskScreen(
+          userId: widget.userId,
+          task: task,
+          categories: _categories,
+        ),
+      ),
+    ).then((_) => _loadData());
   }
 
   Future<void> _toggleTaskCompletion(Task task) async {
@@ -111,6 +161,9 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
       if (!mounted) return;
 
       if (success) {
+        // Remove task from reminder service
+        _reminderService.removeTaskById(task.id!);
+        
         _loadData();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -304,16 +357,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
                                 onToggleCompletion: () =>
                                     _toggleTaskCompletion(task),
                                 onEdit: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => EditTaskScreen(
-                                        userId: widget.userId,
-                                        task: task,
-                                        categories: _categories,
-                                      ),
-                                    ),
-                                  ).then((_) => _loadData());
+                                  _navigateToEditTask(task);
                                 },
                                 onDelete: () => _showDeleteConfirmation(
                                   context,
