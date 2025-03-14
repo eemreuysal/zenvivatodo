@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         AppTexts.registerButtonText,
                         style: TextStyle(
                           color: AppColors.primaryColor,

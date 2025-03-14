@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'database_helper.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
@@ -15,7 +16,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      print('Error registering user: $e');
+      debugPrint('Error registering user: $e');
       return false;
     }
   }
@@ -29,7 +30,7 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print('Error logging in: $e');
+      debugPrint('Error logging in: $e');
       return null;
     }
   }
@@ -59,7 +60,7 @@ class AuthService {
       int result = await _databaseHelper.updateUser(user);
       return result > 0;
     } catch (e) {
-      print('Error updating user profile: $e');
+      debugPrint('Error updating user profile: $e');
       return false;
     }
   }
@@ -70,7 +71,7 @@ class AuthService {
       int result = await _databaseHelper.deleteUser(userId);
       return result > 0;
     } catch (e) {
-      print('Error deleting user account: $e');
+      debugPrint('Error deleting user account: $e');
       return false;
     }
   }

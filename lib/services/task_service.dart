@@ -1,5 +1,6 @@
 import '../models/task.dart';
 import 'database_helper.dart';
+import 'package:flutter/foundation.dart';
 
 class TaskService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
@@ -9,7 +10,7 @@ class TaskService {
       int taskId = await _databaseHelper.insertTask(task);
       return taskId > 0;
     } catch (e) {
-      print('Error adding task: $e');
+      debugPrint('Error adding task: $e');
       return false;
     }
   }
@@ -18,7 +19,7 @@ class TaskService {
     try {
       return await _databaseHelper.getTasks(userId, date: date);
     } catch (e) {
-      print('Error getting tasks by date: $e');
+      debugPrint('Error getting tasks by date: $e');
       return [];
     }
   }
@@ -27,7 +28,7 @@ class TaskService {
     try {
       return await _databaseHelper.getTasks(userId, isCompleted: false);
     } catch (e) {
-      print('Error getting active tasks: $e');
+      debugPrint('Error getting active tasks: $e');
       return [];
     }
   }
@@ -36,7 +37,7 @@ class TaskService {
     try {
       return await _databaseHelper.getTasks(userId, isCompleted: true);
     } catch (e) {
-      print('Error getting completed tasks: $e');
+      debugPrint('Error getting completed tasks: $e');
       return [];
     }
   }
@@ -57,7 +58,7 @@ class TaskService {
         priority: priority,
       );
     } catch (e) {
-      print('Error getting filtered tasks: $e');
+      debugPrint('Error getting filtered tasks: $e');
       return [];
     }
   }
@@ -67,7 +68,7 @@ class TaskService {
       int result = await _databaseHelper.updateTask(task);
       return result > 0;
     } catch (e) {
-      print('Error updating task: $e');
+      debugPrint('Error updating task: $e');
       return false;
     }
   }
@@ -80,7 +81,7 @@ class TaskService {
       );
       return result > 0;
     } catch (e) {
-      print('Error toggling task completion: $e');
+      debugPrint('Error toggling task completion: $e');
       return false;
     }
   }
@@ -90,7 +91,7 @@ class TaskService {
       int result = await _databaseHelper.deleteTask(taskId);
       return result > 0;
     } catch (e) {
-      print('Error deleting task: $e');
+      debugPrint('Error deleting task: $e');
       return false;
     }
   }

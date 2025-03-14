@@ -49,7 +49,7 @@ class DatePickerWidget extends StatelessWidget {
           border: Border.all(
             color:
                 theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
-                Colors.grey.withOpacity(0.3),
+                Colors.grey.withAlpha(76),
           ),
           borderRadius: BorderRadius.circular(8),
           color: theme.inputDecorationTheme.fillColor,

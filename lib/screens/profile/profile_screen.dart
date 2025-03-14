@@ -65,19 +65,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Kullanıcı bilgileri yüklenirken bir hata oluştu: $e',
-            ),
-            backgroundColor: Colors.red,
+      if (!mounted) return;
+      final currentContext = context;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(currentContext).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Kullanıcı bilgileri yüklenirken bir hata oluştu: $e',
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -98,9 +98,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final success = await _authService.updateUserProfile(updatedUser);
 
         if (!mounted) return;
+        final currentContext = context;
 
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(currentContext).showSnackBar(
             const SnackBar(
               content: Text(AppTexts.profileUpdated),
               backgroundColor: AppColors.successColor,
@@ -114,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {
             _isUpdating = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(currentContext).showSnackBar(
             const SnackBar(
               content: Text('Profil güncellenirken bir hata oluştu.'),
               backgroundColor: Colors.red,
@@ -123,10 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       } catch (e) {
         if (!mounted) return;
+        final currentContext = context;
         setState(() {
           _isUpdating = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(currentContext).showSnackBar(
           SnackBar(
             content: Text('Profil güncellenirken bir hata oluştu: $e'),
             backgroundColor: Colors.red,
@@ -159,20 +161,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   if (!mounted) return;
 
+                  final currentContext = context;
+
                   if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(currentContext).showSnackBar(
                       const SnackBar(
                         content: Text(AppTexts.accountDeleted),
                         backgroundColor: AppColors.successColor,
                       ),
                     );
                     // Navigate to login screen
-                    Navigator.of(context).pushAndRemoveUntil(
+                    Navigator.of(currentContext).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const LoginScreen()),
                       (route) => false,
                     );
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(currentContext).showSnackBar(
                       const SnackBar(
                         content: Text('Hesap silinirken bir hata oluştu.'),
                         backgroundColor: Colors.red,
@@ -182,7 +186,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 } catch (e) {
                   if (!mounted) return;
 
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  final currentContext = context;
+                  ScaffoldMessenger.of(currentContext).showSnackBar(
                     SnackBar(
                       content: Text('Hesap silinirken bir hata oluştu: $e'),
                       backgroundColor: Colors.red,
@@ -207,20 +212,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (!mounted) return;
 
+      final currentContext = context;
+
       // Navigate to login screen
-      Navigator.of(context).pushAndRemoveUntil(
+      Navigator.of(currentContext).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Çıkış yapılırken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      final currentContext = context;
+      ScaffoldMessenger.of(currentContext).showSnackBar(
+        SnackBar(
+          content: Text('Çıkış yapılırken bir hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
