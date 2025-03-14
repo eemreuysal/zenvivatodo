@@ -4,7 +4,6 @@ import '../../constants/app_texts.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 import '../dashboard/dashboard_screen.dart';
-import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -36,11 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
       
       // Quick fix: Just navigate to dashboard with a fixed user ID
       Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => DashboardScreen(userId: 1), // Fixed user ID
-          ),
-        );
+        if (mounted) { // mounted kontrolü eklendi
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const DashboardScreen(userId: 1), // const eklendi
+            ),
+          );
+        }
       });
     }
   }
