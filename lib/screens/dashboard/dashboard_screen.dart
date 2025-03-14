@@ -112,6 +112,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         },
       );
 
+      if (!mounted) return;
+
       if (picked != null && picked != _selectedDate) {
         setState(() {
           _selectedDate = picked;
@@ -119,6 +121,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadData();
       }
     } catch (e) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Tarih seçilirken bir hata oluştu: $e'),
@@ -552,8 +556,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           (c) => c.id == task.categoryId,
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
-                                            color: const Color(0xFF9E9E9E)
-                                                .value,
+                                            color: const Color(0xFF9E9E9E),
                                           ),
                                         )
                                       : null;
@@ -621,8 +624,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           (c) => c.id == task.categoryId,
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
-                                            color: const Color(0xFF9E9E9E)
-                                                .value,
+                                            color: const Color(0xFF9E9E9E),
                                           ),
                                         )
                                       : null;
