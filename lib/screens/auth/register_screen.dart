@@ -99,8 +99,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text(
                     AppTexts.createAccount,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -175,15 +175,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       _isLoading
                           ? const CircularProgressIndicator()
                           : CustomButton(
-                            text: AppTexts.registerButtonText,
-                            onPressed: _register,
-                          ),
+                              text: AppTexts.registerButtonText,
+                              onPressed: _register,
+                            ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Login link
-                const Row(
+                // Login link - const kaldırıldı çünkü Theme.of(context) runtime'da hesaplanır
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
@@ -196,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       child: Text(
                         AppTexts.loginButtonText,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                         ),

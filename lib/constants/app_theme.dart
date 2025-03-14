@@ -21,18 +21,26 @@ class AppTheme {
     cardTheme: CardTheme(
       color: AppColors.lightCardColor,
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         minimumSize: const Size(double.infinity, 50),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: const TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all<Color>(
+          AppColors.primaryColor,
+        ),
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -51,9 +59,14 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primaryColor),
+        borderSide: BorderSide(
+          color: AppColors.primaryColor,
+        ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: AppColors.lightTextColor),
@@ -93,18 +106,26 @@ class AppTheme {
     cardTheme: CardTheme(
       color: AppColors.darkCardColor,
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryColor,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
         minimumSize: const Size(double.infinity, 50),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: const TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all<Color>(
+          AppColors.primaryColor,
+        ),
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -123,9 +144,14 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primaryColor),
+        borderSide: BorderSide(
+          color: AppColors.primaryColor,
+        ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: AppColors.darkTextColor),
