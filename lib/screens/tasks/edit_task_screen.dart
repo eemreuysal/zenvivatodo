@@ -64,13 +64,13 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (widget.task.categoryId != null) {
       _selectedCategory = _categories.firstWhere(
         (c) => c.id == widget.task.categoryId,
-        orElse: () => _categories.isNotEmpty ? _categories.first : null,
+        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value),
       );
     } else {
-      _selectedCategory = _categories.isNotEmpty ? _categories.first : null;
+      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value);
     }
 
-    _selectedPriority = Priority.fromValue(widget.task.priority);
+    _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
   }
 
   @override
@@ -92,10 +92,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
           date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-          time:
-              _selectedTime != null
-                  ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                  : null,
+          time: _selectedTime != null
+              ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+              : null,
           isCompleted: widget.task.isCompleted,
           categoryId: _selectedCategory?.id,
           priority: _selectedPriority.value,
@@ -173,7 +172,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.value,
+                    color: selectedColor.hashCode,
                     userId: widget.userId,
                   );
 
@@ -184,8 +183,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                     if (success) {
                       // Reload categories
-                      final updatedCategories = await _categoryService
-                          .getCategories(widget.userId);
+                      final updatedCategories =
+                          await _categoryService.getCategories(widget.userId);
 
                       if (mounted) {
                         setState(() {
@@ -195,8 +194,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                             orElse: () => _categories.first,
                           );
                         });
+                        
 
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(AppTexts.categoryAdded),
                             backgroundColor: AppColors.successColor,
@@ -349,13 +350,9 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color:
-                          theme
-                              .inputDecorationTheme
-                              .enabledBorder
-                              ?.borderSide
-                              .color ??
-                          Colors.grey.withOpacity(0.3),
+                      color: theme.inputDecorationTheme.enabledBorder
+                              ?.borderSide.color ??
+                          Colors.grey.withAlpha(76),
                     ),
                     borderRadius: BorderRadius.circular(8),
                     color: theme.inputDecorationTheme.fillColor,
@@ -364,26 +361,25 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     child: DropdownButton<Category>(
                       isExpanded: true,
                       value: _selectedCategory,
-                      items:
-                          _categories.map((category) {
-                            return DropdownMenuItem<Category>(
-                              value: category,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Color(category.color),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(category.name),
-                                ],
+                      items: _categories.map((category) {
+                        return DropdownMenuItem<Category>(
+                          value: category,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Color(category.color),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            );
-                          }).toList(),
+                              const SizedBox(width: 8),
+                              Text(category.name),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                       onChanged: (category) {
                         setState(() {
                           _selectedCategory = category;
