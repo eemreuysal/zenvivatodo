@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -10,41 +10,43 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   final BehaviorSubject<String?> onNotificationClick = BehaviorSubject();
-
+  
   NotificationService._internal();
 
   Future<void> initNotification() async {
     // Time zone setup
     await _configureLocalTimeZone();
     
-    // Android initialization
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // iOS initialization
-    final IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+    // Initialize Awesome Notifications
+    await AwesomeNotifications().initialize(
+      // null means using the default app icon
+      'resource://drawable/ic_launcher',
+      [
+        NotificationChannel(
+          channelKey: 'task_reminder_channel',
+          channelName: 'Görev Hatırlatıcıları',
+          channelDescription: 'Görev zamanından 5 dakika önce hatırlatma',
+          defaultColor: Colors.blue,
+          ledColor: Colors.blue,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          locked: false,
+          enableVibration: true,
+        )
+      ],
     );
 
-    // Initialization settings
-    final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    // Listen to notification actions
+    AwesomeNotifications().actionStream.listen((receivedNotification) {
+      if (receivedNotification.payload != null && 
+          receivedNotification.payload!.containsKey('taskId')) {
+        onNotificationClick.add(receivedNotification.payload!['taskId']);
+      }
+    });
 
-    // Initialize
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onSelectNotification: selectNotification,
-    );
+    // Request permission
+    await requestPermissions();
   }
 
   Future<void> _configureLocalTimeZone() async {
@@ -53,23 +55,30 @@ class NotificationService {
     tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
-  Future<void> showNotification(
-      {required int id,
-      required String title,
-      required String body,
-      required String payload}) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('channel_id', 'ZenViva Bildirimler',
-            channelDescription: 'Görev hatırlatıcıları için bildirim kanalı',
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
+  Future<void> requestPermissions() async {
+    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
+  }
 
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
-
-    await flutterLocalNotificationsPlugin
-        .show(id, title, body, notificationDetails, payload: payload);
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    required String taskId,
+  }) async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
+        channelKey: 'task_reminder_channel',
+        title: title,
+        body: body,
+        notificationLayout: NotificationLayout.Default,
+        payload: {'taskId': taskId},
+      ),
+    );
   }
 
   // Schedule notification 5 minutes before task time
@@ -78,32 +87,23 @@ class NotificationService {
     required String title,
     required String body,
     required DateTime scheduledDate,
-    String? payload,
+    required String taskId,
   }) async {
     // Subtract 5 minutes from the task time
     final DateTime notificationTime = scheduledDate.subtract(const Duration(minutes: 5));
     
     // Only schedule if it's in the future
     if (notificationTime.isAfter(DateTime.now())) {
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(notificationTime, tz.local),
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'task_reminder_channel',
-            'Görev Hatırlatıcıları',
-            channelDescription: 'Görev zamanından 5 dakika önce hatırlatma',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-          iOS: IOSNotificationDetails(),
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: 'task_reminder_channel',
+          title: title,
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+          payload: {'taskId': taskId},
         ),
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
+        schedule: NotificationCalendar.fromDate(date: notificationTime),
       );
     }
   }
@@ -131,7 +131,7 @@ class NotificationService {
             title: 'Görev Hatırlatıcısı: ${task.title}',
             body: 'Göreviniz 5 dakika içinde başlayacak!',
             scheduledDate: taskDateTime,
-            payload: task.id.toString(),
+            taskId: task.id.toString(),
           );
         }
       } catch (e) {
@@ -142,34 +142,17 @@ class NotificationService {
 
   // Cancel a notification
   Future<void> cancelNotification(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
+    await AwesomeNotifications().cancel(id);
   }
 
   // Cancel all notifications
   Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
+    await AwesomeNotifications().cancelAll();
   }
 
-  Future selectNotification(String? payload) async {
-    if (payload != null && payload.isNotEmpty) {
-      onNotificationClick.add(payload);
-    }
-  }
-
-  void onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) {
-    debugPrint('Notification received: $id - $title');
-  }
-
-  // Request notification permissions
-  Future<void> requestIOSPermissions() async {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+  // Dispose
+  void dispose() {
+    AwesomeNotifications().actionSink.close();
+    AwesomeNotifications().createdSink.close();
   }
 }
