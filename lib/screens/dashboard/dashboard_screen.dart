@@ -114,18 +114,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return Theme(
             data: Theme.of(context).copyWith(
               colorScheme: isDark
-                  ? ColorScheme.dark(
+                  ? const ColorScheme.dark(
                       primary: AppColors.primaryColor,
                       onPrimary: Colors.white,
                       surface: AppColors.darkCardColor,
                       onSurface: AppColors.darkTextColor,
                     )
-                  : ColorScheme.light(
+                  : const ColorScheme.light(
                       primary: AppColors.primaryColor,
                       onPrimary: Colors.white,
                       onSurface: AppColors.lightTextColor,
                     ),
-              dialogBackgroundColor: isDark ? AppColors.darkBackground : Colors.white,
+              dialogTheme: DialogTheme(
+                backgroundColor: isDark ? AppColors.darkBackground : Colors.white,
+              ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
                   foregroundColor: isDark ? Colors.white : AppColors.primaryColor,
