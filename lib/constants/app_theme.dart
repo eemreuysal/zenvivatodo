@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import './app_colors.dart';
 
 class AppTheme {
   // Light theme text styles
@@ -56,52 +56,54 @@ class AppTheme {
       foregroundColor: Colors.white,
       elevation: 0,
     ),
-    cardTheme: CardTheme(
+    cardTheme: const CardTheme(
       color: AppColors.lightCardColor,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        minimumSize: const Size(double.infinity, 50),
-      ),
-    ),
-    textButtonTheme: TextButtonThemeData(
+    elevatedButtonTheme: const ElevatedButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all<Color>(
-          AppColors.primaryColor,
+        backgroundColor: WidgetStatePropertyAll(AppColors.primaryColor),
+        foregroundColor: WidgetStatePropertyAll(Colors.white),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
         ),
+        minimumSize: WidgetStatePropertyAll(Size(double.infinity, 50)),
       ),
     ),
-    inputDecorationTheme: InputDecorationTheme(
+    textButtonTheme: const TextButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(AppColors.primaryColor),
+      ),
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
-          color: AppColors.lightSecondaryTextColor.withAlpha(76),
+          color: Color(
+              0xBFBDBDBD), // AppColors.lightSecondaryTextColor with alpha 76
         ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
-          color: AppColors.lightSecondaryTextColor.withAlpha(76),
+          color: Color(
+              0xBFBDBDBD), // AppColors.lightSecondaryTextColor with alpha 76
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
           color: AppColors.primaryColor,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(
+      contentPadding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
@@ -125,52 +127,54 @@ class AppTheme {
       foregroundColor: AppColors.darkTextColor,
       elevation: 0,
     ),
-    cardTheme: CardTheme(
+    cardTheme: const CardTheme(
       color: AppColors.darkCardColor,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryColor,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        minimumSize: const Size(double.infinity, 50),
-      ),
-    ),
-    textButtonTheme: TextButtonThemeData(
+    elevatedButtonTheme: const ElevatedButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all<Color>(
-          AppColors.primaryColor,
+        backgroundColor: WidgetStatePropertyAll(AppColors.primaryColor),
+        foregroundColor: WidgetStatePropertyAll(Colors.white),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
         ),
+        minimumSize: WidgetStatePropertyAll(Size(double.infinity, 50)),
       ),
     ),
-    inputDecorationTheme: InputDecorationTheme(
+    textButtonTheme: const TextButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll(AppColors.primaryColor),
+      ),
+    ),
+    inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: AppColors.darkCardColor,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
-          color: AppColors.darkSecondaryTextColor.withAlpha(76),
+          color: Color(
+              0xBF9E9E9E), // AppColors.darkSecondaryTextColor with alpha 76
         ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
-          color: AppColors.darkSecondaryTextColor.withAlpha(76),
+          color: Color(
+              0xBF9E9E9E), // AppColors.darkSecondaryTextColor with alpha 76
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.all(Radius.circular(8)),
         borderSide: BorderSide(
           color: AppColors.primaryColor,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(
+      contentPadding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
