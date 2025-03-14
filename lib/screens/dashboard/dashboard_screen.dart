@@ -90,6 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final contextCopy = context;
     try {
       final DateTime? picked = await showDatePicker(
         context: context,
@@ -121,14 +122,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadData();
       }
     } catch (e) {
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Tarih seçilirken bir hata oluştu: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(contextCopy).showSnackBar(
+          SnackBar(
+            content: Text('Tarih seçilirken bir hata oluştu: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -556,7 +557,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           (c) => c.id == task.categoryId,
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
-                                            color: const Color(0xFF9E9E9E),
+                                            color: 0xFF9E9E9E,
                                           ),
                                         )
                                       : null;
@@ -624,7 +625,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           (c) => c.id == task.categoryId,
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
-                                            color: const Color(0xFF9E9E9E),
+                                            color: 0xFF9E9E9E,
                                           ),
                                         )
                                       : null;
