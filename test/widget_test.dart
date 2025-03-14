@@ -8,17 +8,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-// Uygulama ana dosyasını import etmek için yorum satırı kaldırılabilir
-// import 'package:zenviva/main.dart';
+// Ana uygulama dosyasını import ediyoruz
+import 'package:zenvivatodo/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    // Test henüz uygulanmadı
-    // await tester.pumpWidget(const MyApp());
-    await tester.pumpWidget(const MaterialApp());
+  testWidgets('Başlangıç testi', (WidgetTester tester) async {
+    // Uygulamayı çalıştır ve bir kare işlensin
+    await tester.pumpWidget(const MyApp());
 
-    // Test henüz uygulanmadı
-    // İlk test taslağı
+    // Uygulama başlığını kontrol et
+    expect(find.text('Zenviva'), findsOneWidget);
   });
 }
