@@ -30,6 +30,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final TaskService _taskService = TaskService();
   final CategoryService _categoryService = CategoryService();
+  // Global key for SnackBar
+  final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
   DateTime _selectedDate = DateTime.now();
   List<Task> _activeTasks = [];
@@ -44,6 +46,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     initializeDateFormatting('tr_TR');
     _loadData();
+  }
+
+  // Helper method to show snackbar safely
+  void _showSnackBar(String message, {Color backgroundColor = Colors.red}) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: backgroundColor,
+        ),
+      );
+    }
   }
 
   Future<void> _loadData() async {
@@ -79,18 +93,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Veriler yüklenirken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Veriler yüklenirken bir hata oluştu: $e');
       }
     }
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final contextCopy = context;
     try {
       final DateTime? picked = await showDatePicker(
         context: context,
@@ -122,13 +130,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadData();
       }
     } catch (e) {
+      // Using our safe method to show SnackBar
       if (mounted) {
-        ScaffoldMessenger.of(contextCopy).showSnackBar(
-          SnackBar(
-            content: Text('Tarih seçilirken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Tarih seçilirken bir hata oluştu: $e');
       }
     }
   }
@@ -151,22 +155,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadData();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Görev durumu güncellenirken bir hata oluştu.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showSnackBar('Görev durumu güncellenirken bir hata oluştu.');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Görev durumu güncellenirken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Görev durumu güncellenirken bir hata oluştu: $e');
       }
     }
   }
@@ -329,31 +323,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (success) {
         _loadData();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppTexts.taskDeleted),
-              backgroundColor: AppColors.successColor,
-            ),
-          );
+          _showSnackBar(AppTexts.taskDeleted, backgroundColor: AppColors.successColor);
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Görev silinirken bir hata oluştu.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _showSnackBar('Görev silinirken bir hata oluştu.');
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Görev silinirken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Görev silinirken bir hata oluştu: $e');
       }
     }
   }
@@ -391,6 +370,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      key: _scaffoldKey,
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
