@@ -65,25 +65,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     
-    // Listen to notification clicks
-    _listenToNotificationStream();
-  }
-  
-  void _listenToNotificationStream() {
-    _notificationService.onNotificationClick.stream.listen((String? payload) {
-      if (payload != null && payload.isNotEmpty) {
-        // Handle notification click - opens specific task
-        debugPrint('Notification payload: $payload');
-        // You can navigate to a specific screen using this payload
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => SpecificTaskScreen(taskId: int.parse(payload))));
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    AwesomeNotifications().dispose();
-    super.dispose();
+    // For notification handling, we now use static methods in notification_service.dart
+    // The actual navigation will need to be implemented within those static methods
+    // or using a navigation service that can be accessed from static methods
   }
 
   @override
