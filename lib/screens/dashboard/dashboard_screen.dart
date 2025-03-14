@@ -100,20 +100,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _selectDate(BuildContext context) async {
     try {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      
       final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: _selectedDate,
         firstDate: DateTime(2020),
         lastDate: DateTime(2030),
-        // Locale kaldırıldı veya düzeltildi
         builder: (context, child) {
           if (child == null) return Container();
+          
+          // Theme colors based on current brightness
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: AppColors.primaryColor,
-                onPrimary: Colors.white,
-                onSurface: Theme.of(context).colorScheme.onSurface,
+              colorScheme: isDark
+                  ? ColorScheme.dark(
+                      primary: AppColors.primaryColor,
+                      onPrimary: Colors.white,
+                      surface: AppColors.darkCardColor,
+                      onSurface: AppColors.darkTextColor,
+                    )
+                  : ColorScheme.light(
+                      primary: AppColors.primaryColor,
+                      onPrimary: Colors.white,
+                      onSurface: AppColors.lightTextColor,
+                    ),
+              dialogBackgroundColor: isDark ? AppColors.darkBackground : Colors.white,
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: isDark ? Colors.white : AppColors.primaryColor,
+                ),
               ),
             ),
             child: child,
