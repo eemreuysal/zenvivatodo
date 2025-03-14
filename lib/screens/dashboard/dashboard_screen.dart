@@ -404,14 +404,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Text(
                               'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
                               style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
+                                  color: Colors.white70, fontSize: 14),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            // Aşağıdaki Text widget’ı sabit içerik kullandığı için const ile tanımlandı
+                            const Text(
                               AppTexts.taskBoard,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -451,10 +450,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         GestureDetector(
                           onTap: () => _selectDate(context),
                           child: Text(
-                            DateFormat(
-                              'd MMMM yyyy',
-                              'tr_TR',
-                            ).format(_selectedDate),
+                            DateFormat('d MMMM yyyy', 'tr_TR')
+                                .format(_selectedDate),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -529,8 +526,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         _activeTasks.isEmpty
-                            ? // ignore: prefer_const_constructors
-                            Center(
+                            ? Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
@@ -541,7 +537,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               )
                             : Column(
                                 children: _activeTasks.map((task) {
-                                  // Find the category for this task
                                   final category = task.categoryId != null
                                       ? _categories.firstWhere(
                                           (c) => c.id == task.categoryId,
@@ -570,10 +565,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ).then((_) => _loadData());
                                     },
-                                    onDelete: () => _showDeleteConfirmation(
-                                      context,
-                                      task,
-                                    ),
+                                    onDelete: () =>
+                                        _showDeleteConfirmation(context, task),
                                   );
                                 }).toList(),
                               ),
@@ -602,8 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         _completedTasks.isEmpty
-                            ? // ignore: prefer_const_constructors
-                            Center(
+                            ? Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
@@ -614,7 +606,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               )
                             : Column(
                                 children: _completedTasks.map((task) {
-                                  // Find the category for this task
                                   final category = task.categoryId != null
                                       ? _categories.firstWhere(
                                           (c) => c.id == task.categoryId,
@@ -643,10 +634,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ).then((_) => _loadData());
                                     },
-                                    onDelete: () => _showDeleteConfirmation(
-                                      context,
-                                      task,
-                                    ),
+                                    onDelete: () =>
+                                        _showDeleteConfirmation(context, task),
                                   );
                                 }).toList(),
                               ),

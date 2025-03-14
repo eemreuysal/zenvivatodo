@@ -35,43 +35,38 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     try {
       final categories = await _categoryService.getCategories(widget.userId);
-
-      if (mounted) {
-        setState(() {
-          _categories = categories;
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _categories = categories;
+        _isLoading = false;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Kategoriler yüklenirken bir hata oluştu: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Kategoriler yüklenirken bir hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   Future<void> _deleteCategory(int categoryId) async {
     try {
-      // First check if there are any tasks with this category
+      // İlk önce bu kategoriye ait görevleri kontrol et
       final tasks = await _taskService.getFilteredTasks(
         widget.userId,
         categoryId: categoryId,
       );
-
+      if (!mounted) return;
       if (tasks.isNotEmpty) {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              'Bu kategoriye ait görevler bulunduğu için silinemez.',
-            ),
+            content:
+                Text('Bu kategoriye ait görevler bulunduğu için silinemez.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -79,11 +74,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       }
 
       final success = await _categoryService.deleteCategory(categoryId);
-
       if (!mounted) return;
 
       if (success) {
-        _loadCategories();
+        await _loadCategories();
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(AppTexts.categoryDeleted),
@@ -112,7 +107,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   void _showDeleteConfirmation(BuildContext context, Category category) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Kategoriyi Sil'),
           content: Text(
@@ -120,12 +115,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(AppTexts.cancel),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 _deleteCategory(category.id!);
               },
               child: const Text(
@@ -142,7 +137,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   void _showAddCategoryDialog() {
     final TextEditingController categoryNameController =
         TextEditingController();
-    // Default color options
+    // Varsayılan renk seçenekleri
     final List<Color> colorOptions = [
       Colors.blue,
       Colors.green,
@@ -215,19 +210,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
                       final category = Category(
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.value,
+                        color: selectedColor.toARGB32(),
                         userId: widget.userId,
                       );
 
                       try {
-                        final success = await _categoryService.addCategory(
-                          category,
-                        );
-
+                        final success =
+                            await _categoryService.addCategory(category);
                         if (!mounted) return;
-
                         if (success) {
-                          _loadCategories();
+                          await _loadCategories();
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(AppTexts.categoryAdded),
@@ -235,11 +228,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         } else {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Kategori eklenirken bir hata oluştu.',
-                              ),
+                              content:
+                                  Text('Kategori eklenirken bir hata oluştu.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -248,9 +241,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              'Kategori eklenirken bir hata oluştu: $e',
-                            ),
+                            content:
+                                Text('Kategori eklenirken bir hata oluştu: $e'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -268,10 +260,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   void _showEditCategoryDialog(Category category) {
-    final TextEditingController categoryNameController = TextEditingController(
-      text: category.name,
-    );
-    // Default color options
+    final TextEditingController categoryNameController =
+        TextEditingController(text: category.name);
+    // Varsayılan renk seçenekleri
     final List<Color> colorOptions = [
       Colors.blue,
       Colors.green,
@@ -319,7 +310,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           decoration: BoxDecoration(
                             color: color,
                             shape: BoxShape.circle,
-                            border: selectedColor.value == color.value
+                            border: selectedColor.toARGB32() == color.toARGB32()
                                 ? Border.all(
                                     color: Colors.black,
                                     width: 2,
@@ -345,19 +336,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       final updatedCategory = Category(
                         id: category.id,
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.value,
+                        color: selectedColor.toARGB32(),
                         userId: category.userId,
                       );
 
                       try {
-                        final success = await _categoryService.updateCategory(
-                          updatedCategory,
-                        );
-
+                        final success = await _categoryService
+                            .updateCategory(updatedCategory);
                         if (!mounted) return;
-
                         if (success) {
-                          _loadCategories();
+                          await _loadCategories();
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(AppTexts.categoryUpdated),
@@ -365,11 +354,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         } else {
+                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                'Kategori güncellenirken bir hata oluştu.',
-                              ),
+                                  'Kategori güncellenirken bir hata oluştu.'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -379,8 +368,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Kategori güncellenirken bir hata oluştu: $e',
-                            ),
+                                'Kategori güncellenirken bir hata oluştu: $e'),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -435,8 +423,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     itemCount: _categories.length,
                     itemBuilder: (context, index) {
                       final category = _categories[index];
-
-                      // Check if it's a default category (userId is null)
+                      // Varsayılan kategori kontrolü (userId null ise)
                       final bool isDefaultCategory = category.userId == null;
 
                       return Card(
@@ -475,9 +462,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     IconButton(
                                       icon: const Icon(Icons.delete_outline),
                                       onPressed: () => _showDeleteConfirmation(
-                                        context,
-                                        category,
-                                      ),
+                                          context, category),
                                     ),
                                   ],
                                 ),
