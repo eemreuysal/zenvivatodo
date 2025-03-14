@@ -6,8 +6,10 @@ import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../models/task.dart';
 import '../../models/category.dart';
+import '../../models/user.dart';
 import '../../services/task_service.dart';
 import '../../services/category_service.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
 import '../tasks/add_task_screen.dart';
@@ -30,6 +32,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final TaskService _taskService = TaskService();
   final CategoryService _categoryService = CategoryService();
+  final AuthService _authService = AuthService();
   // Global key for SnackBar
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -37,6 +40,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Task> _activeTasks = [];
   List<Task> _completedTasks = [];
   List<Category> _categories = [];
+  User? _currentUser;
   int? _selectedCategoryId;
   int? _selectedPriority;
   bool _isLoading = true;
@@ -46,6 +50,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     initializeDateFormatting('tr_TR');
     _loadData();
+    _loadUserInfo();
+  }
+  
+  Future<void> _loadUserInfo() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      if (mounted && user != null) {
+        setState(() {
+          _currentUser = user;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user info: $e');
+    }
   }
 
   // Helper method to show snackbar safely
@@ -304,7 +322,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     MaterialPageRoute(
                       builder: (_) => ProfileScreen(userId: widget.userId),
                     ),
-                  ).then((_) => _loadData());
+                  ).then((_) {
+                    _loadData();
+                    _loadUserInfo();
+                  });
                 },
               ),
               Consumer<ThemeProvider>(
@@ -383,6 +404,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // Get user's first initial, or fallback to user ID if no username available
+  String get _userInitial {
+    if (_currentUser?.username.isNotEmpty == true) {
+      return _currentUser!.username[0].toUpperCase();
+    }
+    return widget.userId.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -403,7 +432,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         CircleAvatar(
                           backgroundColor: Colors.white24,
                           child: Text(
-                            widget.userId.toString(),
+                            _userInitial,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
