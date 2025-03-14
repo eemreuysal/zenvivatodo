@@ -67,8 +67,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
-    // Clean up reminder service when app is closed
+    // Clean up services when app is closed
     ReminderService().dispose();
+    NotificationService().dispose();
     super.dispose();
   }
 
