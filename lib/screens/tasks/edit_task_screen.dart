@@ -64,10 +64,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (widget.task.categoryId != null) {
       _selectedCategory = _categories.firstWhere(
         (c) => c.id == widget.task.categoryId,
-        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Color(Colors.grey.toARGB32())),
+        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value),
       );
     } else {
-      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Color(Colors.grey.toARGB32()));
+      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value);
     }
 
     _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
@@ -172,7 +172,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.hashCode,
+                    color: selectedColor.value,
                     userId: widget.userId,
                   );
 
@@ -205,7 +205,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       }
                     } else {
                       if (mounted) {
-                        if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -218,7 +217,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     }
                   } catch (e) {
                     if (mounted) {
-                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(

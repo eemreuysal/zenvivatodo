@@ -32,7 +32,7 @@ class AppTheme {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+      style: const TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -104,7 +104,7 @@ class AppTheme {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+      style: const TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
