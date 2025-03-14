@@ -1,13 +1,22 @@
 import '../models/task.dart';
 import 'database_helper.dart';
+import 'notification_service.dart';
 import 'package:flutter/foundation.dart';
 
 class TaskService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final NotificationService _notificationService = NotificationService();
 
   Future<bool> addTask(Task task) async {
     try {
       int taskId = await _databaseHelper.insertTask(task);
+      
+      // Create notification for the task if it has time set
+      if (taskId > 0 && task.time != null && task.time!.isNotEmpty) {
+        task.id = taskId; // Update task with the generated ID
+        await _notificationService.scheduleTaskNotification(task);
+      }
+      
       return taskId > 0;
     } catch (e) {
       debugPrint('Error adding task: $e');
@@ -66,6 +75,19 @@ class TaskService {
   Future<bool> updateTask(Task task) async {
     try {
       int result = await _databaseHelper.updateTask(task);
+      
+      if (result > 0) {
+        // Cancel existing notification
+        if (task.id != null) {
+          await _notificationService.cancelNotification(task.id!);
+        }
+        
+        // Schedule new notification if the task has time
+        if (task.time != null && task.time!.isNotEmpty && !task.isCompleted) {
+          await _notificationService.scheduleTaskNotification(task);
+        }
+      }
+      
       return result > 0;
     } catch (e) {
       debugPrint('Error updating task: $e');
@@ -79,6 +101,30 @@ class TaskService {
         taskId,
         isCompleted,
       );
+      
+      // If the task is marked as completed, cancel its notification
+      if (result > 0 && isCompleted) {
+        await _notificationService.cancelNotification(taskId);
+      }
+      // If task is uncompleted and has time, reschedule notification
+      else if (result > 0 && !isCompleted) {
+        // Get the task to check if it has time
+        List<Map<String, dynamic>> maps = await _databaseHelper.database.then(
+          (db) => db.query(
+            'tasks',
+            where: 'id = ?',
+            whereArgs: [taskId],
+          ),
+        );
+        
+        if (maps.isNotEmpty) {
+          Task task = Task.fromMap(maps.first);
+          if (task.time != null && task.time!.isNotEmpty) {
+            await _notificationService.scheduleTaskNotification(task);
+          }
+        }
+      }
+      
       return result > 0;
     } catch (e) {
       debugPrint('Error toggling task completion: $e');
@@ -88,6 +134,10 @@ class TaskService {
 
   Future<bool> deleteTask(int taskId) async {
     try {
+      // Cancel the notification first
+      await _notificationService.cancelNotification(taskId);
+      
+      // Then delete the task
       int result = await _databaseHelper.deleteTask(taskId);
       return result > 0;
     } catch (e) {
