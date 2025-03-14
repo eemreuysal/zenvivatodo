@@ -6,8 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'constants/app_theme.dart';
 import 'constants/app_texts.dart';
 import 'screens/splash_screen.dart';
-import 'services/reminder_service.dart';
-import 'services/notification_service.dart';
 
 // Global navigaor key to use for showing dialogs from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -17,12 +15,6 @@ void main() async {
   
   // Initialize date formatting for Turkish locale
   await initializeDateFormatting('tr_TR', null);
-
-  // Initialize notification service
-  await NotificationService().initNotification();
-  
-  // Initialize reminder service
-  ReminderService().initialize();
   
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,14 +57,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void dispose() {
-    // Clean up services when app is closed
-    ReminderService().dispose();
-    NotificationService().dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
