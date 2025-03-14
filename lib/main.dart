@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'constants/app_theme.dart';
 import 'constants/app_texts.dart';
 import 'screens/splash_screen.dart';
-import 'services/notification_service.dart';
+import 'services/reminder_service.dart';
+
+// Global navigaor key to use for showing dialogs from anywhere
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +17,8 @@ void main() async {
   // Initialize date formatting for Turkish locale
   await initializeDateFormatting('tr_TR', null);
 
-  // Initialize notification service
-  await NotificationService().initNotification();
+  // Initialize reminder service
+  ReminderService().initialize();
   
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -59,15 +61,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final NotificationService _notificationService = NotificationService();
-  
   @override
-  void initState() {
-    super.initState();
-    
-    // For notification handling, we now use static methods in notification_service.dart
-    // The actual navigation will need to be implemented within those static methods
-    // or using a navigation service that can be accessed from static methods
+  void dispose() {
+    // Clean up reminder service when app is closed
+    ReminderService().dispose();
+    super.dispose();
   }
 
   @override
@@ -78,6 +76,7 @@ class _MyAppState extends State<MyApp> {
           title: AppTexts.appName,
           theme: themeProvider.themeData,
           debugShowCheckedModeBanner: false,
+          navigatorKey: navigatorKey, // Use the global navigator key
           // Add localization support
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
