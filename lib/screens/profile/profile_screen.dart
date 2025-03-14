@@ -138,18 +138,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showDeleteAccountConfirmation() {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text(AppTexts.deleteAccount),
           content: const Text(AppTexts.deleteAccountConfirmation),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(AppTexts.cancel),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
 
                 try {
                   final success = await _authService.deleteUserAccount(
@@ -159,8 +159,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (!mounted) return;
 
                   if (success) {
-                    if (!mounted) return;
-                    
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(AppTexts.accountDeleted),
@@ -168,16 +166,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
 
-                    if (!mounted) return;
-                    
                     // Navigate to login screen
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const LoginScreen()),
                       (route) => false,
                     );
                   } else {
-                    if (!mounted) return;
-                    
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Hesap silinirken bir hata oluştu.'),
@@ -244,161 +238,160 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: SafeArea(
-        child:
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Profile information
-                      Center(
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 40,
-                              backgroundColor: AppColors.primaryColor,
-                              child: Text(
-                                _user!.username.substring(0, 1).toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _user!.username,
-                              style: theme.textTheme.headlineSmall?.copyWith(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Profile information
+                    Center(
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: AppColors.primaryColor,
+                            child: Text(
+                              _user!.username.substring(0, 1).toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 32,
+                                color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _user!.username,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _user!.email,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Theme toggle
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
                             Text(
-                              _user!.email,
-                              style: theme.textTheme.bodyLarge,
+                              'Tema Modu',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Switch(
+                              value: themeProvider.isDarkMode,
+                              onChanged: (_) => themeProvider.toggleTheme(),
+                              activeColor: AppColors.primaryColor,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                    ),
+                    const SizedBox(height: 16),
 
-                      // Theme toggle
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Edit profile form
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Tema Modu',
+                                'Profil Bilgileri',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Switch(
-                                value: themeProvider.isDarkMode,
-                                onChanged: (_) => themeProvider.toggleTheme(),
-                                activeColor: AppColors.primaryColor,
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _usernameController,
+                                labelText: AppTexts.username,
+                                prefixIcon: Icons.person_outline,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return AppTexts.requiredField;
+                                  }
+                                  return null;
+                                },
                               ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _emailController,
+                                labelText: AppTexts.email,
+                                prefixIcon: Icons.email_outlined,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return AppTexts.requiredField;
+                                  }
+                                  if (!RegExp(
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                  ).hasMatch(value)) {
+                                    return AppTexts.invalidEmail;
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextField(
+                                controller: _passwordController,
+                                labelText: AppTexts.password,
+                                prefixIcon: Icons.lock_outline,
+                                isPassword: true,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return AppTexts.requiredField;
+                                  }
+                                  if (value.length < 6) {
+                                    return AppTexts.passwordTooShort;
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              _isUpdating
+                                  ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : CustomButton(
+                                      text: 'Profili Güncelle',
+                                      onPressed: _updateProfile,
+                                    ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 32),
 
-                      // Edit profile form
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Profil Bilgileri',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                CustomTextField(
-                                  controller: _usernameController,
-                                  labelText: AppTexts.username,
-                                  prefixIcon: Icons.person_outline,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return AppTexts.requiredField;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                CustomTextField(
-                                  controller: _emailController,
-                                  labelText: AppTexts.email,
-                                  prefixIcon: Icons.email_outlined,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return AppTexts.requiredField;
-                                    }
-                                    if (!RegExp(
-                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                                    ).hasMatch(value)) {
-                                      return AppTexts.invalidEmail;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                CustomTextField(
-                                  controller: _passwordController,
-                                  labelText: AppTexts.password,
-                                  prefixIcon: Icons.lock_outline,
-                                  isPassword: true,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return AppTexts.requiredField;
-                                    }
-                                    if (value.length < 6) {
-                                      return AppTexts.passwordTooShort;
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 16),
-                                _isUpdating
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                    : CustomButton(
-                                      text: 'Profili Güncelle',
-                                      onPressed: _updateProfile,
-                                    ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Logout and delete account buttons
-                      CustomButton(
-                        text: AppTexts.logout,
-                        onPressed: _logout,
-                        backgroundColor: Colors.grey,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomButton(
-                        text: AppTexts.deleteAccount,
-                        onPressed: _showDeleteAccountConfirmation,
-                        backgroundColor: Colors.red,
-                      ),
-                    ],
-                  ),
+                    // Logout and delete account buttons
+                    CustomButton(
+                      text: AppTexts.logout,
+                      onPressed: _logout,
+                      backgroundColor: Colors.grey,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomButton(
+                      text: AppTexts.deleteAccount,
+                      onPressed: _showDeleteAccountConfirmation,
+                      backgroundColor: Colors.red,
+                    ),
+                  ],
                 ),
+              ),
       ),
     );
   }

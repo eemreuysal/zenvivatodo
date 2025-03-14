@@ -70,10 +70,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
           date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-          time:
-              _selectedTime != null
-                  ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                  : null,
+          time: _selectedTime != null
+              ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+              : null,
           categoryId: _selectedCategory?.id,
           priority: _selectedPriority.value,
           userId: widget.userId,
@@ -124,7 +123,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text(AppTexts.addCategory),
           content: Column(
@@ -140,13 +139,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(AppTexts.cancel),
             ),
             TextButton(
               onPressed: () async {
                 if (categoryNameController.text.isNotEmpty) {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
@@ -159,51 +158,50 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       category,
                     );
 
+                    if (!mounted) return;
+
                     if (success) {
                       // Reload categories
-                      final updatedCategories = await _categoryService
-                          .getCategories(widget.userId);
+                      final updatedCategories =
+                          await _categoryService.getCategories(widget.userId);
 
-                      if (mounted) {
-                        setState(() {
-                          _categories = updatedCategories;
-                          _selectedCategory = _categories.firstWhere(
-                            (c) => c.name == category.name,
-                            orElse: () => _categories.first,
-                          );
-                        });
+                      if (!mounted) return;
 
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(AppTexts.categoryAdded),
-                            backgroundColor: AppColors.successColor,
-                          ),
+                      setState(() {
+                        _categories = updatedCategories;
+                        _selectedCategory = _categories.firstWhere(
+                          (c) => c.name == category.name,
+                          orElse: () => _categories.first,
                         );
-                      }
-                    } else {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Kategori eklenirken bir hata oluştu.',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    if (mounted) {
+                      });
+
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
+                          content: Text(AppTexts.categoryAdded),
+                          backgroundColor: AppColors.successColor,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
                           content: Text(
-                            'Kategori eklenirken bir hata oluştu: $e',
+                            'Kategori eklenirken bir hata oluştu.',
                           ),
                           backgroundColor: Colors.red,
                         ),
                       );
                     }
+                  } catch (e) {
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Kategori eklenirken bir hata oluştu: $e',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 }
               },
@@ -327,12 +325,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color:
-                          theme
-                              .inputDecorationTheme
-                              .enabledBorder
-                              ?.borderSide
-                              .color ??
+                      color: theme.inputDecorationTheme.enabledBorder
+                              ?.borderSide.color ??
                           Colors.grey.withAlpha(76),
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -342,26 +336,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: DropdownButton<Category>(
                       isExpanded: true,
                       value: _selectedCategory,
-                      items:
-                          _categories.map((category) {
-                            return DropdownMenuItem<Category>(
-                              value: category,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 12,
-                                    height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Color(category.color & 0xFFFFFFFF),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(category.name),
-                                ],
+                      items: _categories.map((category) {
+                        return DropdownMenuItem<Category>(
+                          value: category,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Color(category.color & 0xFFFFFFFF),
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            );
-                          }).toList(),
+                              const SizedBox(width: 8),
+                              Text(category.name),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                       onChanged: (category) {
                         setState(() {
                           _selectedCategory = category;

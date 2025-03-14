@@ -248,8 +248,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (_) => CompletedTasksScreen(userId: widget.userId),
+                      builder: (_) =>
+                          CompletedTasksScreen(userId: widget.userId),
                     ),
                   ).then((_) => _loadData());
                 },
@@ -377,160 +377,160 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child:
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                  children: [
-                    // Date and profile section
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      color: AppColors.primaryColor,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.white24,
-                            child: Text(
-                              widget.userId.toString(),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
+                  // Date and profile section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    color: AppColors.primaryColor,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.white24,
+                          child: Text(
+                            widget.userId.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              AppTexts.taskBoard,
                               style: const TextStyle(
                                 color: Colors.white,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ],
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
                           ),
-                          const SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          onPressed: () => _selectDate(context),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.menu, color: Colors.white),
+                          onPressed: () => _showProfileMenu(context),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Date navigation
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => _changeDate(-1),
+                          icon: const Icon(Icons.chevron_left),
+                        ),
+                        GestureDetector(
+                          onTap: () => _selectDate(context),
+                          child: Text(
+                            DateFormat(
+                              'd MMMM yyyy',
+                              'tr_TR',
+                            ).format(_selectedDate),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _changeDate(1),
+                          icon: const Icon(Icons.chevron_right),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Filters
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TaskFilter(
+                      categories: _categories,
+                      selectedCategoryId: _selectedCategoryId,
+                      selectedPriority: _selectedPriority,
+                      onCategoryChanged: (categoryId) {
+                        setState(() {
+                          _selectedCategoryId = categoryId;
+                        });
+                        _loadData();
+                      },
+                      onPriorityChanged: (priority) {
+                        setState(() {
+                          _selectedPriority = priority;
+                        });
+                        _loadData();
+                      },
+                    ),
+                  ),
+
+                  // Tasks list
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        // Active tasks section
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    AppTexts.activeTasks,
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                AppTexts.taskBoard,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              IconButton(
+                                icon: const Icon(Icons.sort),
+                                onPressed: () => _showSortMenu(context),
                               ),
                             ],
                           ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.calendar_today,
-                              color: Colors.white,
-                            ),
-                            onPressed: () => _selectDate(context),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.menu, color: Colors.white),
-                            onPressed: () => _showProfileMenu(context),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Date navigation
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            onPressed: () => _changeDate(-1),
-                            icon: const Icon(Icons.chevron_left),
-                          ),
-                          GestureDetector(
-                            onTap: () => _selectDate(context),
-                            child: Text(
-                              DateFormat(
-                                'd MMMM yyyy',
-                                'tr_TR',
-                              ).format(_selectedDate),
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => _changeDate(1),
-                            icon: const Icon(Icons.chevron_right),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Filters
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TaskFilter(
-                        categories: _categories,
-                        selectedCategoryId: _selectedCategoryId,
-                        selectedPriority: _selectedPriority,
-                        onCategoryChanged: (categoryId) {
-                          setState(() {
-                            _selectedCategoryId = categoryId;
-                          });
-                          _loadData();
-                        },
-                        onPriorityChanged: (priority) {
-                          setState(() {
-                            _selectedPriority = priority;
-                          });
-                          _loadData();
-                        },
-                      ),
-                    ),
-
-                    // Tasks list
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        children: [
-                          // Active tasks section
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      AppTexts.activeTasks,
-                                      style: theme.textTheme.titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.sort),
-                                  onPressed: () => _showSortMenu(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                          _activeTasks.isEmpty
-                              ? Center(
+                        ),
+                        _activeTasks.isEmpty
+                            ? // ignore: prefer_const_constructors
+                            Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
@@ -539,74 +539,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ),
                               )
-                              : Column(
-                                children:
-                                    _activeTasks.map((task) {
-                                      // Find the category for this task
-                                      final category =
-                                          task.categoryId != null
-                                              ? _categories.firstWhere(
-                                                (c) => c.id == task.categoryId,
-                                                orElse:
-                                                    () => Category(
-                                                      name: 'Kategori Yok',
-                                                      color: Colors.grey.value,
-                                                    ),
-                                              )
-                                              : null;
+                            : Column(
+                                children: _activeTasks.map((task) {
+                                  // Find the category for this task
+                                  final category = task.categoryId != null
+                                      ? _categories.firstWhere(
+                                          (c) => c.id == task.categoryId,
+                                          orElse: () => Category(
+                                            name: 'Kategori Yok',
+                                            color: const Color(0xFF9E9E9E)
+                                                .toARGB32(),
+                                          ),
+                                        )
+                                      : null;
 
-                                      return TaskCard(
-                                        task: task,
-                                        category: category,
-                                        onToggleCompletion:
-                                            () => _toggleTaskCompletion(task),
-                                        onEdit: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => EditTaskScreen(
-                                                    userId: widget.userId,
-                                                    task: task,
-                                                    categories: _categories,
-                                                  ),
-                                            ),
-                                          ).then((_) => _loadData());
-                                        },
-                                        onDelete:
-                                            () => _showDeleteConfirmation(
-                                              context,
-                                              task,
-                                            ),
-                                      );
-                                    }).toList(),
+                                  return TaskCard(
+                                    task: task,
+                                    category: category,
+                                    onToggleCompletion: () =>
+                                        _toggleTaskCompletion(task),
+                                    onEdit: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EditTaskScreen(
+                                            userId: widget.userId,
+                                            task: task,
+                                            categories: _categories,
+                                          ),
+                                        ),
+                                      ).then((_) => _loadData());
+                                    },
+                                    onDelete: () => _showDeleteConfirmation(
+                                      context,
+                                      task,
+                                    ),
+                                  );
+                                }).toList(),
                               ),
 
-                          // Completed tasks section
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.green,
-                                    shape: BoxShape.circle,
-                                  ),
+                        // Completed tasks section
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  AppTexts.completedTasks,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                AppTexts.completedTasks,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          _completedTasks.isEmpty
-                              ? Center(
+                        ),
+                        _completedTasks.isEmpty
+                            ? // ignore: prefer_const_constructors
+                            Center(
                                 child: Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: Text(
@@ -615,65 +612,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ),
                               )
-                              : Column(
-                                children:
-                                    _completedTasks.map((task) {
-                                      // Find the category for this task
-                                      final category =
-                                          task.categoryId != null
-                                              ? _categories.firstWhere(
-                                                (c) => c.id == task.categoryId,
-                                                orElse:
-                                                    () => Category(
-                                                      name: 'Kategori Yok',
-                                                      color: Colors.grey.value,
-                                                    ),
-                                              )
-                                              : null;
+                            : Column(
+                                children: _completedTasks.map((task) {
+                                  // Find the category for this task
+                                  final category = task.categoryId != null
+                                      ? _categories.firstWhere(
+                                          (c) => c.id == task.categoryId,
+                                          orElse: () => Category(
+                                            name: 'Kategori Yok',
+                                            color: const Color(0xFF9E9E9E)
+                                                .toARGB32(),
+                                          ),
+                                        )
+                                      : null;
 
-                                      return TaskCard(
-                                        task: task,
-                                        category: category,
-                                        onToggleCompletion:
-                                            () => _toggleTaskCompletion(task),
-                                        onEdit: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => EditTaskScreen(
-                                                    userId: widget.userId,
-                                                    task: task,
-                                                    categories: _categories,
-                                                  ),
-                                            ),
-                                          ).then((_) => _loadData());
-                                        },
-                                        onDelete:
-                                            () => _showDeleteConfirmation(
-                                              context,
-                                              task,
-                                            ),
-                                      );
-                                    }).toList(),
+                                  return TaskCard(
+                                    task: task,
+                                    category: category,
+                                    onToggleCompletion: () =>
+                                        _toggleTaskCompletion(task),
+                                    onEdit: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EditTaskScreen(
+                                            userId: widget.userId,
+                                            task: task,
+                                            categories: _categories,
+                                          ),
+                                        ),
+                                      ).then((_) => _loadData());
+                                    },
+                                    onDelete: () => _showDeleteConfirmation(
+                                      context,
+                                      task,
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (_) => AddTaskScreen(
-                    userId: widget.userId,
-                    categories: _categories,
-                    initialDate: _selectedDate,
-                  ),
+              builder: (_) => AddTaskScreen(
+                userId: widget.userId,
+                categories: _categories,
+                initialDate: _selectedDate,
+              ),
             ),
           ).then((_) => _loadData());
         },

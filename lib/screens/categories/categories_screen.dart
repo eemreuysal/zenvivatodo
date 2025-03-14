@@ -66,50 +66,46 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       );
 
       if (tasks.isNotEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Bu kategoriye ait görevler bulunduğu için silinemez.',
-              ),
-              backgroundColor: Colors.red,
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Bu kategoriye ait görevler bulunduğu için silinemez.',
             ),
-          );
-        }
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
 
       final success = await _categoryService.deleteCategory(categoryId);
 
+      if (!mounted) return;
+
       if (success) {
         _loadCategories();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppTexts.categoryDeleted),
-              backgroundColor: AppColors.successColor,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Kategori silinirken bir hata oluştu.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Kategori silinirken bir hata oluştu: $e'),
+          const SnackBar(
+            content: Text(AppTexts.categoryDeleted),
+            backgroundColor: AppColors.successColor,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Kategori silinirken bir hata oluştu.'),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Kategori silinirken bir hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -219,7 +215,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
                       final category = Category(
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.toARGB32(),
+                        color: selectedColor.value,
                         userId: widget.userId,
                       );
 
@@ -228,42 +224,36 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           category,
                         );
 
+                        if (!mounted) return;
+
                         if (success) {
                           _loadCategories();
-
-                          if (mounted) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(AppTexts.categoryAdded),
-                                backgroundColor: AppColors.successColor,
-                              ),
-                            );
-                          }
-                        } else {
-                          if (mounted) {
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Kategori eklenirken bir hata oluştu.',
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
+                              content: Text(AppTexts.categoryAdded),
+                              backgroundColor: AppColors.successColor,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
                               content: Text(
-                                'Kategori eklenirken bir hata oluştu: $e',
+                                'Kategori eklenirken bir hata oluştu.',
                               ),
                               backgroundColor: Colors.red,
                             ),
                           );
                         }
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Kategori eklenirken bir hata oluştu: $e',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     }
                   },
@@ -290,7 +280,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       Colors.purple,
       Colors.teal,
     ];
-    Color selectedColor = Color(category.color & 0xFFFFFFFF);
+    Color selectedColor = Color(category.color);
 
     showDialog(
       context: context,
@@ -329,7 +319,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           decoration: BoxDecoration(
                             color: color,
                             shape: BoxShape.circle,
-                            border: selectedColor.toARGB32() == color.toARGB32()
+                            border: selectedColor.value == color.value
                                 ? Border.all(
                                     color: Colors.black,
                                     width: 2,
@@ -355,7 +345,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       final updatedCategory = Category(
                         id: category.id,
                         name: categoryNameController.text.trim(),
-                        color: selectedColor.toARGB32(),
+                        color: selectedColor.value,
                         userId: category.userId,
                       );
 
@@ -364,40 +354,36 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           updatedCategory,
                         );
 
+                        if (!mounted) return;
+
                         if (success) {
                           _loadCategories();
-
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(AppTexts.categoryUpdated),
-                                backgroundColor: AppColors.successColor,
-                              ),
-                            );
-                          }
-                        } else {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Kategori güncellenirken bir hata oluştu.',
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
+                              content: Text(AppTexts.categoryUpdated),
+                              backgroundColor: AppColors.successColor,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
                               content: Text(
-                                'Kategori güncellenirken bir hata oluştu: $e',
+                                'Kategori güncellenirken bir hata oluştu.',
                               ),
                               backgroundColor: Colors.red,
                             ),
                           );
                         }
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Kategori güncellenirken bir hata oluştu: $e',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     }
                   },
@@ -460,7 +446,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             width: 24,
                             height: 24,
                             decoration: BoxDecoration(
-                              color: Color(category.color & 0xFFFFFFFF),
+                              color: Color(category.color),
                               shape: BoxShape.circle,
                             ),
                           ),

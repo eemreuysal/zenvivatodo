@@ -64,10 +64,14 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (widget.task.categoryId != null) {
       _selectedCategory = _categories.firstWhere(
         (c) => c.id == widget.task.categoryId,
-        orElse: () => _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value),
+        orElse: () => _categories.isNotEmpty
+            ? _categories.first
+            : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32()),
       );
     } else {
-      _selectedCategory = _categories.isNotEmpty ? _categories.first : Category(name: 'Kategori Yok', color: Colors.grey.value);
+      _selectedCategory = _categories.isNotEmpty
+          ? _categories.first
+          : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32());
     }
 
     _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
@@ -146,7 +150,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text(AppTexts.addCategory),
           content: Column(
@@ -162,17 +166,17 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(AppTexts.cancel),
             ),
             TextButton(
               onPressed: () async {
                 if (categoryNameController.text.isNotEmpty) {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.value,
+                    color: selectedColor.toARGB32(),
                     userId: widget.userId,
                   );
 
@@ -181,51 +185,50 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       category,
                     );
 
+                    if (!mounted) return;
+
                     if (success) {
                       // Reload categories
                       final updatedCategories =
                           await _categoryService.getCategories(widget.userId);
 
-                      if (mounted) {
-                        setState(() {
-                          _categories = updatedCategories;
-                          _selectedCategory = _categories.firstWhere(
-                            (c) => c.name == category.name,
-                            orElse: () => _categories.first,
-                          );
-                        });
-                        
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(AppTexts.categoryAdded),
-                            backgroundColor: AppColors.successColor,
-                          ),
+                      if (!mounted) return;
+
+                      setState(() {
+                        _categories = updatedCategories;
+                        _selectedCategory = _categories.firstWhere(
+                          (c) => c.name == category.name,
+                          orElse: () => _categories.first,
                         );
-                      }
-                    } else {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Kategori eklenirken bir hata oluştu.',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    if (mounted) {
+                      });
+
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
+                          content: Text(AppTexts.categoryAdded),
+                          backgroundColor: AppColors.successColor,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
                           content: Text(
-                            'Kategori eklenirken bir hata oluştu: $e',
+                            'Kategori eklenirken bir hata oluştu.',
                           ),
                           backgroundColor: Colors.red,
                         ),
                       );
                     }
+                  } catch (e) {
+                    if (!mounted) return;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Kategori eklenirken bir hata oluştu: $e',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 }
               },
