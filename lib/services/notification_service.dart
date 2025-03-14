@@ -43,11 +43,7 @@ class NotificationService {
     // Initialize
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onSelectNotification: (String? payload) {
-        if (payload != null && payload.isNotEmpty) {
-          onNotificationClick.add(payload);
-        }
-      },
+      onSelectNotification: selectNotification,
     );
   }
 
@@ -152,6 +148,12 @@ class NotificationService {
   // Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  Future selectNotification(String? payload) async {
+    if (payload != null && payload.isNotEmpty) {
+      onNotificationClick.add(payload);
+    }
   }
 
   void onDidReceiveLocalNotification(
