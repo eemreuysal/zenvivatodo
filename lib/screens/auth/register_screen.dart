@@ -182,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Login link - const kaldırıldı çünkü Theme.of(context) runtime'da hesaplanır
+                // Login link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -194,9 +194,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text(
+                      child: const Text(
                         AppTexts.loginButtonText,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.primaryColor,
                           fontWeight: FontWeight.bold,
                         ),

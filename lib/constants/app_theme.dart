@@ -37,7 +37,7 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(
+        foregroundColor: WidgetStateProperty.all<Color>(
           AppColors.primaryColor,
         ),
       ),
@@ -122,7 +122,7 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(
+        foregroundColor: WidgetStateProperty.all<Color>(
           AppColors.primaryColor,
         ),
       ),

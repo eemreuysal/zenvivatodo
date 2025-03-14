@@ -36,12 +36,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     try {
       final categories = await _categoryService.getCategories(widget.userId);
       if (!mounted) return;
+
       setState(() {
         _categories = categories;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+
       setState(() {
         _isLoading = false;
       });
@@ -61,7 +63,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         widget.userId,
         categoryId: categoryId,
       );
+
       if (!mounted) return;
+
       if (tasks.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -74,11 +78,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       }
 
       final success = await _categoryService.deleteCategory(categoryId);
+
       if (!mounted) return;
 
       if (success) {
         await _loadCategories();
+
         if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(AppTexts.categoryDeleted),
@@ -95,6 +102,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       }
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Kategori silinirken bir hata oluştu: $e'),
@@ -150,9 +158,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (stateContext, setState) {
             return AlertDialog(
               title: const Text(AppTexts.addCategory),
               content: Column(
@@ -200,13 +208,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text(AppTexts.cancel),
                 ),
                 TextButton(
                   onPressed: () async {
                     if (categoryNameController.text.isNotEmpty) {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
 
                       final category = Category(
                         name: categoryNameController.text.trim(),
@@ -217,10 +225,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       try {
                         final success =
                             await _categoryService.addCategory(category);
+
                         if (!mounted) return;
+
                         if (success) {
                           await _loadCategories();
+
                           if (!mounted) return;
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(AppTexts.categoryAdded),
@@ -228,7 +240,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         } else {
-                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content:
@@ -239,6 +250,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         }
                       } catch (e) {
                         if (!mounted) return;
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content:
@@ -275,9 +287,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (stateContext, setState) {
             return AlertDialog(
               title: const Text(AppTexts.editCategory),
               content: Column(
@@ -325,13 +337,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text(AppTexts.cancel),
                 ),
                 TextButton(
                   onPressed: () async {
                     if (categoryNameController.text.isNotEmpty) {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
 
                       final updatedCategory = Category(
                         id: category.id,
@@ -343,10 +355,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       try {
                         final success = await _categoryService
                             .updateCategory(updatedCategory);
+
                         if (!mounted) return;
+
                         if (success) {
                           await _loadCategories();
+
                           if (!mounted) return;
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(AppTexts.categoryUpdated),
@@ -354,7 +370,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         } else {
-                          if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -365,6 +380,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         }
                       } catch (e) {
                         if (!mounted) return;
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
