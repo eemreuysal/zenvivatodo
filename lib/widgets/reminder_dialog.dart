@@ -16,11 +16,11 @@ class ReminderDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Row(
+      title: const Row(
         children: [
-          const Icon(Icons.notifications_active, color: Colors.orange),
-          const SizedBox(width: 10),
-          const Text('Görev Hatırlatıcısı'),
+          Icon(Icons.notifications_active, color: Colors.orange),
+          SizedBox(width: 10),
+          Text('Görev Hatırlatıcısı'),
         ],
       ),
       content: Column(
@@ -35,7 +35,7 @@ class ReminderDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text('Göreviniz 5 dakika içinde başlayacak!'),
+          const Text('Göreviniz 5 dakika içinde başlayacak!'),
           if (task.description.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
