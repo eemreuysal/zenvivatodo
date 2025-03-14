@@ -32,10 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      
+
       // Quick fix: Just navigate to dashboard with a fixed user ID
       Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) { // mounted kontrolü eklendi
+        if (mounted) {
+          // mounted kontrolü eklendi
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => const DashboardScreen(userId: 1), // const eklendi
@@ -81,9 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: Theme.of(
                           context,
                         ).textTheme.headlineSmall?.copyWith(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ],
                   ),
@@ -95,8 +96,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     AppTexts.login,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -150,9 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       _isLoading
                           ? const CircularProgressIndicator()
                           : CustomButton(
-                            text: AppTexts.loginButtonText,
-                            onPressed: _login,
-                          ),
+                              text: AppTexts.loginButtonText,
+                              onPressed: _login,
+                            ),
                     ],
                   ),
                 ),
@@ -170,7 +171,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         // We don't navigate to register screen for simplicity
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Register functionality not implemented in this demo'),
+                            content: Text(
+                                'Register functionality not implemented in this demo'),
                           ),
                         );
                       },
