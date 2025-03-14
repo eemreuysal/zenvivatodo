@@ -2,6 +2,44 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTheme {
+  // Light theme text styles
+  static const _lightTextTheme = TextTheme(
+    displayLarge: TextStyle(color: AppColors.lightTextColor),
+    displayMedium: TextStyle(color: AppColors.lightTextColor),
+    displaySmall: TextStyle(color: AppColors.lightTextColor),
+    headlineLarge: TextStyle(color: AppColors.lightTextColor),
+    headlineMedium: TextStyle(color: AppColors.lightTextColor),
+    headlineSmall: TextStyle(color: AppColors.lightTextColor),
+    titleLarge: TextStyle(color: AppColors.lightTextColor),
+    titleMedium: TextStyle(color: AppColors.lightTextColor),
+    titleSmall: TextStyle(color: AppColors.lightTextColor),
+    bodyLarge: TextStyle(color: AppColors.lightTextColor),
+    bodyMedium: TextStyle(color: AppColors.lightTextColor),
+    bodySmall: TextStyle(color: AppColors.lightSecondaryTextColor),
+    labelLarge: TextStyle(color: AppColors.lightTextColor),
+    labelMedium: TextStyle(color: AppColors.lightTextColor),
+    labelSmall: TextStyle(color: AppColors.lightSecondaryTextColor),
+  );
+
+  // Dark theme text styles
+  static const _darkTextTheme = TextTheme(
+    displayLarge: TextStyle(color: AppColors.darkTextColor),
+    displayMedium: TextStyle(color: AppColors.darkTextColor),
+    displaySmall: TextStyle(color: AppColors.darkTextColor),
+    headlineLarge: TextStyle(color: AppColors.darkTextColor),
+    headlineMedium: TextStyle(color: AppColors.darkTextColor),
+    headlineSmall: TextStyle(color: AppColors.darkTextColor),
+    titleLarge: TextStyle(color: AppColors.darkTextColor),
+    titleMedium: TextStyle(color: AppColors.darkTextColor),
+    titleSmall: TextStyle(color: AppColors.darkTextColor),
+    bodyLarge: TextStyle(color: AppColors.darkTextColor),
+    bodyMedium: TextStyle(color: AppColors.darkTextColor),
+    bodySmall: TextStyle(color: AppColors.darkSecondaryTextColor),
+    labelLarge: TextStyle(color: AppColors.darkTextColor),
+    labelMedium: TextStyle(color: AppColors.darkTextColor),
+    labelSmall: TextStyle(color: AppColors.darkSecondaryTextColor),
+  );
+
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     colorScheme: const ColorScheme.light(
@@ -68,23 +106,7 @@ class AppTheme {
         vertical: 14,
       ),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(color: AppColors.lightTextColor),
-      displayMedium: TextStyle(color: AppColors.lightTextColor),
-      displaySmall: TextStyle(color: AppColors.lightTextColor),
-      headlineLarge: TextStyle(color: AppColors.lightTextColor),
-      headlineMedium: TextStyle(color: AppColors.lightTextColor),
-      headlineSmall: TextStyle(color: AppColors.lightTextColor),
-      titleLarge: TextStyle(color: AppColors.lightTextColor),
-      titleMedium: TextStyle(color: AppColors.lightTextColor),
-      titleSmall: TextStyle(color: AppColors.lightTextColor),
-      bodyLarge: TextStyle(color: AppColors.lightTextColor),
-      bodyMedium: TextStyle(color: AppColors.lightTextColor),
-      bodySmall: TextStyle(color: AppColors.lightSecondaryTextColor),
-      labelLarge: TextStyle(color: AppColors.lightTextColor),
-      labelMedium: TextStyle(color: AppColors.lightTextColor),
-      labelSmall: TextStyle(color: AppColors.lightSecondaryTextColor),
-    ),
+    textTheme: _lightTextTheme,
   );
 
   static final ThemeData darkTheme = ThemeData(
@@ -153,22 +175,6 @@ class AppTheme {
         vertical: 14,
       ),
     ),
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(color: AppColors.darkTextColor),
-      displayMedium: TextStyle(color: AppColors.darkTextColor),
-      displaySmall: TextStyle(color: AppColors.darkTextColor),
-      headlineLarge: TextStyle(color: AppColors.darkTextColor),
-      headlineMedium: TextStyle(color: AppColors.darkTextColor),
-      headlineSmall: TextStyle(color: AppColors.darkTextColor),
-      titleLarge: TextStyle(color: AppColors.darkTextColor),
-      titleMedium: TextStyle(color: AppColors.darkTextColor),
-      titleSmall: TextStyle(color: AppColors.darkTextColor),
-      bodyLarge: TextStyle(color: AppColors.darkTextColor),
-      bodyMedium: TextStyle(color: AppColors.darkTextColor),
-      bodySmall: TextStyle(color: AppColors.darkSecondaryTextColor),
-      labelLarge: TextStyle(color: AppColors.darkTextColor),
-      labelMedium: TextStyle(color: AppColors.darkTextColor),
-      labelSmall: TextStyle(color: AppColors.darkSecondaryTextColor),
-    ),
+    textTheme: _darkTextTheme,
   );
 }
