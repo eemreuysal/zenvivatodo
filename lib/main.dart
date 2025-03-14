@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'constants/app_theme.dart';
 import 'constants/app_texts.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize date formatting for Turkish locale
+  await initializeDateFormatting('tr_TR', null);
 
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,6 +57,17 @@ class MyApp extends StatelessWidget {
           title: AppTexts.appName,
           theme: themeProvider.themeData,
           debugShowCheckedModeBanner: false,
+          // Add localization support
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('tr', 'TR'), // Turkish
+            Locale('en', 'US'), // English
+          ],
+          locale: const Locale('tr', 'TR'),
           home: const SplashScreen(),
         );
       },
