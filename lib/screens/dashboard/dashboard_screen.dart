@@ -90,31 +90,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-      locale: const Locale('tr', 'TR'),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.primaryColor,
-              onPrimary: Colors.white,
-              onSurface: Theme.of(context).colorScheme.onSurface,
+    try {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2030),
+        // Locale kaldırıldı veya düzeltildi
+        builder: (context, child) {
+          if (child == null) return Container();
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.primaryColor,
+                onPrimary: Colors.white,
+                onSurface: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-          ),
-          child: child!,
-        );
-      },
-    );
+            child: child,
+          );
+        },
+      );
 
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-      _loadData();
+      if (picked != null && picked != _selectedDate) {
+        setState(() {
+          _selectedDate = picked;
+        });
+        _loadData();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Tarih seçilirken bir hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -407,7 +417,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   color: Colors.white70, fontSize: 14),
                             ),
                             const SizedBox(height: 4),
-                            // Aşağıdaki Text widget’ı sabit içerik kullandığı için const ile tanımlandı
+                            // Aşağıdaki Text widget'ı sabit içerik kullandığı için const ile tanımlandı
                             const Text(
                               AppTexts.taskBoard,
                               style: TextStyle(
@@ -543,7 +553,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
                                             color: const Color(0xFF9E9E9E)
-                                                .toARGB32(),
+                                                .value,
                                           ),
                                         )
                                       : null;
@@ -612,7 +622,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           orElse: () => Category(
                                             name: 'Kategori Yok',
                                             color: const Color(0xFF9E9E9E)
-                                                .toARGB32(),
+                                                .value,
                                           ),
                                         )
                                       : null;
