@@ -36,11 +36,10 @@
             </intent-filter>
         </activity>
         
-        <!-- For awesome notifications broadcast receivers -->
-        <receiver android:name="me.carda.awesome_notifications.notifications.broadcastReceivers.DismissedNotificationReceiver" />
-        <receiver android:name="me.carda.awesome_notifications.notifications.broadcastReceivers.ScheduledNotificationReceiver" />
-        <receiver android:name="me.carda.awesome_notifications.notifications.broadcastReceivers.KeepOnTopNotificationReceiver" />
-        <receiver android:name="me.carda.awesome_notifications.notifications.broadcastReceivers.ActionButtonsReceiver" />
+        <!-- Define notification icon -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
         
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
