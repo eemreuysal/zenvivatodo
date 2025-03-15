@@ -7,11 +7,14 @@ import '../../constants/app_texts.dart';
 import '../../models/task.dart';
 import '../../models/category.dart';
 import '../../models/user.dart';
+import '../../models/habit.dart';
 import '../../services/task_service.dart';
 import '../../services/category_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/habit_service.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
+import '../../widgets/habit_card.dart';
 import '../tasks/add_task_screen.dart';
 import '../tasks/edit_task_screen.dart';
 import '../tasks/active_tasks_screen.dart';
@@ -19,6 +22,7 @@ import '../tasks/completed_tasks_screen.dart';
 import '../categories/categories_screen.dart';
 import '../profile/profile_screen.dart';
 import '../habits/habits_screen.dart';
+import '../habits/habit_details_screen.dart';
 import '../../main.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -34,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final TaskService _taskService = TaskService();
   final CategoryService _categoryService = CategoryService();
   final AuthService _authService = AuthService();
+  final HabitService _habitService = HabitService();
   // Global key for SnackBar
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -41,6 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Task> _activeTasks = [];
   List<Task> _completedTasks = [];
   List<Category> _categories = [];
+  List<Habit> _dashboardHabits = [];
+  Map<int, bool> _habitCompletionStatus = {};
   User? _currentUser;
   int? _selectedCategoryId;
   int? _selectedPriority;
@@ -85,25 +92,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      
       // Load categories
       final categories = await _categoryService.getCategories(widget.userId);
 
       // Load tasks for the selected date
       final tasks = await _taskService.getFilteredTasks(
         widget.userId,
-        date: DateFormat('yyyy-MM-dd').format(_selectedDate),
+        date: dateStr,
         categoryId: _selectedCategoryId,
         priority: _selectedPriority,
       );
 
       final activeTasks = tasks.where((task) => !task.isCompleted).toList();
       final completedTasks = tasks.where((task) => task.isCompleted).toList();
+      
+      // Load habits for the dashboard
+      final dashboardHabits = await _habitService.getDashboardHabits(
+        widget.userId,
+        date: dateStr,
+      );
+      
+      // Habit tamamlanma durumlarını kontrol et
+      final habitCompletionStatus = <int, bool>{};
+      for (var habit in dashboardHabits) {
+        if (habit.id != null) {
+          final isCompleted = await _habitService.isHabitCompletedOnDate(
+            habit.id!,
+            dateStr,
+          );
+          habitCompletionStatus[habit.id!] = isCompleted;
+        }
+      }
 
       if (mounted) {
         setState(() {
           _categories = categories;
           _activeTasks = activeTasks;
           _completedTasks = completedTasks;
+          _dashboardHabits = dashboardHabits;
+          _habitCompletionStatus = habitCompletionStatus;
           _isLoading = false;
         });
       }
@@ -198,6 +227,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } catch (e) {
       if (mounted) {
         _showSnackBar('Görev durumu güncellenirken bir hata oluştu: $e');
+      }
+    }
+  }
+  
+  Future<void> _toggleHabitCompletion(Habit habit) async {
+    try {
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      final isCurrentlyCompleted = _habitCompletionStatus[habit.id] ?? false;
+      
+      final success = await _habitService.toggleHabitCompletion(
+        habit.id!,
+        dateStr,
+        !isCurrentlyCompleted,
+      );
+
+      if (success) {
+        _loadData();
+      } else {
+        if (mounted) {
+          _showSnackBar('Alışkanlık durumu güncellenirken bir hata oluştu.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnackBar('Alışkanlık durumu güncellenirken bir hata oluştu: $e');
       }
     }
   }
@@ -430,6 +484,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    
+    // Dashboard'da gösterilecek aktif alışkanlıkları filtrele
+    final activeHabits = _dashboardHabits.where((habit) => 
+      !(_habitCompletionStatus[habit.id] ?? false)).toList();
+      
+    // Dashboard'da gösterilecek tamamlanmış alışkanlıkları filtrele
+    final completedHabits = _dashboardHabits.where((habit) => 
+      _habitCompletionStatus[habit.id] ?? false).toList();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -582,50 +644,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
-                        _activeTasks.isEmpty
-                            ? Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    'Aktif görev bulunamadı',
-                                    style: theme.textTheme.bodyLarge,
-                                  ),
-                                ),
-                              )
-                            : Column(
-                                children: _activeTasks.map((task) {
-                                  final category = task.categoryId != null
-                                      ? _categories.firstWhere(
-                                          (c) => c.id == task.categoryId,
-                                          orElse: () => Category(
-                                            name: 'Kategori Yok',
-                                            color: 0xFF9E9E9E,
-                                          ),
-                                        )
-                                      : null;
-
-                                  return TaskCard(
-                                    task: task,
-                                    category: category,
-                                    onToggleCompletion: () =>
-                                        _toggleTaskCompletion(task),
-                                    onEdit: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => EditTaskScreen(
-                                            userId: widget.userId,
-                                            task: task,
-                                            categories: _categories,
-                                          ),
-                                        ),
-                                      ).then((_) => _loadData());
-                                    },
-                                    onDelete: () =>
-                                        _showDeleteConfirmation(context, task),
-                                  );
-                                }).toList(),
+                        
+                        // Aktif görevler ve aktif alışkanlıklar
+                        if (_activeTasks.isEmpty && activeHabits.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'Aktif görev bulunamadı',
+                                style: theme.textTheme.bodyLarge,
                               ),
+                            ),
+                          )
+                        else
+                          Column(
+                            children: [
+                              // Aktif görevler
+                              ..._activeTasks.map((task) {
+                                final category = task.categoryId != null
+                                    ? _categories.firstWhere(
+                                        (c) => c.id == task.categoryId,
+                                        orElse: () => Category(
+                                          name: 'Kategori Yok',
+                                          color: 0xFF9E9E9E,
+                                        ),
+                                      )
+                                    : null;
+
+                                return TaskCard(
+                                  task: task,
+                                  category: category,
+                                  onToggleCompletion: () =>
+                                      _toggleTaskCompletion(task),
+                                  onEdit: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => EditTaskScreen(
+                                          userId: widget.userId,
+                                          task: task,
+                                          categories: _categories,
+                                        ),
+                                      ),
+                                    ).then((_) => _loadData());
+                                  },
+                                  onDelete: () =>
+                                      _showDeleteConfirmation(context, task),
+                                );
+                              }),
+                              
+                              // Aktif alışkanlıklar
+                              ...activeHabits.map((habit) {
+                                return HabitCard(
+                                  habit: habit,
+                                  isCompleted: false,
+                                  onToggleCompletion: () => _toggleHabitCompletion(habit),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => HabitDetailsScreen(
+                                          habit: habit,
+                                          userId: widget.userId,
+                                        ),
+                                      ),
+                                    ).then((_) => _loadData());
+                                  },
+                                );
+                              }),
+                            ],
+                          ),
 
                         // Completed tasks section
                         Padding(
@@ -650,50 +738,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
-                        _completedTasks.isEmpty
-                            ? Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    'Tamamlanmış görev bulunamadı',
-                                    style: theme.textTheme.bodyLarge,
-                                  ),
-                                ),
-                              )
-                            : Column(
-                                children: _completedTasks.map((task) {
-                                  final category = task.categoryId != null
-                                      ? _categories.firstWhere(
-                                          (c) => c.id == task.categoryId,
-                                          orElse: () => Category(
-                                            name: 'Kategori Yok',
-                                            color: 0xFF9E9E9E,
-                                          ),
-                                        )
-                                      : null;
-
-                                  return TaskCard(
-                                    task: task,
-                                    category: category,
-                                    onToggleCompletion: () =>
-                                        _toggleTaskCompletion(task),
-                                    onEdit: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => EditTaskScreen(
-                                            userId: widget.userId,
-                                            task: task,
-                                            categories: _categories,
-                                          ),
-                                        ),
-                                      ).then((_) => _loadData());
-                                    },
-                                    onDelete: () =>
-                                        _showDeleteConfirmation(context, task),
-                                  );
-                                }).toList(),
+                        
+                        // Tamamlanmış görevler ve tamamlanmış alışkanlıklar
+                        if (_completedTasks.isEmpty && completedHabits.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'Tamamlanmış görev bulunamadı',
+                                style: theme.textTheme.bodyLarge,
                               ),
+                            ),
+                          )
+                        else
+                          Column(
+                            children: [
+                              // Tamamlanmış görevler
+                              ..._completedTasks.map((task) {
+                                final category = task.categoryId != null
+                                    ? _categories.firstWhere(
+                                        (c) => c.id == task.categoryId,
+                                        orElse: () => Category(
+                                          name: 'Kategori Yok',
+                                          color: 0xFF9E9E9E,
+                                        ),
+                                      )
+                                    : null;
+
+                                return TaskCard(
+                                  task: task,
+                                  category: category,
+                                  onToggleCompletion: () =>
+                                      _toggleTaskCompletion(task),
+                                  onEdit: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => EditTaskScreen(
+                                          userId: widget.userId,
+                                          task: task,
+                                          categories: _categories,
+                                        ),
+                                      ),
+                                    ).then((_) => _loadData());
+                                  },
+                                  onDelete: () =>
+                                      _showDeleteConfirmation(context, task),
+                                );
+                              }),
+                              
+                              // Tamamlanmış alışkanlıklar
+                              ...completedHabits.map((habit) {
+                                return HabitCard(
+                                  habit: habit,
+                                  isCompleted: true,
+                                  onToggleCompletion: () => _toggleHabitCompletion(habit),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => HabitDetailsScreen(
+                                          habit: habit,
+                                          userId: widget.userId,
+                                        ),
+                                      ),
+                                    ).then((_) => _loadData());
+                                  },
+                                );
+                              }),
+                            ],
+                          ),
                       ],
                     ),
                   ),
