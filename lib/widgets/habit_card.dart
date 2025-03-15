@@ -1,188 +1,173 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
-import 'package:intl/intl.dart';
 
 class HabitCard extends StatelessWidget {
   final Habit habit;
-  final bool isToday;
   final bool isCompleted;
-  final Function(bool) onToggle;
+  final VoidCallback onToggleCompletion;
   final VoidCallback onTap;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
 
   const HabitCard({
     Key? key,
     required this.habit,
-    this.isToday = false,
-    this.isCompleted = false,
-    required this.onToggle,
+    required this.isCompleted,
+    required this.onToggleCompletion,
     required this.onTap,
-    this.onEdit,
-    this.onDelete,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final habitColor = Color(habit.colorCode);
-    final double progress = habit.targetDays > 0 
-      ? habit.currentStreak / habit.targetDays 
-      : 0.0;
 
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: habitColor.withAlpha(77), // 0.3 -> 77 (withOpacity yerine withAlpha)
-          width: 1,
-        ),
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Başlık ve işlem bölümü
-            ListTile(
-              contentPadding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
-              title: Text(
-                habit.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: Text(
-                _getFrequencyText(habit),
-                style: theme.textTheme.bodySmall,
-              ),
-              leading: CircleAvatar(
-                backgroundColor: habitColor,
-                child: const Icon( // const ekledik
-                  Icons.repeat,
-                  color: Colors.white,
-                ),
-              ),
-              trailing: isToday
-                  ? Checkbox(
-                      value: isCompleted,
-                      onChanged: (value) => onToggle(value ?? false),
-                      activeColor: habitColor,
-                    )
-                  : null,
-            ),
-
-            // Açıklama (varsa)
-            if (habit.description.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Text(
-                  habit.description,
-                  style: theme.textTheme.bodyMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-            // İlerleme bölümü
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'Mevcut zincir: ${habit.currentStreak} gün',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+                  // Tamamlanma durumu göstergesi
+                  InkWell(
+                    onTap: onToggleCompletion,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: habitColor,
+                          width: 2,
+                        ),
+                        color: isCompleted ? habitColor : Colors.transparent,
+                      ),
+                      child: isCompleted
+                          ? const Icon(
+                              Icons.check,
+                              size: 16,
+                              color: Colors.white,
+                            )
+                          : null,
                     ),
                   ),
-                  Text(
-                    'Hedef: ${habit.targetDays} gün',
-                    style: theme.textTheme.bodyMedium,
+                  const SizedBox(width: 12),
+                  
+                  // Başlık
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Alışkanlık ikonu
+                        CircleAvatar(
+                          backgroundColor: isDarkMode ? habitColor.withOpacity(0.2) : habitColor.withOpacity(0.1),
+                          radius: 16,
+                          child: Icon(
+                            Icons.repeat,
+                            size: 18,
+                            color: habitColor,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        
+                        // Alışkanlık başlığı
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                habit.title,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                ),
+                              ),
+                              if (habit.description.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  habit.description,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Alışkanlık bilgileri
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Zincir (streak) bilgisi
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: habitColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.local_fire_department,
+                              size: 14,
+                              color: habitColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              habit.currentStreak.toString(),
+                              style: TextStyle(
+                                color: habitColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 4),
+                      
+                      // Frekans bilgisi
+                      Text(
+                        _getFrequencyText(),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-
-            // İlerleme çubuğu
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress.clamp(0.0, 1.0),
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(habitColor),
-                  minHeight: 8,
-                ),
-              ),
-            ),
-
-            // İşlem butonları (düzenle, sil)
-            if (onEdit != null || onDelete != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (onEdit != null)
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 20),
-                        onPressed: onEdit,
-                        tooltip: 'Düzenle',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    if (onDelete != null)
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 20),
-                        onPressed: onDelete,
-                        tooltip: 'Sil',
-                        visualDensity: VisualDensity.compact,
-                      ),
-                  ],
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
-  String _getFrequencyText(Habit habit) {
-    final startDate = DateFormat('dd MMMM yyyy', 'tr_TR')
-        .format(DateTime.parse(habit.startDate));
-    
+  
+  String _getFrequencyText() {
     switch (habit.frequency) {
       case 'daily':
-        return 'Her gün · Başlangıç: $startDate';
+        return 'Her Gün';
       case 'weekly':
-        if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-          final days = habit.frequencyDays!.split(',')
-              .map((day) => _getWeekdayName(int.parse(day)))
-              .join(', ');
-          return 'Haftada birkaç kez: $days · Başlangıç: $startDate';
-        }
-        return 'Haftada bir · Başlangıç: $startDate';
+        return 'Haftalık';
       case 'monthly':
-        return 'Ayda bir · Başlangıç: $startDate';
+        return 'Aylık';
       default:
-        return 'Özel · Başlangıç: $startDate';
-    }
-  }
-
-  String _getWeekdayName(int weekday) {
-    switch (weekday) {
-      case 1: return 'Pazartesi';
-      case 2: return 'Salı';
-      case 3: return 'Çarşamba';
-      case 4: return 'Perşembe';
-      case 5: return 'Cuma';
-      case 6: return 'Cumartesi';
-      case 7: return 'Pazar';
-      default: return '';
+        return '';
     }
   }
 }
