@@ -42,6 +42,27 @@ class AppTexts {
   static const String editCategory = 'Kategori Düzenle';
   static const String categoryName = 'Kategori Adı';
 
+  // Habits
+  static const String habits = 'Alışkanlıklar';
+  static const String addHabit = 'Yeni Alışkanlık Ekle';
+  static const String editHabit = 'Alışkanlık Düzenle';
+  static const String habitDetails = 'Alışkanlık Detayları';
+  static const String activeHabits = 'Aktif Alışkanlıklar';
+  static const String archivedHabits = 'Arşivlenmiş Alışkanlıklar';
+  static const String habitName = 'Alışkanlık Adı';
+  static const String frequency = 'Tekrarlama Sıklığı';
+  static const String startDate = 'Başlangıç Tarihi';
+  static const String targetDays = 'Hedef Gün Sayısı';
+  static const String currentStreak = 'Mevcut Zincir';
+  static const String longestStreak = 'En Uzun Zincir';
+  static const String completionRate = 'Tamamlanma Oranı';
+  static const String habitAdded = 'Alışkanlık başarıyla eklendi';
+  static const String habitUpdated = 'Alışkanlık başarıyla güncellendi';
+  static const String habitDeleted = 'Alışkanlık başarıyla silindi';
+  static const String markComplete = 'Bugün Tamamla';
+  static const String markedComplete = 'Bugün Tamamlandı';
+  static const String activityMap = 'Aktivite Haritası';
+
   // Profile
   static const String profile = 'Profil Ayarları';
   static const String deleteAccount = 'Profili Sil';
