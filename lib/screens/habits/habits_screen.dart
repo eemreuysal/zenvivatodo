@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../models/habit.dart';
-import '../../models/habit_log.dart';
 import '../../services/habit_service.dart';
 import '../../widgets/habit_card.dart';
 import 'add_habit_screen.dart';
@@ -92,6 +91,8 @@ class _HabitsScreenState extends State<HabitsScreen>
         completed,
       );
       
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
+      
       if (success) {
         setState(() {
           _todayCompletedMap[habit.id!] = completed;
@@ -101,6 +102,9 @@ class _HabitsScreenState extends State<HabitsScreen>
           // Alışkanlık tamamlandığında güncel streak değerini kontrol et
           // ve belirli zincir milestone'larında bildirim göster
           final updatedHabit = await _habitService.getHabitById(habit.id!);
+          
+          if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
+          
           if (updatedHabit != null && updatedHabit.currentStreak > habit.currentStreak) {
             _checkAndShowAchievementMessage(updatedHabit.currentStreak);
           }
@@ -109,6 +113,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
     } catch (e) {
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
       _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
     }
   }
@@ -226,6 +231,8 @@ class _HabitsScreenState extends State<HabitsScreen>
     try {
       final success = await _habitService.deleteHabit(habit.id!);
       
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
+      
       if (success) {
         _loadData();
         _showSuccessSnackBar('Alışkanlık başarıyla silindi');
@@ -233,6 +240,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
       }
     } catch (e) {
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
       _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
   }
@@ -286,8 +294,8 @@ class _HabitsScreenState extends State<HabitsScreen>
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddHabit,
-        child: const Icon(Icons.add),
         tooltip: 'Yeni Alışkanlık Ekle',
+        child: const Icon(Icons.add), // child argümanını sona taşıdık
       ),
     );
   }
