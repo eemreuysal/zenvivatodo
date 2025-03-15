@@ -36,7 +36,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: habitColor.withOpacity(0.3),
+          color: habitColor.withAlpha(77), // 0.3 -> 77 (withOpacity yerine withAlpha)
           width: 1,
         ),
       ),
@@ -61,7 +61,7 @@ class HabitCard extends StatelessWidget {
               ),
               leading: CircleAvatar(
                 backgroundColor: habitColor,
-                child: Icon(
+                child: const Icon( // const ekledik
                   Icons.repeat,
                   color: Colors.white,
                 ),
