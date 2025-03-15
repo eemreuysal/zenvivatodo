@@ -84,7 +84,7 @@ class HabitCard extends StatelessWidget {
                                 habit.title,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                  // Üzeri çizilme kaldırıldı
                                 ),
                               ),
                               if (habit.description.isNotEmpty) ...[
@@ -93,9 +93,8 @@ class HabitCard extends StatelessWidget {
                                   habit.description,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    decoration: isCompleted ? TextDecoration.lineThrough : null,
-                                  ),
+                                  style: theme.textTheme.bodyMedium,
+                                  // Üzeri çizilme kaldırıldı
                                 ),
                               ],
                             ],
