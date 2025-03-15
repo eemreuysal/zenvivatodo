@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
-import '../../constants/app_texts.dart';
 import '../../models/habit.dart';
 import '../../services/habit_service.dart';
 import '../../widgets/habit_card.dart';
@@ -181,24 +180,6 @@ class _HabitsScreenState extends State<HabitsScreen>
     
     if (result == true) {
       _loadData();
-    }
-  }
-
-  Future<void> _deleteHabit(Habit habit) async {
-    try {
-      final success = await _habitService.deleteHabit(habit.id!);
-      
-      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
-      
-      if (success) {
-        _loadData();
-        _showSuccessSnackBar('Alışkanlık başarıyla silindi');
-      } else {
-        _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
-      }
-    } catch (e) {
-      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
-      _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
   }
 
