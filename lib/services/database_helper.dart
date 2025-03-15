@@ -24,7 +24,7 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'zenviva.db');
-    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(path, version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -81,6 +81,7 @@ class DatabaseHelper {
         isArchived INTEGER NOT NULL DEFAULT 0,
         currentStreak INTEGER NOT NULL DEFAULT 0,
         longestStreak INTEGER NOT NULL DEFAULT 0,
+        showInDashboard INTEGER NOT NULL DEFAULT 0,
         userId INTEGER,
         FOREIGN KEY(userId) REFERENCES users(id)
       )
@@ -150,6 +151,11 @@ class DatabaseHelper {
           FOREIGN KEY(habitId) REFERENCES habits(id)
         )
       ''');
+    }
+    
+    if (oldVersion < 3) {
+      // Add showInDashboard column to habits table
+      await db.execute('ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
     }
   }
 
@@ -362,6 +368,16 @@ class DatabaseHelper {
       whereArgs: whereArgs,
     );
   }
+  
+  // Dashboard için gösterilecek alışkanlıkları getir
+  Future<List<Map<String, dynamic>>> getDashboardHabits(int userId, {required String date}) async {
+    Database db = await database;
+    return await db.query(
+      'habits',
+      where: 'userId = ? AND isArchived = 0 AND showInDashboard = 1',
+      whereArgs: [userId],
+    );
+  }
 
   Future<Map<String, dynamic>?> getHabitById(int id) async {
     Database db = await database;
@@ -400,6 +416,16 @@ class DatabaseHelper {
     return await db.update(
       'habits',
       {'isArchived': isArchived ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+  
+  Future<int> toggleShowInDashboard(int id, bool showInDashboard) async {
+    Database db = await database;
+    return await db.update(
+      'habits',
+      {'showInDashboard': showInDashboard ? 1 : 0},
       where: 'id = ?',
       whereArgs: [id],
     );
