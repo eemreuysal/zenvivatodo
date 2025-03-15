@@ -32,7 +32,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   List<int> _selectedWeekDays = [];
   DateTime _startDate = DateTime.now();
   TimeOfDay? _reminderTime;
-  int _colorCode = HabitConstants.colors.first.value;
+  int _colorCode = HabitConstants.colors.first.toArgb();
   
   bool _isEdit = false;
   bool _isLoading = false;
@@ -105,7 +105,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
       helpText: 'Başlangıç Tarihi Seçin',
       cancelText: AppTexts.cancel,
-      confirmText: AppTexts.ok,
+      confirmText: AppTexts.save, // "ok" yerine "save" kullandık
       locale: const Locale('tr', 'TR'),
     );
     
@@ -122,7 +122,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       initialTime: _reminderTime ?? TimeOfDay.now(),
       helpText: 'Hatırlatıcı Saati Seçin',
       cancelText: AppTexts.cancel,
-      confirmText: AppTexts.ok,
+      confirmText: AppTexts.save, // "ok" yerine "save" kullandık
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
@@ -274,12 +274,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 spacing: 12,
                 runSpacing: 12,
                 children: HabitConstants.colors.map((color) {
-                  final isSelected = _colorCode == color.value;
+                  final isSelected = _colorCode == color.toArgb(); // value yerine toArgb()
                   
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _colorCode = color.value;
+                        _colorCode = color.toArgb(); // value yerine toArgb()
                       });
                       Navigator.pop(context);
                     },
@@ -298,7 +298,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         boxShadow: [
                           if (isSelected)
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withAlpha(77), // withOpacity yerine withAlpha
                               blurRadius: 4,
                               spreadRadius: 2,
                             ),
