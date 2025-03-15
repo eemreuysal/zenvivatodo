@@ -6,8 +6,6 @@ import 'package:sqflite/sqflite.dart';
 import '../models/task.dart';
 import '../models/user.dart';
 import '../models/category.dart';
-import '../models/habit.dart';
-import '../models/habit_log.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
