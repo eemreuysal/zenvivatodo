@@ -18,6 +18,7 @@ import '../tasks/active_tasks_screen.dart';
 import '../tasks/completed_tasks_screen.dart';
 import '../categories/categories_screen.dart';
 import '../profile/profile_screen.dart';
+import '../habits/habits_screen.dart';
 import '../../main.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -308,6 +309,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => CategoriesScreen(userId: widget.userId),
+                    ),
+                  ).then((_) => _loadData());
+                },
+              ),
+              // Alışkanlıklar menü öğesi eklendi
+              ListTile(
+                leading: const Icon(Icons.repeat),
+                title: const Text(AppTexts.habits),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HabitsScreen(userId: widget.userId),
                     ),
                   ).then((_) => _loadData());
                 },
