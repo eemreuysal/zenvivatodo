@@ -184,66 +184,6 @@ class _HabitsScreenState extends State<HabitsScreen>
     }
   }
 
-  void _navigateToEditHabit(Habit habit) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddHabitScreen(
-          userId: widget.userId,
-          habit: habit,
-        ),
-      ),
-    );
-    
-    if (result == true) {
-      _loadData();
-    }
-  }
-
-  void _showDeleteConfirmation(Habit habit) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Alışkanlığı Sil'),
-          content: RichText(
-            text: TextSpan(
-              style: const TextStyle(fontSize: 16, color: Colors.black),
-              children: [
-                const TextSpan(
-                  text: 'Bu alışkanlığı silmek istediğinize emin misiniz?\n\n',
-                ),
-                TextSpan(
-                  text: habit.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const TextSpan(
-                  text: '\n\nBu işlem geri alınamaz ve tüm ilerleme kaydınız silinir.',
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(AppTexts.cancel),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                _deleteHabit(habit);
-              },
-              child: const Text(
-                AppTexts.delete,
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Future<void> _deleteHabit(Habit habit) async {
     try {
       final success = await _habitService.deleteHabit(habit.id!);
@@ -312,7 +252,7 @@ class _HabitsScreenState extends State<HabitsScreen>
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddHabit,
         tooltip: 'Yeni Alışkanlık Ekle',
-        child: const Icon(Icons.add), // child argümanını sona taşıdık
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -431,7 +371,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         return HabitCard(
           habit: habit,
           isCompleted: isCompleted,
-          onToggleCompletion: isToday ? () => _toggleHabitCompletion(habit) : null,
+          onToggleCompletion: isToday ? () => _toggleHabitCompletion(habit) : () {},
           onTap: () => _navigateToHabitDetails(habit),
         );
       },
