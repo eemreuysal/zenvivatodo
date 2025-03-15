@@ -109,6 +109,28 @@ class AppTheme {
       ),
     ),
     textTheme: _lightTextTheme,
+    // Tarih ve saat seçici için tema ayarları
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: Colors.white,
+      headerBackgroundColor: AppColors.primaryColor,
+      headerForegroundColor: Colors.white,
+      dayForegroundColor: MaterialStateProperty.all(AppColors.lightTextColor),
+      yearForegroundColor: MaterialStateProperty.all(AppColors.lightTextColor),
+      todayForegroundColor: MaterialStateProperty.all(AppColors.primaryColor),
+      todayBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+      dayBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+      yearBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+    ),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: Colors.white,
+      hourMinuteTextColor: AppColors.lightTextColor,
+      dayPeriodTextColor: AppColors.lightTextColor,
+      dialHandColor: AppColors.primaryColor,
+      dialBackgroundColor: AppColors.lightBackground,
+      hourMinuteColor: AppColors.lightBackground,
+      dayPeriodColor: AppColors.lightBackground,
+      dialTextColor: AppColors.lightTextColor,
+    ),
   );
 
   static final ThemeData darkTheme = ThemeData(
@@ -120,6 +142,7 @@ class AppTheme {
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: AppColors.darkTextColor,
+      background: AppColors.darkBackground,
     ),
     scaffoldBackgroundColor: AppColors.darkBackground,
     appBarTheme: const AppBarTheme(
@@ -180,5 +203,29 @@ class AppTheme {
       ),
     ),
     textTheme: _darkTextTheme,
+    // Koyu tema için tarih ve saat seçici ayarları
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: AppColors.darkCardColor,
+      headerBackgroundColor: AppColors.primaryColor,
+      headerForegroundColor: Colors.white,
+      dayForegroundColor: MaterialStateProperty.all(AppColors.darkTextColor),
+      yearForegroundColor: MaterialStateProperty.all(AppColors.darkTextColor),
+      todayForegroundColor: MaterialStateProperty.all(AppColors.primaryColor),
+      todayBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+      dayBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+      yearBackgroundColor: MaterialStateProperty.all(Colors.transparent),
+      surfaceTintColor: AppColors.darkCardColor,
+    ),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: AppColors.darkCardColor,
+      hourMinuteTextColor: AppColors.darkTextColor,
+      dayPeriodTextColor: AppColors.darkTextColor,
+      dialHandColor: AppColors.primaryColor,
+      dialBackgroundColor: AppColors.darkBackground,
+      hourMinuteColor: AppColors.darkBackground,
+      dayPeriodColor: AppColors.darkBackground,
+      dialTextColor: AppColors.darkTextColor,
+      entryModeIconColor: AppColors.darkTextColor,
+    ),
   );
 }
