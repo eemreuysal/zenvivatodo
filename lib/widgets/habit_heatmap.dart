@@ -97,7 +97,7 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    final notCompletedColor = baseColor.withOpacity(0.1);
+    final notCompletedColor = baseColor.withAlpha(26); // withOpacity(0.1) yerine withAlpha(26)
     final todayBorderColor = Theme.of(context).primaryColor;
 
     return InkWell(
@@ -131,7 +131,7 @@ class HabitHeatmap extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(26), // withOpacity(0.1) yerine withAlpha(26)
             borderRadius: BorderRadius.circular(2),
           ),
         ),
