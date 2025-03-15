@@ -48,7 +48,6 @@ class HabitService {
     try {
       final allHabits = await getHabits(userId);
       final now = DateTime.now();
-      final today = DateFormat('yyyy-MM-dd').format(now);
       final weekday = now.weekday; // 1 (Pazartesi) - 7 (Pazar)
 
       // Bugün gerçekleştirilmesi gereken alışkanlıkları filtrele
@@ -208,7 +207,7 @@ class HabitService {
         }
         
         // Bir gün geriye git
-        currentDate = currentDate.subtract(Duration(days: 1));
+        currentDate = currentDate.subtract(const Duration(days: 1)); // const eklendi
         
         // Başlangıç tarihinden önceyse çık
         if (currentDate.isBefore(DateTime.parse(habit.startDate))) break;
