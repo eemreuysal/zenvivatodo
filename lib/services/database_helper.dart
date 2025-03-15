@@ -6,6 +6,8 @@ import 'package:sqflite/sqflite.dart';
 import '../models/task.dart';
 import '../models/user.dart';
 import '../models/category.dart';
+import '../models/habit.dart';
+import '../models/habit_log.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -24,7 +26,7 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'zenviva.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -66,6 +68,38 @@ class DatabaseHelper {
       )
     ''');
 
+    // Habits table
+    await db.execute('''
+      CREATE TABLE habits(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        frequency TEXT NOT NULL,
+        frequencyDays TEXT,
+        startDate TEXT NOT NULL,
+        targetDays INTEGER NOT NULL,
+        colorCode INTEGER NOT NULL,
+        reminderTime TEXT,
+        isArchived INTEGER NOT NULL DEFAULT 0,
+        currentStreak INTEGER NOT NULL DEFAULT 0,
+        longestStreak INTEGER NOT NULL DEFAULT 0,
+        userId INTEGER,
+        FOREIGN KEY(userId) REFERENCES users(id)
+      )
+    ''');
+
+    // Habit logs table
+    await db.execute('''
+      CREATE TABLE habit_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        habitId INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        completed INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        FOREIGN KEY(habitId) REFERENCES habits(id)
+      )
+    ''');
+
     // Insert default categories
     await db.insert(
       'categories',
@@ -83,6 +117,42 @@ class DatabaseHelper {
       'categories',
       Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Habits table
+      await db.execute('''
+        CREATE TABLE habits(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          description TEXT,
+          frequency TEXT NOT NULL,
+          frequencyDays TEXT,
+          startDate TEXT NOT NULL,
+          targetDays INTEGER NOT NULL,
+          colorCode INTEGER NOT NULL,
+          reminderTime TEXT,
+          isArchived INTEGER NOT NULL DEFAULT 0,
+          currentStreak INTEGER NOT NULL DEFAULT 0,
+          longestStreak INTEGER NOT NULL DEFAULT 0,
+          userId INTEGER,
+          FOREIGN KEY(userId) REFERENCES users(id)
+        )
+      ''');
+
+      // Habit logs table
+      await db.execute('''
+        CREATE TABLE habit_logs(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          habitId INTEGER NOT NULL,
+          date TEXT NOT NULL,
+          completed INTEGER NOT NULL DEFAULT 0,
+          notes TEXT,
+          FOREIGN KEY(habitId) REFERENCES habits(id)
+        )
+      ''');
+    }
   }
 
   // User methods
@@ -137,6 +207,20 @@ class DatabaseHelper {
 
     // Then delete user's categories
     await db.delete('categories', where: 'userId = ?', whereArgs: [id]);
+
+    // Delete user's habits and habit logs
+    List<Map<String, dynamic>> habits = await db.query(
+      'habits',
+      columns: ['id'],
+      where: 'userId = ?',
+      whereArgs: [id],
+    );
+    
+    for (var habit in habits) {
+      await db.delete('habit_logs', where: 'habitId = ?', whereArgs: [habit['id']]);
+    }
+    
+    await db.delete('habits', where: 'userId = ?', whereArgs: [id]);
 
     // Finally delete the user
     return await db.delete('users', where: 'id = ?', whereArgs: [id]);
@@ -257,5 +341,135 @@ class DatabaseHelper {
   Future<int> deleteTask(int id) async {
     Database db = await database;
     return await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Habit methods
+  Future<int> insertHabit(Map<String, dynamic> habit) async {
+    Database db = await database;
+    return await db.insert('habits', habit);
+  }
+
+  Future<List<Map<String, dynamic>>> getHabits(int userId, {bool includeArchived = false}) async {
+    Database db = await database;
+    String whereClause = 'userId = ?';
+    List<dynamic> whereArgs = [userId];
+
+    if (!includeArchived) {
+      whereClause += ' AND isArchived = 0';
+    }
+
+    return await db.query(
+      'habits',
+      where: whereClause,
+      whereArgs: whereArgs,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getHabitById(int id) async {
+    Database db = await database;
+    List<Map<String, dynamic>> maps = await db.query(
+      'habits',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+    return null;
+  }
+
+  Future<int> updateHabit(Map<String, dynamic> habit) async {
+    Database db = await database;
+    return await db.update(
+      'habits',
+      habit,
+      where: 'id = ?',
+      whereArgs: [habit['id']],
+    );
+  }
+
+  Future<int> deleteHabit(int id) async {
+    Database db = await database;
+    // First delete all habit logs
+    await db.delete('habit_logs', where: 'habitId = ?', whereArgs: [id]);
+    // Then delete the habit
+    return await db.delete('habits', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> archiveHabit(int id, bool isArchived) async {
+    Database db = await database;
+    return await db.update(
+      'habits',
+      {'isArchived': isArchived ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Habit Logs methods
+  Future<int> insertHabitLog(Map<String, dynamic> log) async {
+    Database db = await database;
+    return await db.insert('habit_logs', log);
+  }
+
+  Future<List<Map<String, dynamic>>> getHabitLogs(int habitId, {String? date}) async {
+    Database db = await database;
+    String whereClause = 'habitId = ?';
+    List<dynamic> whereArgs = [habitId];
+
+    if (date != null) {
+      whereClause += ' AND date = ?';
+      whereArgs.add(date);
+    }
+
+    return await db.query(
+      'habit_logs',
+      where: whereClause,
+      whereArgs: whereArgs,
+    );
+  }
+
+  Future<int> toggleHabitCompletion(int habitId, String date, bool completed) async {
+    Database db = await database;
+    
+    // Check if log exists
+    List<Map<String, dynamic>> logs = await db.query(
+      'habit_logs',
+      where: 'habitId = ? AND date = ?',
+      whereArgs: [habitId, date],
+    );
+    
+    if (logs.isEmpty) {
+      // Insert new log
+      return await db.insert('habit_logs', {
+        'habitId': habitId,
+        'date': date,
+        'completed': completed ? 1 : 0,
+      });
+    } else {
+      // Update existing log
+      return await db.update(
+        'habit_logs',
+        {'completed': completed ? 1 : 0},
+        where: 'habitId = ? AND date = ?',
+        whereArgs: [habitId, date],
+      );
+    }
+  }
+
+  Future<int> updateHabitLog(Map<String, dynamic> log) async {
+    Database db = await database;
+    return await db.update(
+      'habit_logs',
+      log,
+      where: 'id = ?',
+      whereArgs: [log['id']],
+    );
+  }
+
+  Future<int> deleteHabitLog(int id) async {
+    Database db = await database;
+    return await db.delete('habit_logs', where: 'id = ?', whereArgs: [id]);
   }
 }
