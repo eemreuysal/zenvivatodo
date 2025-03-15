@@ -81,24 +81,25 @@ class _HabitsScreenState extends State<HabitsScreen>
     }
   }
 
-  Future<void> _toggleHabitCompletion(Habit habit, bool completed) async {
+  Future<void> _toggleHabitCompletion(Habit habit) async {
     try {
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final currentStatus = _todayCompletedMap[habit.id!] ?? false;
       
       final success = await _habitService.toggleHabitCompletion(
         habit.id!,
         today,
-        completed,
+        !currentStatus,
       );
       
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
       
       if (success) {
         setState(() {
-          _todayCompletedMap[habit.id!] = completed;
+          _todayCompletedMap[habit.id!] = !currentStatus;
         });
         
-        if (completed) {
+        if (!currentStatus) { // Eğer tamamlanıyorsa (false -> true)
           // Alışkanlık tamamlandığında güncel streak değerini kontrol et
           // ve belirli zincir milestone'larında bildirim göster
           final updatedHabit = await _habitService.getHabitById(habit.id!);
@@ -174,6 +175,22 @@ class _HabitsScreenState extends State<HabitsScreen>
         builder: (context) => HabitDetailsScreen(
           habit: habit,
           userId: widget.userId,
+        ),
+      ),
+    );
+    
+    if (result == true) {
+      _loadData();
+    }
+  }
+
+  void _navigateToEditHabit(Habit habit) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddHabitScreen(
+          userId: widget.userId,
+          habit: habit,
         ),
       ),
     );
@@ -336,22 +353,9 @@ class _HabitsScreenState extends State<HabitsScreen>
         
         return HabitCard(
           habit: habit,
-          isToday: true,
           isCompleted: isCompleted,
-          onToggle: (completed) => _toggleHabitCompletion(habit, completed),
+          onToggleCompletion: () => _toggleHabitCompletion(habit),
           onTap: () => _navigateToHabitDetails(habit),
-          onEdit: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddHabitScreen(
-                userId: widget.userId,
-                habit: habit,
-              ),
-            ),
-          ).then((result) {
-            if (result == true) _loadData();
-          }),
-          onDelete: () => _showDeleteConfirmation(habit),
         );
       },
     );
@@ -384,32 +388,51 @@ class _HabitsScreenState extends State<HabitsScreen>
       );
     }
     
+    // Alışkanlıkları gruplayalım ve sıraya koyalım:
+    // 1. Bugün aktif olanlar (tamamlanmamış)
+    // 2. Bugün aktif olanlar (tamamlanmış)
+    // 3. Bugün aktif olmayanlar
+
+    final List<Habit> sortedHabits = List.from(_allHabits);
+    sortedHabits.sort((a, b) {
+      // a'nın bugün olup olmadığını kontrol et
+      final aIsToday = _todayHabits.any((h) => h.id == a.id);
+      // b'nin bugün olup olmadığını kontrol et
+      final bIsToday = _todayHabits.any((h) => h.id == b.id);
+      
+      if (aIsToday && !bIsToday) {
+        return -1; // a bugün aktif, b değil - a önce gelsin
+      } else if (!aIsToday && bIsToday) {
+        return 1; // b bugün aktif, a değil - b önce gelsin
+      } else if (aIsToday && bIsToday) {
+        // Her ikisi de bugün aktif - tamamlanma durumuna göre sırala
+        final aCompleted = _todayCompletedMap[a.id] ?? false;
+        final bCompleted = _todayCompletedMap[b.id] ?? false;
+        
+        if (!aCompleted && bCompleted) {
+          return -1; // a tamamlanmamış, b tamamlanmış - a önce gelsin
+        } else if (aCompleted && !bCompleted) {
+          return 1; // a tamamlanmış, b tamamlanmamış - b önce gelsin 
+        }
+      }
+      
+      // Diğer durumlarda isme göre sırala
+      return a.title.compareTo(b.title);
+    });
+    
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _allHabits.length,
+      itemCount: sortedHabits.length,
       itemBuilder: (context, index) {
-        final habit = _allHabits[index];
+        final habit = sortedHabits[index];
         final isToday = _todayHabits.any((h) => h.id == habit.id);
         final isCompleted = isToday ? (_todayCompletedMap[habit.id] ?? false) : false;
         
         return HabitCard(
           habit: habit,
-          isToday: isToday,
           isCompleted: isCompleted,
-          onToggle: (completed) => _toggleHabitCompletion(habit, completed),
+          onToggleCompletion: isToday ? () => _toggleHabitCompletion(habit) : null,
           onTap: () => _navigateToHabitDetails(habit),
-          onEdit: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddHabitScreen(
-                userId: widget.userId,
-                habit: habit,
-              ),
-            ),
-          ).then((result) {
-            if (result == true) _loadData();
-          }),
-          onDelete: () => _showDeleteConfirmation(habit),
         );
       },
     );
