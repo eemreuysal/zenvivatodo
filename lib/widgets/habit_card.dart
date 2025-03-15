@@ -63,7 +63,9 @@ class HabitCard extends StatelessWidget {
                       children: [
                         // Alışkanlık ikonu
                         CircleAvatar(
-                          backgroundColor: isDarkMode ? habitColor.withOpacity(0.2) : habitColor.withOpacity(0.1),
+                          backgroundColor: isDarkMode 
+                              ? habitColor.withAlpha(51) // 0.2 * 255 = 51
+                              : habitColor.withAlpha(25), // 0.1 * 255 = 25
                           radius: 16,
                           child: Icon(
                             Icons.repeat,
@@ -114,7 +116,7 @@ class HabitCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: habitColor.withOpacity(0.1),
+                          color: habitColor.withAlpha(25), // 0.1 * 255 = 25
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -144,7 +146,7 @@ class HabitCard extends StatelessWidget {
                       Text(
                         _getFrequencyText(),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+                          color: theme.textTheme.bodySmall?.color?.withAlpha(153), // 0.6 * 255 = 153
                         ),
                       ),
                     ],
