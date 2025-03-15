@@ -28,6 +28,17 @@ class HabitService {
       return [];
     }
   }
+  
+  // Dashboard için gösterilecek alışkanlıkları getirme
+  Future<List<Habit>> getDashboardHabits(int userId, {required String date}) async {
+    try {
+      final maps = await _dbHelper.getDashboardHabits(userId, date: date);
+      return maps.map((map) => Habit.fromMap(map)).toList();
+    } catch (e) {
+      debugPrint('Dashboard alışkanlıklarını getirme hatası: $e');
+      return [];
+    }
+  }
 
   // Belirli bir alışkanlığı ID'ye göre getirme
   Future<Habit?> getHabitById(int id) async {
@@ -115,6 +126,17 @@ class HabitService {
       return rowsAffected > 0;
     } catch (e) {
       debugPrint('Alışkanlık arşivleme hatası: $e');
+      return false;
+    }
+  }
+  
+  // Alışkanlığın dashboard'da gösterilmesini ayarlama
+  Future<bool> toggleShowInDashboard(int id, bool showInDashboard) async {
+    try {
+      final rowsAffected = await _dbHelper.toggleShowInDashboard(id, showInDashboard);
+      return rowsAffected > 0;
+    } catch (e) {
+      debugPrint('Dashboard gösterme ayarı hatası: $e');
       return false;
     }
   }
@@ -297,6 +319,17 @@ class HabitService {
     } catch (e) {
       debugPrint('Tamamlanma oranı hesaplama hatası: $e');
       return 0.0;
+    }
+  }
+  
+  // Belirli bir tarihteki alışkanlıkların tamamlanma durumunu kontrol et
+  Future<bool> isHabitCompletedOnDate(int habitId, String date) async {
+    try {
+      final logs = await getHabitLogs(habitId, date: date);
+      return logs.isNotEmpty && logs.first.completed;
+    } catch (e) {
+      debugPrint('Tamamlanma kontrolü hatası: $e');
+      return false;
     }
   }
 }
