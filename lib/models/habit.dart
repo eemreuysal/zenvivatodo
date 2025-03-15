@@ -11,6 +11,7 @@ class Habit {
   bool isArchived;
   int currentStreak;
   int longestStreak;
+  bool showInDashboard; // Dashboard'da göster seçeneği
   int userId;
 
   Habit({
@@ -26,6 +27,7 @@ class Habit {
     this.isArchived = false,
     this.currentStreak = 0,
     this.longestStreak = 0,
+    this.showInDashboard = false,
     required this.userId,
   });
 
@@ -41,6 +43,7 @@ class Habit {
       'colorCode': colorCode,
       'reminderTime': reminderTime,
       'isArchived': isArchived ? 1 : 0,
+      'showInDashboard': showInDashboard ? 1 : 0,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'userId': userId,
@@ -59,6 +62,7 @@ class Habit {
       colorCode: map['colorCode'],
       reminderTime: map['reminderTime'],
       isArchived: map['isArchived'] == 1,
+      showInDashboard: map['showInDashboard'] == 1,
       currentStreak: map['currentStreak'],
       longestStreak: map['longestStreak'],
       userId: map['userId'],
@@ -67,6 +71,6 @@ class Habit {
 
   @override
   String toString() {
-    return 'Habit{id: $id, title: $title, frequency: $frequency, currentStreak: $currentStreak}';
+    return 'Habit{id: $id, title: $title, frequency: $frequency, currentStreak: $currentStreak, showInDashboard: $showInDashboard}';
   }
 }
