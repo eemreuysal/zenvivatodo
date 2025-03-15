@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../models/habit.dart';
 import '../../models/habit_log.dart';
@@ -79,10 +78,10 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         !_todayCompleted,
       );
       
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
+      
       if (success) {
-        // Alışkanlık verisini güncelle
-        final habit = await _habitService.getHabitById(widget.habit.id!);
-        
+        // Kullanılmayan değişkeni kaldırdık
         setState(() {
           _todayCompleted = !_todayCompleted;
         });
@@ -92,6 +91,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
     } catch (e) {
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
     }
   }
@@ -169,6 +169,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
       }
     } catch (e) {
+      if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
   }
@@ -439,6 +440,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                           !currentStatus,
                         );
                         
+                        if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
                         _loadData(); // Verileri yenile
                       }
                     },
