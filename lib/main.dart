@@ -18,7 +18,7 @@ void main() async {
   
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
+  bool isDarkMode = prefs.getBool('isDarkMode') ?? true; // Varsayılan değer true (koyu tema) olarak değiştirildi
 
   runApp(
     ChangeNotifierProvider(
