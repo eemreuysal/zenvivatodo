@@ -32,7 +32,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   List<int> _selectedWeekDays = [];
   DateTime _startDate = DateTime.now();
   TimeOfDay? _reminderTime;
-  int _colorCode = HabitConstants.colors.first.toArgb();
+  int _colorCode = HabitConstants.colors.first.value;
   
   bool _isEdit = false;
   bool _isLoading = false;
@@ -274,12 +274,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 spacing: 12,
                 runSpacing: 12,
                 children: HabitConstants.colors.map((color) {
-                  final isSelected = _colorCode == color.toArgb(); // value yerine toArgb()
+                  final isSelected = _colorCode == color.value; // toArgb() yerine value
                   
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _colorCode = color.toArgb(); // value yerine toArgb()
+                        _colorCode = color.value; // toArgb() yerine value
                       });
                       Navigator.pop(context);
                     },
