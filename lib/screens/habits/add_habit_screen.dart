@@ -33,6 +33,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   DateTime _startDate = DateTime.now();
   TimeOfDay? _reminderTime;
   int _colorCode = HabitConstants.colors.first.toARGB32();
+  bool _showInDashboard = false;
   
   bool _isEdit = false;
   bool _isLoading = false;
@@ -54,6 +55,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       _frequency = habit.frequency;
       _colorCode = habit.colorCode;
       _targetDaysController.text = habit.targetDays.toString();
+      _showInDashboard = habit.showInDashboard;
       
       // Başlangıç tarihi
       try {
@@ -349,6 +351,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
             : null,
         currentStreak: _isEdit ? widget.habit!.currentStreak : 0,
         longestStreak: _isEdit ? widget.habit!.longestStreak : 0,
+        showInDashboard: _showInDashboard,
         userId: widget.userId,
       );
 
@@ -592,6 +595,31 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                     ),
                     
                     const SizedBox(height: 24),
+                    
+                    // Ana menüde göster seçeneği
+                    SwitchListTile(
+                      title: const Text(
+                        'Ana menüde göster',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Etkinleştirildiğinde, bu alışkanlık görev panosunda gösterilir',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      value: _showInDashboard,
+                      onChanged: (value) {
+                        setState(() {
+                          _showInDashboard = value;
+                        });
+                      },
+                      activeColor: AppColors.primaryColor,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    
+                    const SizedBox(height: 16),
                     
                     // Hedef
                     Text(
