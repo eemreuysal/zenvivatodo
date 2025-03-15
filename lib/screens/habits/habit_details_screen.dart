@@ -107,6 +107,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       ),
     );
     
+    if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü eklendi
+    
     if (result == true) {
       // Sayfayı kapatmadan önce güncelleme sinyali
       Navigator.pop(context, true);
