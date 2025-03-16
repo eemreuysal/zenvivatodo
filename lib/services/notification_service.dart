@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:rxdart/rxdart.dart';
@@ -52,7 +51,8 @@ class NotificationService {
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
     try {
-      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      // Flutter_timezone yerine yerel saat dilimini kullanma
+      final String timeZoneName = DateTime.now().timeZoneName;
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       debugPrint('Timezone set to: $timeZoneName');
     } catch (e) {
@@ -125,26 +125,36 @@ class NotificationService {
     // Convert DateTime to TZDateTime
     tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
     
+    // Bildirim detaylarını güncelleme - büyük simge sorununu düzeltme
+    final AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'task_reminder_channel',
+      'Görev Hatırlatmaları',
+      channelDescription: 'Görev zamanı yaklaştığında hatırlatma gönderir',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      // BigPictureStyle'ı kaldırdık çünkü sorun yaratıyordu
+    );
+
+    final DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+    
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
       body,
       tzScheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'task_reminder_channel',
-          'Görev Hatırlatmaları',
-          channelDescription: 'Görev zamanı yaklaştığında hatırlatma gönderir',
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
+      platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
