@@ -12,10 +12,10 @@ class HabitDetailsScreen extends StatefulWidget {
   final int userId;
 
   const HabitDetailsScreen({
-    Key? key,
+    super.key,
     required this.habit,
     required this.userId,
-  }) : super(key: key);
+  });
 
   @override
   State<HabitDetailsScreen> createState() => _HabitDetailsScreenState();
