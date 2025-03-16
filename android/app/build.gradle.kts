@@ -7,10 +7,11 @@ plugins {
 
 android {
     namespace = "com.example.zenvivatodo"
-    compileSdk = 34 // Yükseltildi: 34 (Android 14)
-    ndkVersion = "27.0.12077973" // Yükseltilmiş NDK sürümü
+    compileSdk = 34 // Android 14
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
+        // Desugaring için Java 11 kullanımı
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
         // Desugaring etkinleştirme
@@ -22,28 +23,56 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.zenvivatodo"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 21 // Yükseltildi: 21
-        targetSdk = 34 // Yükseltildi: 34 (Android 14)
+        minSdk = 23 // Android 6.0 (Marshmallow) için daha iyi destek
+        targetSdk = 34 // Android 14
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // MultiDex desteği
+        multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Optimizasyonlar
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("debug")
+        }
+        
+        debug {
+            // Debug için optimizasyonlar
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+        }
+    }
+    
+    // Lint kontrolleri
+    lint {
+        disable += "MissingTranslation"
+        abortOnError = false
+    }
+    
+    // Çoklu APK desteği
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = false
         }
     }
 }
 
-// Desugaring bağımlılığı
+// Desugaring ve MultiDex bağımlılıkları
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    implementation("androidx.multidex:multidex:2.0.1")
 }
 
 flutter {
