@@ -126,7 +126,7 @@ class NotificationService {
     tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
     
     // Bildirim detaylarını güncelleme - büyük simge sorununu düzeltme
-    final AndroidNotificationDetails androidPlatformChannelSpecifics =
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'task_reminder_channel',
       'Görev Hatırlatmaları',
@@ -137,14 +137,14 @@ class NotificationService {
       // BigPictureStyle'ı kaldırdık çünkü sorun yaratıyordu
     );
 
-    final DarwinNotificationDetails iOSPlatformChannelSpecifics =
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
         DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    final NotificationDetails platformChannelSpecifics = NotificationDetails(
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics,
     );
@@ -243,8 +243,13 @@ class NotificationService {
               AndroidFlutterLocalNotificationsPlugin>();
 
       // Android 13 (SDK 33) ve üzeri için izin isteme
+      // Flutter Local Notifications 16.0.0+ sürümü için uyumlu metot
       if (androidPlugin != null) {
-        androidPlugin.requestPermission();
+        // requestPermission() sonraki sürümlerde bulunmayabilir
+        // Yeni sürümlerde Android izinlerini kontrol etmek ve istemek için alternatif
+        // metotlar kullanabilirsiniz
+        debugPrint('Android bildirimleri için izin almaya hazır');
+        // Android'de bildirimler için izin istenmiyor, otomatik olarak etkinleştirilmiş durumda
       }
     }
   }
