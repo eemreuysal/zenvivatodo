@@ -26,22 +26,18 @@ class NotificationService {
     // Initialize notification settings
     const AndroidInitializationSettings initializationSettingsAndroid = 
         AndroidInitializationSettings('@mipmap/ic_launcher');
+    
+    // iOS bildirim ayarları
+    final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+    );
         
-    final DarwinInitializationSettings initializationSettingsIOS = 
-        DarwinInitializationSettings(
-          requestAlertPermission: true,
-          requestBadgePermission: true,
-          requestSoundPermission: true,
-          onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-        );
-        
-    const InitializationSettings initializationSettings = InitializationSettings(
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
-      iOS: DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-      ),
+      iOS: iosSettings,
     );
     
     await flutterLocalNotificationsPlugin.initialize(
@@ -101,10 +97,13 @@ class NotificationService {
     if (navigatorKey.currentContext != null) {
       showDialog(
         context: navigatorKey.currentContext!,
-        builder: (context) => const ReminderDialog(
-          task: null, // Bu değer uygun task değeri ile değiştirilmeli
-          onDismiss: null, // Bu değer uygun fonksiyon ile değiştirilmeli
-          onViewTask: null, // Bu değer uygun fonksiyon ile değiştirilmeli
+        builder: (context) => ReminderDialog(
+          task: task,
+          onDismiss: () => Navigator.pop(context),
+          onViewTask: () {
+            Navigator.pop(context);
+            // Burada görev detaylarına yönlendirme yapılabilir
+          },
         ),
       );
     }
@@ -203,30 +202,40 @@ class NotificationService {
 
   Future<void> requestPermissions() async {
     if (Platform.isIOS || Platform.isMacOS) {
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()?
-          .requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-          
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()?
-          .requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+      // iOS için izinleri iste
+      final IOSFlutterLocalNotificationsPlugin? iosPlugin = 
+          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
+              
+      if (iosPlugin != null) {
+        iosPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+      
+      // macOS için izinleri iste
+      final MacOSFlutterLocalNotificationsPlugin? macOSPlugin =
+          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin>();
+              
+      if (macOSPlugin != null) {
+        macOSPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
     } else if (Platform.isAndroid) {
-      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
           flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
-      // Android 13 (SDK 33) ve üzeri için permission isteme - doğru metod ile değiştirildi
-      await androidImplementation?.requestPermission();
+      // Android 13 (SDK 33) ve üzeri için izin isteme
+      if (androidPlugin != null) {
+        androidPlugin.requestPermission();
+      }
     }
   }
 
