@@ -10,7 +10,7 @@ class DatePickerWidget extends StatelessWidget {
     Key? key,
     required this.selectedDate,
     required this.onDateChanged,
-  }) : super(key: key);
+  }) 
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -47,8 +47,7 @@ class DatePickerWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(
-            color:
-                theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+            color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Colors.grey.withAlpha(76),
           ),
           borderRadius: BorderRadius.circular(8),

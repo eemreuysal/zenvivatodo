@@ -14,7 +14,7 @@ class AddHabitScreen extends StatefulWidget {
     Key? key,
     required this.userId,
     this.habit,
-  }) : super(key: key);
+  }) 
 
   @override
   State<AddHabitScreen> createState() => _AddHabitScreenState();
@@ -25,16 +25,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _targetDaysController = TextEditingController();
-  
+
   final HabitService _habitService = HabitService();
-  
+
   String _frequency = HabitConstants.daily;
   List<int> _selectedWeekDays = [];
   DateTime _startDate = DateTime.now();
   TimeOfDay? _reminderTime;
   int _colorCode = HabitConstants.colors.first.toARGB32();
   bool _showInDashboard = false;
-  
+
   bool _isEdit = false;
   bool _isLoading = false;
 
@@ -49,14 +49,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     if (widget.habit != null) {
       _isEdit = true;
       final habit = widget.habit!;
-      
+
       _titleController.text = habit.title;
       _descriptionController.text = habit.description;
       _frequency = habit.frequency;
       _colorCode = habit.colorCode;
       _targetDaysController.text = habit.targetDays.toString();
       _showInDashboard = habit.showInDashboard;
-      
+
       // Başlangıç tarihi
       try {
         _startDate = DateTime.parse(habit.startDate);
@@ -64,17 +64,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         // Tarih düzgün ayrıştırılamadıysa, bugünü kullan
         _startDate = DateTime.now();
       }
-      
+
       // Haftalık seçilen günler
-      if (habit.frequency == HabitConstants.weekly && 
-          habit.frequencyDays != null && 
+      if (habit.frequency == HabitConstants.weekly &&
+          habit.frequencyDays != null &&
           habit.frequencyDays!.isNotEmpty) {
         _selectedWeekDays = habit.frequencyDays!
             .split(',')
             .map((day) => int.parse(day))
             .toList();
       }
-      
+
       // Hatırlatıcı saat
       if (habit.reminderTime != null && habit.reminderTime!.isNotEmpty) {
         final parts = habit.reminderTime!.split(':');
@@ -90,7 +90,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       _targetDaysController.text = '21'; // Varsayılan 21 gün
     }
   }
-  
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -110,7 +110,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       confirmText: AppTexts.save, // "ok" yerine "save" kullandık
       locale: const Locale('tr', 'TR'),
     );
-    
+
     if (pickedDate != null && pickedDate != _startDate) {
       setState(() {
         _startDate = pickedDate;
@@ -132,14 +132,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         );
       },
     );
-    
+
     if (pickedTime != null) {
       setState(() {
         _reminderTime = pickedTime;
       });
     }
   }
-  
+
   void _showFrequencyPicker() {
     showModalBottomSheet(
       context: context,
@@ -160,7 +160,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Günlük
                   RadioListTile<String>(
                     title: const Text('Her Gün'),
@@ -175,7 +175,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       });
                     },
                   ),
-                  
+
                   // Haftalık
                   RadioListTile<String>(
                     title: const Text('Haftanın Belirli Günleri'),
@@ -190,7 +190,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       });
                     },
                   ),
-                  
+
                   // Haftalık gün seçimi
                   if (_frequency == HabitConstants.weekly)
                     Padding(
@@ -200,8 +200,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         children: HabitConstants.weekdays.entries.map((entry) {
                           final weekday = entry.key;
                           final dayName = entry.value[0]; // İlk harf
-                          final isSelected = _selectedWeekDays.contains(weekday);
-                          
+                          final isSelected =
+                              _selectedWeekDays.contains(weekday);
+
                           return FilterChip(
                             label: Text(dayName),
                             selected: isSelected,
@@ -219,7 +220,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         }).toList(),
                       ),
                     ),
-                  
+
                   // Aylık
                   RadioListTile<String>(
                     title: const Text('Ayda Bir (Aynı Gün)'),
@@ -234,9 +235,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       });
                     },
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Tamam butonu
                   Center(
                     child: ElevatedButton(
@@ -252,7 +253,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       },
     );
   }
-  
+
   void _showColorPicker() {
     showModalBottomSheet(
       context: context,
@@ -271,17 +272,18 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 20),
-              
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
                 children: HabitConstants.colors.map((color) {
-                  final isSelected = _colorCode == color.toARGB32(); // value yerine toARGB32() kullanıyoruz
-                  
+                  final isSelected = _colorCode ==
+                      color.toARGB32(); // value yerine toARGB32() kullanıyoruz
+
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _colorCode = color.toARGB32(); // value yerine toARGB32() kullanıyoruz
+                        _colorCode = color
+                            .toARGB32(); // value yerine toARGB32() kullanıyoruz
                       });
                       Navigator.pop(context);
                     },
@@ -292,15 +294,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         color: color,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected 
-                              ? Colors.white 
-                              : Colors.transparent,
+                          color: isSelected ? Colors.white : Colors.transparent,
                           width: 3,
                         ),
                         boxShadow: [
                           if (isSelected)
                             BoxShadow(
-                              color: Colors.black.withAlpha(77), // withOpacity yerine withAlpha
+                              color: Colors.black.withAlpha(
+                                  77), // withOpacity yerine withAlpha
                               blurRadius: 4,
                               spreadRadius: 2,
                             ),
@@ -319,7 +320,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
   Future<void> _saveHabit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -412,7 +413,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Alışkanlık Düzenle' : 'Yeni Alışkanlık'),
@@ -456,7 +457,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             controller: _titleController,
                             decoration: const InputDecoration(
                               labelText: 'Alışkanlık Adı',
-                              hintText: 'Örn: Günlük yürüyüş, Su içmek, Kitap okumak',
+                              hintText:
+                                  'Örn: Günlük yürüyüş, Su içmek, Kitap okumak',
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -468,9 +470,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Açıklama
                     TextFormField(
                       controller: _descriptionController,
@@ -480,9 +482,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       ),
                       maxLines: 2,
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Tekrarlama Sıklığı
                     Card(
                       child: InkWell(
@@ -517,9 +519,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Başlangıç Tarihi
                     Card(
                       child: InkWell(
@@ -542,7 +544,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    DateFormat('d MMMM yyyy', 'tr_TR').format(_startDate),
+                                    DateFormat('d MMMM yyyy', 'tr_TR')
+                                        .format(_startDate),
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                 ],
@@ -554,9 +557,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Hatırlatıcı Saati
                     Card(
                       child: InkWell(
@@ -593,9 +596,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Ana menüde göster seçeneği
                     SwitchListTile(
                       title: const Text(
@@ -616,11 +619,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         });
                       },
                       activeColor: AppColors.primaryColor,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Hedef
                     Text(
                       'Hedef',
@@ -628,9 +632,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     TextFormField(
                       controller: _targetDaysController,
                       decoration: const InputDecoration(
@@ -650,16 +654,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         return null;
                       },
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Text(
                       'Yeni bir alışkanlık oluşturmak genellikle 21 ile 66 gün arasında sürer.',
                       style: theme.textTheme.bodySmall,
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Kaydet butonu
                     SizedBox(
                       width: double.infinity,
@@ -673,7 +677,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         child: Text(_isEdit ? 'GÜNCELLE' : 'OLUŞTUR'),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
                   ],
                 ),

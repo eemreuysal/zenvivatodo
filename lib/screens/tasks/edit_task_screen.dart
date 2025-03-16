@@ -22,7 +22,7 @@ class EditTaskScreen extends StatefulWidget {
     required this.userId,
     required this.task,
     required this.categories,
-  }) : super(key: key);
+  }) 
 
   @override
   State<EditTaskScreen> createState() => _EditTaskScreenState();

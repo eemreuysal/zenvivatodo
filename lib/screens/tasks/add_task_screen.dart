@@ -22,7 +22,7 @@ class AddTaskScreen extends StatefulWidget {
     required this.userId,
     required this.categories,
     this.initialDate,
-  }) : super(key: key);
+  }) 
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();

@@ -13,7 +13,7 @@ class HabitCard extends StatelessWidget {
     required this.isCompleted,
     required this.onToggleCompletion,
     required this.onTap,
-  }) : super(key: key);
+  }) 
 
   @override
   Widget build(BuildContext context) {
@@ -56,14 +56,14 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  
+
                   // Başlık
                   Expanded(
                     child: Row(
                       children: [
                         // Alışkanlık ikonu
                         CircleAvatar(
-                          backgroundColor: isDarkMode 
+                          backgroundColor: isDarkMode
                               ? habitColor.withAlpha(51) // 0.2 * 255 = 51
                               : habitColor.withAlpha(25), // 0.1 * 255 = 25
                           radius: 16,
@@ -74,7 +74,7 @@ class HabitCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 10),
-                        
+
                         // Alışkanlık başlığı
                         Expanded(
                           child: Column(
@@ -103,7 +103,7 @@ class HabitCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Alışkanlık bilgileri
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -138,14 +138,15 @@ class HabitCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 4),
-                      
+
                       // Frekans bilgisi
                       Text(
                         _getFrequencyText(),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.textTheme.bodySmall?.color?.withAlpha(153), // 0.6 * 255 = 153
+                          color: theme.textTheme.bodySmall?.color
+                              ?.withAlpha(153), // 0.6 * 255 = 153
                         ),
                       ),
                     ],
@@ -158,7 +159,7 @@ class HabitCard extends StatelessWidget {
       ),
     );
   }
-  
+
   String _getFrequencyText() {
     switch (habit.frequency) {
       case 'daily':

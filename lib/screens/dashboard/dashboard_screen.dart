@@ -28,7 +28,7 @@ import '../../main.dart';
 class DashboardScreen extends StatefulWidget {
   final int userId;
 
-  const DashboardScreen({super.key, required this.userId}) : super(key: key);
+  const DashboardScreen({super.key, required this.userId}) 
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -40,7 +40,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final AuthService _authService = AuthService();
   final HabitService _habitService = HabitService();
   // Global key for SnackBar
-  final GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   DateTime _selectedDate = DateTime.now();
   List<Task> _activeTasks = [];
@@ -60,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadData();
     _loadUserInfo();
   }
-  
+
   Future<void> _loadUserInfo() async {
     try {
       final user = await _authService.getCurrentUser();
@@ -93,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     try {
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      
+
       // Load categories
       final categories = await _categoryService.getCategories(widget.userId);
 
@@ -107,13 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       final activeTasks = tasks.where((task) => !task.isCompleted).toList();
       final completedTasks = tasks.where((task) => task.isCompleted).toList();
-      
+
       // Load habits for the dashboard
       final dashboardHabits = await _habitService.getDashboardHabits(
         widget.userId,
         date: dateStr,
       );
-      
+
       // Habit tamamlanma durumlarını kontrol et
       final habitCompletionStatus = <int, bool>{};
       for (var habit in dashboardHabits) {
@@ -149,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _selectDate(BuildContext context) async {
     try {
       final isDark = Theme.of(context).brightness == Brightness.dark;
-      
+
       final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: _selectedDate,
@@ -157,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         lastDate: DateTime(2030),
         builder: (context, child) {
           if (child == null) return Container();
-          
+
           // Theme colors based on current brightness
           return Theme(
             data: Theme.of(context).copyWith(
@@ -174,11 +175,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onSurface: AppColors.lightTextColor,
                     ),
               dialogTheme: DialogTheme(
-                backgroundColor: isDark ? AppColors.darkBackground : Colors.white,
+                backgroundColor:
+                    isDark ? AppColors.darkBackground : Colors.white,
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  foregroundColor: isDark ? Colors.white : AppColors.primaryColor,
+                  foregroundColor:
+                      isDark ? Colors.white : AppColors.primaryColor,
                 ),
               ),
             ),
@@ -230,12 +233,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     }
   }
-  
+
   Future<void> _toggleHabitCompletion(Habit habit) async {
     try {
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
       final isCurrentlyCompleted = _habitCompletionStatus[habit.id] ?? false;
-      
+
       final success = await _habitService.toggleHabitCompletion(
         habit.id!,
         dateStr,
@@ -431,7 +434,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (success) {
         _loadData();
         if (mounted) {
-          _showSnackBar(AppTexts.taskDeleted, backgroundColor: AppColors.successColor);
+          _showSnackBar(AppTexts.taskDeleted,
+              backgroundColor: AppColors.successColor);
         }
       } else {
         if (mounted) {
@@ -484,14 +488,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // Dashboard'da gösterilecek aktif alışkanlıkları filtrele
-    final activeHabits = _dashboardHabits.where((habit) => 
-      !(_habitCompletionStatus[habit.id] ?? false)).toList();
-      
+    final activeHabits = _dashboardHabits
+        .where((habit) => !(_habitCompletionStatus[habit.id] ?? false))
+        .toList();
+
     // Dashboard'da gösterilecek tamamlanmış alışkanlıkları filtrele
-    final completedHabits = _dashboardHabits.where((habit) => 
-      _habitCompletionStatus[habit.id] ?? false).toList();
+    final completedHabits = _dashboardHabits
+        .where((habit) => _habitCompletionStatus[habit.id] ?? false)
+        .toList();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -644,7 +650,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // Aktif görevler ve aktif alışkanlıklar
                         if (_activeTasks.isEmpty && activeHabits.isEmpty)
                           Center(
@@ -692,13 +698,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       _showDeleteConfirmation(context, task),
                                 );
                               }),
-                              
+
                               // Aktif alışkanlıklar
                               ...activeHabits.map((habit) {
                                 return HabitCard(
                                   habit: habit,
                                   isCompleted: false,
-                                  onToggleCompletion: () => _toggleHabitCompletion(habit),
+                                  onToggleCompletion: () =>
+                                      _toggleHabitCompletion(habit),
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -738,7 +745,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // Tamamlanmış görevler ve tamamlanmış alışkanlıklar
                         if (_completedTasks.isEmpty && completedHabits.isEmpty)
                           Center(
@@ -786,13 +793,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       _showDeleteConfirmation(context, task),
                                 );
                               }),
-                              
+
                               // Tamamlanmış alışkanlıklar
                               ...completedHabits.map((habit) {
                                 return HabitCard(
                                   habit: habit,
                                   isCompleted: true,
-                                  onToggleCompletion: () => _toggleHabitCompletion(habit),
+                                  onToggleCompletion: () =>
+                                      _toggleHabitCompletion(habit),
                                   onTap: () {
                                     Navigator.push(
                                       context,

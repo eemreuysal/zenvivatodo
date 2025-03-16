@@ -24,7 +24,7 @@ class CustomButton extends StatelessWidget {
     this.padding,
     this.borderRadius = 8,
     this.icon,
-  }) : super(key: key);
+  }) 
 
   @override
   Widget build(BuildContext context) {
@@ -33,33 +33,32 @@ class CustomButton extends StatelessWidget {
     return SizedBox(
       height: height,
       width: width ?? double.infinity,
-      child:
-          isOutlined
-              ? OutlinedButton(
-                onPressed: onPressed,
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: backgroundColor ?? theme.colorScheme.primary,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                  padding: padding,
+      child: isOutlined
+          ? OutlinedButton(
+              onPressed: onPressed,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: backgroundColor ?? theme.colorScheme.primary,
                 ),
-                child: _buildButtonContent(context),
-              )
-              : ElevatedButton(
-                onPressed: onPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: backgroundColor ?? theme.colorScheme.primary,
-                  foregroundColor: textColor ?? Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                  padding: padding,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
                 ),
-                child: _buildButtonContent(context),
+                padding: padding,
               ),
+              child: _buildButtonContent(context),
+            )
+          : ElevatedButton(
+              onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: backgroundColor ?? theme.colorScheme.primary,
+                foregroundColor: textColor ?? Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                ),
+                padding: padding,
+              ),
+              child: _buildButtonContent(context),
+            ),
     );
   }
 
@@ -74,10 +73,9 @@ class CustomButton extends StatelessWidget {
             text,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color:
-                  isOutlined
-                      ? (textColor ?? Theme.of(context).colorScheme.primary)
-                      : textColor ?? Colors.white,
+              color: isOutlined
+                  ? (textColor ?? Theme.of(context).colorScheme.primary)
+                  : textColor ?? Colors.white,
             ),
           ),
         ],
@@ -87,10 +85,9 @@ class CustomButton extends StatelessWidget {
         text,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color:
-              isOutlined
-                  ? (textColor ?? Theme.of(context).colorScheme.primary)
-                  : textColor ?? Colors.white,
+          color: isOutlined
+              ? (textColor ?? Theme.of(context).colorScheme.primary)
+              : textColor ?? Colors.white,
         ),
       );
     }

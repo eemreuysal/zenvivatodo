@@ -71,7 +71,5 @@ class HabitConstants {
   };
 
   // Hedef gün seçenekleri
-  static const List<int> targetDayOptions = [
-    7, 14, 21, 30, 60, 90, 180, 365
-  ];
+  static const List<int> targetDayOptions = [7, 14, 21, 30, 60, 90, 180, 365];
 }

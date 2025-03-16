@@ -12,7 +12,7 @@ import '../../main.dart';
 class ProfileScreen extends StatefulWidget {
   final int userId;
 
-  const ProfileScreen({super.key, required this.userId}) : super(key: key);
+  const ProfileScreen({super.key, required this.userId}) 
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();

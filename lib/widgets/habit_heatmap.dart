@@ -15,7 +15,7 @@ class HabitHeatmap extends StatelessWidget {
     required this.color,
     this.days = 30,
     this.onDayTap,
-  }) : super(key: key);
+  }) 
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,8 @@ class HabitHeatmap extends StatelessWidget {
                 Text(
                   'Son $days Gün',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 _buildLegend(context),
               ],
@@ -97,7 +97,8 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    final notCompletedColor = baseColor.withAlpha(26); // withOpacity(0.1) yerine withAlpha(26)
+    final notCompletedColor =
+        baseColor.withAlpha(26); // withOpacity(0.1) yerine withAlpha(26)
     final todayBorderColor = Theme.of(context).primaryColor;
 
     return InkWell(
@@ -107,9 +108,8 @@ class HabitHeatmap extends StatelessWidget {
         decoration: BoxDecoration(
           color: isCompleted ? completedColor : notCompletedColor,
           borderRadius: BorderRadius.circular(4),
-          border: isToday
-              ? Border.all(color: todayBorderColor, width: 2)
-              : null,
+          border:
+              isToday ? Border.all(color: todayBorderColor, width: 2) : null,
         ),
         child: Center(
           child: Text(

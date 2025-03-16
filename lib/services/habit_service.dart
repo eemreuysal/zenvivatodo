@@ -19,18 +19,21 @@ class HabitService {
   }
 
   // Tüm alışkanlıkları getirme
-  Future<List<Habit>> getHabits(int userId, {bool includeArchived = false}) async {
+  Future<List<Habit>> getHabits(int userId,
+      {bool includeArchived = false}) async {
     try {
-      final maps = await _dbHelper.getHabits(userId, includeArchived: includeArchived);
+      final maps =
+          await _dbHelper.getHabits(userId, includeArchived: includeArchived);
       return maps.map((map) => Habit.fromMap(map)).toList();
     } catch (e) {
       debugPrint('Alışkanlıkları getirme hatası: $e');
       return [];
     }
   }
-  
+
   // Dashboard için gösterilecek alışkanlıkları getirme
-  Future<List<Habit>> getDashboardHabits(int userId, {required String date}) async {
+  Future<List<Habit>> getDashboardHabits(int userId,
+      {required String date}) async {
     try {
       final maps = await _dbHelper.getDashboardHabits(userId, date: date);
       return maps.map((map) => Habit.fromMap(map)).toList();
@@ -74,8 +77,10 @@ class HabitService {
             return true;
           case 'weekly':
             // Haftalık ve belirli günler seçildiyse
-            if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-              final selectedDays = habit.frequencyDays!.split(',')
+            if (habit.frequencyDays != null &&
+                habit.frequencyDays!.isNotEmpty) {
+              final selectedDays = habit.frequencyDays!
+                  .split(',')
                   .map((day) => int.parse(day))
                   .toList();
               return selectedDays.contains(weekday);
@@ -129,11 +134,12 @@ class HabitService {
       return false;
     }
   }
-  
+
   // Alışkanlığın dashboard'da gösterilmesini ayarlama
   Future<bool> toggleShowInDashboard(int id, bool showInDashboard) async {
     try {
-      final rowsAffected = await _dbHelper.toggleShowInDashboard(id, showInDashboard);
+      final rowsAffected =
+          await _dbHelper.toggleShowInDashboard(id, showInDashboard);
       return rowsAffected > 0;
     } catch (e) {
       debugPrint('Dashboard gösterme ayarı hatası: $e');
@@ -142,9 +148,11 @@ class HabitService {
   }
 
   // Bir alışkanlığı belirli bir tarih için tamamla/tamamlamayı geri al
-  Future<bool> toggleHabitCompletion(int habitId, String date, bool completed) async {
+  Future<bool> toggleHabitCompletion(
+      int habitId, String date, bool completed) async {
     try {
-      final result = await _dbHelper.toggleHabitCompletion(habitId, date, completed);
+      final result =
+          await _dbHelper.toggleHabitCompletion(habitId, date, completed);
       if (result > 0) {
         // Tamamlanma durumunu güncelledikten sonra zinciri güncelle
         await updateHabitStreak(habitId);
@@ -169,11 +177,12 @@ class HabitService {
   }
 
   // Son 30 günlük alışkanlık kayıtlarını getir
-  Future<List<HabitLog>> getRecentHabitLogs(int habitId, {int days = 30}) async {
+  Future<List<HabitLog>> getRecentHabitLogs(int habitId,
+      {int days = 30}) async {
     try {
       final now = DateTime.now();
       final allLogs = await getHabitLogs(habitId);
-      
+
       return allLogs.where((log) {
         final logDate = DateTime.parse(log.date);
         final difference = now.difference(logDate).inDays;
@@ -198,11 +207,12 @@ class HabitService {
 
       final now = DateTime.now();
       final today = DateFormat('yyyy-MM-dd').format(now);
-      
+
       // Bugün için alışkanlık gerekliyse kontrol et
       final isTodayRequired = _isDateRequired(now, habit);
-      final isTodayCompleted = logs.any((log) => log.date == today && log.completed);
-      
+      final isTodayCompleted =
+          logs.any((log) => log.date == today && log.completed);
+
       // Bugün gerekliyse ama tamamlanmamışsa, zincir sıfırlanır
       if (isTodayRequired && !isTodayCompleted) {
         if (habit.currentStreak > 0) {
@@ -211,30 +221,32 @@ class HabitService {
         }
         return;
       }
-      
+
       // Geriye doğru tüm günleri kontrol et ve kesintisiz tamamlanmış günleri say
       int streak = 0;
       DateTime currentDate = now;
-      
+
       while (true) {
         if (_isDateRequired(currentDate, habit)) {
           final dateStr = DateFormat('yyyy-MM-dd').format(currentDate);
-          final isCompleted = logs.any((log) => log.date == dateStr && log.completed);
-          
+          final isCompleted =
+              logs.any((log) => log.date == dateStr && log.completed);
+
           if (isCompleted) {
             streak++;
           } else {
             break; // Zincir kırıldı
           }
         }
-        
+
         // Bir gün geriye git
-        currentDate = currentDate.subtract(const Duration(days: 1)); // const eklendi
-        
+        currentDate =
+            currentDate.subtract(const Duration(days: 1)); // const eklendi
+
         // Başlangıç tarihinden önceyse çık
         if (currentDate.isBefore(DateTime.parse(habit.startDate))) break;
       }
-      
+
       // Eğer mevcut streak değiştiği veya en uzun streakten büyükse güncelle
       if (streak != habit.currentStreak || streak > habit.longestStreak) {
         habit.currentStreak = streak;
@@ -252,17 +264,18 @@ class HabitService {
   bool _isDateRequired(DateTime date, Habit habit) {
     final weekday = date.weekday; // 1 (Pazartesi) - 7 (Pazar)
     final habitStartDate = DateTime.parse(habit.startDate);
-    
+
     // Başlangıç tarihinden önce ise gerekli değil
     if (date.isBefore(habitStartDate)) return false;
-    
+
     switch (habit.frequency) {
       case 'daily':
         return true;
       case 'weekly':
         if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
           // Belirli günler seçildiyse
-          final selectedDays = habit.frequencyDays!.split(',')
+          final selectedDays = habit.frequencyDays!
+              .split(',')
               .map((day) => int.parse(day))
               .toList();
           return selectedDays.contains(weekday);
@@ -283,10 +296,10 @@ class HabitService {
     try {
       final habit = await getHabitById(habitId);
       if (habit == null) return 0.0;
-      
+
       final now = DateTime.now();
       final startDate = DateTime.parse(habit.startDate);
-      
+
       // Başlangıç tarihi son X günden sonra ise, başlangıç tarihinden itibaren hesapla
       DateTime periodStart;
       if (startDate.isAfter(now.subtract(Duration(days: days)))) {
@@ -294,26 +307,26 @@ class HabitService {
       } else {
         periodStart = now.subtract(Duration(days: days));
       }
-      
+
       int totalRequiredDays = 0;
       int completedDays = 0;
-      
+
       // Tüm günleri kontrol et
       for (var i = 0; i <= now.difference(periodStart).inDays; i++) {
         final currentDate = periodStart.add(Duration(days: i));
-        
+
         if (_isDateRequired(currentDate, habit)) {
           totalRequiredDays++;
-          
+
           final dateStr = DateFormat('yyyy-MM-dd').format(currentDate);
           final logs = await getHabitLogs(habitId, date: dateStr);
-          
+
           if (logs.any((log) => log.completed)) {
             completedDays++;
           }
         }
       }
-      
+
       if (totalRequiredDays == 0) return 0.0;
       return completedDays / totalRequiredDays;
     } catch (e) {
@@ -321,7 +334,7 @@ class HabitService {
       return 0.0;
     }
   }
-  
+
   // Belirli bir tarihteki alışkanlıkların tamamlanma durumunu kontrol et
   Future<bool> isHabitCompletedOnDate(int habitId, String date) async {
     try {

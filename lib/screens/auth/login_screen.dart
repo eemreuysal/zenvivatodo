@@ -8,7 +8,7 @@ import '../dashboard/dashboard_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key}) 
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -40,9 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Try to login with entered credentials
         final user = await _authService.login(
-          _usernameController.text.trim(), 
-          _passwordController.text.trim()
-        );
+            _usernameController.text.trim(), _passwordController.text.trim());
 
         if (!mounted) return;
 
@@ -56,16 +54,18 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           // Show error if login failed
           setState(() {
-            _errorMessage = 'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.';
+            _errorMessage =
+                'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.';
             _isLoading = false;
           });
         }
       } catch (e) {
         if (!mounted) return;
-        
+
         // Show error if exception occurs
         setState(() {
-          _errorMessage = 'Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.';
+          _errorMessage =
+              'Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.';
           _isLoading = false;
         });
       }

@@ -15,7 +15,7 @@ import 'edit_task_screen.dart';
 class ActiveTasksScreen extends StatefulWidget {
   final int userId;
 
-  const ActiveTasksScreen({super.key, required this.userId}) : super(key: key);
+  const ActiveTasksScreen({super.key, required this.userId}) 
 
   @override
   State<ActiveTasksScreen> createState() => _ActiveTasksScreenState();
@@ -37,11 +37,12 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
   void initState() {
     super.initState();
     _loadData();
-    
+
     // Listen for task reminders
-    _reminderSubscription = _reminderService.onTaskReminder.listen(_showReminderDialog);
+    _reminderSubscription =
+        _reminderService.onTaskReminder.listen(_showReminderDialog);
   }
-  
+
   @override
   void dispose() {
     _reminderSubscription?.cancel();
@@ -71,7 +72,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
           _tasks = tasks;
           _isLoading = false;
         });
-        
+
         // Update reminder service with current tasks
         _reminderService.setTasks(tasks);
       }
@@ -163,7 +164,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
       if (success) {
         // Remove task from reminder service
         _reminderService.removeTaskById(task.id!);
-        
+
         _loadData();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

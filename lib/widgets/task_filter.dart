@@ -18,13 +18,14 @@ class TaskFilter extends StatelessWidget {
     this.selectedPriority,
     required this.onCategoryChanged,
     required this.onPriorityChanged,
-  }) : super(key: key);
+  }) 
 
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final chipBackground = isDarkMode ? AppColors.darkCardColor : Colors.transparent;
-    
+    final chipBackground =
+        isDarkMode ? AppColors.darkCardColor : Colors.transparent;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -50,7 +51,9 @@ class TaskFilter extends StatelessWidget {
                     context,
                   ).colorScheme.primary.withAlpha(isDarkMode ? 50 : 26),
                   labelStyle: TextStyle(
-                    color: isDarkMode ? AppColors.darkTextColor : AppColors.lightTextColor,
+                    color: isDarkMode
+                        ? AppColors.darkTextColor
+                        : AppColors.lightTextColor,
                   ),
                   checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
                 ),
@@ -69,11 +72,15 @@ class TaskFilter extends StatelessWidget {
                           color: categoryColor.withAlpha(128),
                         ),
                       ),
-                      selectedColor: categoryColor.withAlpha(isDarkMode ? 50 : 26),
+                      selectedColor:
+                          categoryColor.withAlpha(isDarkMode ? 50 : 26),
                       labelStyle: TextStyle(
-                        color: isDarkMode ? AppColors.darkTextColor : AppColors.lightTextColor,
+                        color: isDarkMode
+                            ? AppColors.darkTextColor
+                            : AppColors.lightTextColor,
                       ),
-                      checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
+                      checkmarkColor:
+                          isDarkMode ? AppColors.darkTextColor : null,
                     ),
                   );
                 }).toList(),
@@ -96,9 +103,13 @@ class TaskFilter extends StatelessWidget {
                       color: isDarkMode ? Colors.grey.shade600 : Colors.grey,
                     ),
                   ),
-                  selectedColor: (isDarkMode ? Colors.grey.shade700 : Colors.grey).withAlpha(isDarkMode ? 100 : 26),
+                  selectedColor:
+                      (isDarkMode ? Colors.grey.shade700 : Colors.grey)
+                          .withAlpha(isDarkMode ? 100 : 26),
                   labelStyle: TextStyle(
-                    color: isDarkMode ? AppColors.darkTextColor : AppColors.lightTextColor,
+                    color: isDarkMode
+                        ? AppColors.darkTextColor
+                        : AppColors.lightTextColor,
                   ),
                   checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
                 ),
@@ -134,7 +145,8 @@ class TaskFilter extends StatelessWidget {
       label: Text(priority.name),
       selected: selectedPriority == priority.value,
       onSelected: (_) => onPriorityChanged(priority.value),
-      backgroundColor: isDarkMode ? AppColors.darkCardColor : Colors.transparent,
+      backgroundColor:
+          isDarkMode ? AppColors.darkCardColor : Colors.transparent,
       shape: StadiumBorder(side: BorderSide(color: chipColor.withAlpha(128))),
       selectedColor: chipColor.withAlpha(isDarkMode ? 70 : 26),
       labelStyle: TextStyle(

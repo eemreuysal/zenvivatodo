@@ -13,7 +13,7 @@ class CompletedTasksScreen extends StatefulWidget {
   final int userId;
 
   const CompletedTasksScreen({super.key, required this.userId})
-      : super(key: key);
+      
 
   @override
   State<CompletedTasksScreen> createState() => _CompletedTasksScreenState();

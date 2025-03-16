@@ -19,7 +19,7 @@ class TaskCard extends StatelessWidget {
     required this.onToggleCompletion,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  }) 
 
   Color get _priorityColor {
     switch (PriorityExtension.fromValue(task.priority)) {
@@ -62,19 +62,17 @@ class TaskCard extends StatelessWidget {
                         color: theme.colorScheme.primary,
                         width: 2,
                       ),
-                      color:
-                          task.isCompleted
-                              ? theme.colorScheme.primary
-                              : Colors.transparent,
+                      color: task.isCompleted
+                          ? theme.colorScheme.primary
+                          : Colors.transparent,
                     ),
-                    child:
-                        task.isCompleted
-                            ? const Icon(
-                              Icons.check,
-                              size: 16,
-                              color: Colors.white,
-                            )
-                            : null,
+                    child: task.isCompleted
+                        ? const Icon(
+                            Icons.check,
+                            size: 16,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -125,17 +123,17 @@ class TaskCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: isDarkMode 
-                          ? Color(category!.color).withAlpha(50)
-                          : Color(category!.color).withAlpha(25),
+                        color: isDarkMode
+                            ? Color(category!.color).withAlpha(50)
+                            : Color(category!.color).withAlpha(25),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         category!.name,
                         style: TextStyle(
                           color: isDarkMode
-                            ? _getLighterColor(Color(category!.color))
-                            : Color(category!.color),
+                              ? _getLighterColor(Color(category!.color))
+                              : Color(category!.color),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -151,8 +149,8 @@ class TaskCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: isDarkMode
-                        ? _priorityColor.withAlpha(50)
-                        : _priorityColor.withAlpha(25),
+                          ? _priorityColor.withAlpha(50)
+                          : _priorityColor.withAlpha(25),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -188,12 +186,14 @@ class TaskCard extends StatelessWidget {
       ),
     );
   }
-  
+
   // Helper method to get lighter version of a color for dark mode
   Color _getLighterColor(Color color) {
     // Convert to HSL for better lightness control
     HSLColor hsl = HSLColor.fromColor(color);
     // Increase lightness (0.7 to 0.9 is a good range for visibility)
-    return hsl.withLightness(hsl.lightness < 0.7 ? 0.8 : hsl.lightness).toColor();
+    return hsl
+        .withLightness(hsl.lightness < 0.7 ? 0.8 : hsl.lightness)
+        .toColor();
   }
 }

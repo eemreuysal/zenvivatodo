@@ -22,7 +22,7 @@ class ReminderService {
     _checkTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _checkForReminders();
     });
-    
+
     // Listen to the onTaskReminder stream and show notifications
     onTaskReminder.listen((task) {
       // Show dialog notification instead of system notification
@@ -39,14 +39,14 @@ class ReminderService {
   // Check if there are any tasks due for a reminder
   void _checkForReminders() {
     final now = DateTime.now();
-    
+
     for (var task in _activeTasks) {
       if (!task.isCompleted && task.time != null && task.time!.isNotEmpty) {
         // Parse date and time
         try {
           List<String> dateParts = task.date.split('-');
           List<String> timeParts = task.time!.split(':');
-          
+
           if (dateParts.length == 3 && timeParts.length == 2) {
             final taskDateTime = DateTime(
               int.parse(dateParts[0]), // year
@@ -55,15 +55,16 @@ class ReminderService {
               int.parse(timeParts[0]), // hour
               int.parse(timeParts[1]), // minute
             );
-            
+
             // Calculate the reminder time (5 minutes before task time)
-            final reminderTime = taskDateTime.subtract(const Duration(minutes: 5));
-            
+            final reminderTime =
+                taskDateTime.subtract(const Duration(minutes: 5));
+
             // Check if it's time for the reminder
             if (isTimeForReminder(now, reminderTime)) {
               // Add task to the reminder stream
               onTaskReminder.add(task);
-              
+
               // Mark the task as notified by removing it from active tasks
               _activeTasks.remove(task);
               debugPrint('🔔 Reminder for task: ${task.title}');
@@ -80,10 +81,10 @@ class ReminderService {
   bool isTimeForReminder(DateTime now, DateTime reminderTime) {
     // Compare year, month, day, hour, and minute
     return now.year == reminderTime.year &&
-           now.month == reminderTime.month &&
-           now.day == reminderTime.day &&
-           now.hour == reminderTime.hour &&
-           now.minute == reminderTime.minute;
+        now.month == reminderTime.month &&
+        now.day == reminderTime.day &&
+        now.hour == reminderTime.hour &&
+        now.minute == reminderTime.minute;
   }
 
   // Add a single task to the active tasks list

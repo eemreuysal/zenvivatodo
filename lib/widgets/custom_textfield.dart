@@ -28,7 +28,7 @@ class CustomTextField extends StatefulWidget {
     this.onTap,
     this.validator,
     this.onChanged,
-  }) : super(key: key);
+  }) 
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -45,19 +45,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelText: widget.labelText,
         hintText: widget.hintText,
         prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
-        suffixIcon:
-            widget.isPassword
-                ? IconButton(
-                  icon: Icon(
-                    _obscureText ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureText = !_obscureText;
-                    });
-                  },
-                )
-                : null,
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscureText ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+            : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

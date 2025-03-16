@@ -15,7 +15,7 @@ class HabitDetailsScreen extends StatefulWidget {
     Key? key,
     required this.habit,
     required this.userId,
-  }) : super(key: key);
+  }) 
 
   @override
   State<HabitDetailsScreen> createState() => _HabitDetailsScreenState();
@@ -44,14 +44,15 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     try {
       // Son 30 günlük kayıtları getir
       final logs = await _habitService.getRecentHabitLogs(widget.habit.id!);
-      
+
       // Tamamlanma oranını hesapla
-      final completionRate = await _habitService.calculateCompletionRate(widget.habit.id!);
-      
+      final completionRate =
+          await _habitService.calculateCompletionRate(widget.habit.id!);
+
       // Bugün tamamlanmış mı kontrol et
       final todayLogs = logs.where((log) => log.date == _todayDate).toList();
       final todayCompleted = todayLogs.isNotEmpty && todayLogs.first.completed;
-      
+
       if (mounted) {
         setState(() {
           _recentLogs = logs;
@@ -77,15 +78,15 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         _todayDate,
         !_todayCompleted,
       );
-      
+
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
-      
+
       if (success) {
         // Kullanılmayan değişkeni kaldırdık
         setState(() {
           _todayCompleted = !_todayCompleted;
         });
-        
+
         _loadData(); // Verileri yenile
       } else {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
@@ -106,9 +107,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         ),
       ),
     );
-    
+
     if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü eklendi
-    
+
     if (result == true) {
       // Sayfayı kapatmadan önce güncelleme sinyali
       Navigator.pop(context, true);
@@ -133,7 +134,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const TextSpan(
-                  text: '\n\nBu işlem geri alınamaz ve tüm ilerleme kaydınız silinir.',
+                  text:
+                      '\n\nBu işlem geri alınamaz ve tüm ilerleme kaydınız silinir.',
                 ),
               ],
             ),
@@ -162,9 +164,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   Future<void> _deleteHabit() async {
     try {
       final success = await _habitService.deleteHabit(widget.habit.id!);
-      
+
       if (!mounted) return;
-      
+
       if (success) {
         Navigator.pop(context, true); // Güncelleme sinyali ile geri dön
       } else {
@@ -190,7 +192,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     final theme = Theme.of(context);
     final habitColor = Color(widget.habit.colorCode);
     final formattedCompletionRate = (_completionRate * 100).toStringAsFixed(0);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.habit.title),
@@ -241,11 +243,13 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                                   children: [
                                     Text(
                                       widget.habit.title,
-                                      style: theme.textTheme.titleLarge?.copyWith(
+                                      style:
+                                          theme.textTheme.titleLarge?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    if (widget.habit.description.isNotEmpty) ...[
+                                    if (widget
+                                        .habit.description.isNotEmpty) ...[
                                       const SizedBox(height: 4),
                                       Text(
                                         widget.habit.description,
@@ -257,9 +261,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -277,9 +281,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                               ),
                             ],
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           // Bugün için tamamla butonu
                           SizedBox(
                             width: double.infinity,
@@ -297,9 +301,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                                     : 'Bugün Tamamla',
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _todayCompleted
-                                    ? Colors.green
-                                    : habitColor,
+                                backgroundColor:
+                                    _todayCompleted ? Colors.green : habitColor,
                                 foregroundColor: Colors.white,
                               ),
                             ),
@@ -308,9 +311,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Alışkanlık İlerlemesi
                   Text(
                     'İlerleme',
@@ -318,9 +321,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -331,27 +334,29 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                             'Hedef: ${widget.habit.targetDays} gün',
                             style: theme.textTheme.titleSmall,
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: LinearProgressIndicator(
-                              value: widget.habit.currentStreak / widget.habit.targetDays,
+                              value: widget.habit.currentStreak /
+                                  widget.habit.targetDays,
                               backgroundColor: Colors.grey.shade200,
-                              valueColor: AlwaysStoppedAnimation<Color>(habitColor),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(habitColor),
                               minHeight: 16,
                             ),
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           // İlerleme yüzdesi
                           Text(
                             '${((widget.habit.currentStreak / widget.habit.targetDays) * 100).toStringAsFixed(0)}% tamamlandı',
                             style: theme.textTheme.bodyMedium,
                           ),
-                          
+
                           if (widget.habit.currentStreak > 0) ...[
                             const SizedBox(height: 16),
                             Text(
@@ -366,9 +371,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Alışkanlık Detayları
                   Text(
                     'Detaylar',
@@ -376,9 +381,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -408,9 +413,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Isı Haritası
                   Text(
                     'Aktivite Haritası',
@@ -418,9 +423,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   HabitHeatmap(
                     logs: _recentLogs,
                     color: habitColor,
@@ -430,24 +435,28 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                       final today = DateTime.now();
                       final isToday = DateUtils.isSameDay(dateObj, today);
                       final isPast = dateObj.isBefore(today) && !isToday;
-                      
+
                       if (isToday || isPast) {
                         // Bugün veya geçmiş için tamamlama durumunu değiştir
-                        final currentLogs = _recentLogs.where((log) => log.date == date).toList();
-                        final currentStatus = currentLogs.isNotEmpty && currentLogs.first.completed;
-                        
+                        final currentLogs = _recentLogs
+                            .where((log) => log.date == date)
+                            .toList();
+                        final currentStatus = currentLogs.isNotEmpty &&
+                            currentLogs.first.completed;
+
                         await _habitService.toggleHabitCompletion(
                           widget.habit.id!,
                           date,
                           !currentStatus,
                         );
-                        
-                        if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
+
+                        if (!mounted)
+                          return; // Asenkron işlemden sonra mounted kontrolü ekledik
                         _loadData(); // Verileri yenile
                       }
                     },
                   ),
-                  
+
                   const SizedBox(height: 24),
                 ],
               ),
@@ -519,7 +528,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         return 'Her gün';
       case 'weekly':
         if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-          final days = habit.frequencyDays!.split(',')
+          final days = habit.frequencyDays!
+              .split(',')
               .map((day) => _getWeekdayName(int.parse(day)))
               .join(', ');
           return 'Haftada: $days';
@@ -534,14 +544,22 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
 
   String _getWeekdayName(int weekday) {
     switch (weekday) {
-      case 1: return 'Pazartesi';
-      case 2: return 'Salı';
-      case 3: return 'Çarşamba';
-      case 4: return 'Perşembe';
-      case 5: return 'Cuma';
-      case 6: return 'Cumartesi';
-      case 7: return 'Pazar';
-      default: return '';
+      case 1:
+        return 'Pazartesi';
+      case 2:
+        return 'Salı';
+      case 3:
+        return 'Çarşamba';
+      case 4:
+        return 'Perşembe';
+      case 5:
+        return 'Cuma';
+      case 6:
+        return 'Cumartesi';
+      case 7:
+        return 'Pazar';
+      default:
+        return '';
     }
   }
 }

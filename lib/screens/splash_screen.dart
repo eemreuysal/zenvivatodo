@@ -5,7 +5,7 @@ import '../constants/app_colors.dart';
 import 'auth/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({Key? key}) 
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -26,8 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Navigate to login screen directly for now
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen())
-    );
+        MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   @override
@@ -52,9 +51,9 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               AppTexts.appName,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: AppColors.primaryColor,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: AppColors.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(

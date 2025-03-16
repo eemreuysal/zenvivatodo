@@ -11,7 +11,7 @@ class TimePickerWidget extends StatelessWidget {
     this.selectedTime,
     required this.onTimeChanged,
     this.isOptional = true,
-  }) : super(key: key);
+  }) 
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -49,8 +49,7 @@ class TimePickerWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(
-            color:
-                theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+            color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Colors.grey.withAlpha(76), // Changed from withOpacity(0.3)
           ),
           borderRadius: BorderRadius.circular(8),
@@ -64,13 +63,12 @@ class TimePickerWidget extends StatelessWidget {
               selectedTime != null
                   ? '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}'
                   : isOptional
-                  ? 'Saat seçin (Opsiyonel)'
-                  : 'Saat seçin',
+                      ? 'Saat seçin (Opsiyonel)'
+                      : 'Saat seçin',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color:
-                    selectedTime == null
-                        ? theme.textTheme.bodySmall?.color
-                        : theme.textTheme.bodyMedium?.color,
+                color: selectedTime == null
+                    ? theme.textTheme.bodySmall?.color
+                    : theme.textTheme.bodyMedium?.color,
               ),
             ),
             const Spacer(),

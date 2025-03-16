@@ -24,7 +24,8 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'zenviva.db');
-    return await openDatabase(path, version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(path,
+        version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -152,10 +153,11 @@ class DatabaseHelper {
         )
       ''');
     }
-    
+
     if (oldVersion < 3) {
       // Add showInDashboard column to habits table
-      await db.execute('ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
     }
   }
 
@@ -219,11 +221,12 @@ class DatabaseHelper {
       where: 'userId = ?',
       whereArgs: [id],
     );
-    
+
     for (var habit in habits) {
-      await db.delete('habit_logs', where: 'habitId = ?', whereArgs: [habit['id']]);
+      await db
+          .delete('habit_logs', where: 'habitId = ?', whereArgs: [habit['id']]);
     }
-    
+
     await db.delete('habits', where: 'userId = ?', whereArgs: [id]);
 
     // Finally delete the user
@@ -353,7 +356,8 @@ class DatabaseHelper {
     return await db.insert('habits', habit);
   }
 
-  Future<List<Map<String, dynamic>>> getHabits(int userId, {bool includeArchived = false}) async {
+  Future<List<Map<String, dynamic>>> getHabits(int userId,
+      {bool includeArchived = false}) async {
     Database db = await database;
     String whereClause = 'userId = ?';
     List<dynamic> whereArgs = [userId];
@@ -368,9 +372,10 @@ class DatabaseHelper {
       whereArgs: whereArgs,
     );
   }
-  
+
   // Dashboard için gösterilecek alışkanlıkları getir
-  Future<List<Map<String, dynamic>>> getDashboardHabits(int userId, {required String date}) async {
+  Future<List<Map<String, dynamic>>> getDashboardHabits(int userId,
+      {required String date}) async {
     Database db = await database;
     return await db.query(
       'habits',
@@ -420,7 +425,7 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
-  
+
   Future<int> toggleShowInDashboard(int id, bool showInDashboard) async {
     Database db = await database;
     return await db.update(
@@ -437,7 +442,8 @@ class DatabaseHelper {
     return await db.insert('habit_logs', log);
   }
 
-  Future<List<Map<String, dynamic>>> getHabitLogs(int habitId, {String? date}) async {
+  Future<List<Map<String, dynamic>>> getHabitLogs(int habitId,
+      {String? date}) async {
     Database db = await database;
     String whereClause = 'habitId = ?';
     List<dynamic> whereArgs = [habitId];
@@ -454,16 +460,17 @@ class DatabaseHelper {
     );
   }
 
-  Future<int> toggleHabitCompletion(int habitId, String date, bool completed) async {
+  Future<int> toggleHabitCompletion(
+      int habitId, String date, bool completed) async {
     Database db = await database;
-    
+
     // Check if log exists
     List<Map<String, dynamic>> logs = await db.query(
       'habit_logs',
       where: 'habitId = ? AND date = ?',
       whereArgs: [habitId, date],
     );
-    
+
     if (logs.isEmpty) {
       // Insert new log
       return await db.insert('habit_logs', {

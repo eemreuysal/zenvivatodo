@@ -12,13 +12,14 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize date formatting for Turkish locale
   await initializeDateFormatting('tr_TR', null);
-  
+
   // Get theme preference
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isDarkMode = prefs.getBool('isDarkMode') ?? false; // Varsayılan değer false (açık tema) olarak değiştirildi
+  bool isDarkMode = prefs.getBool('isDarkMode') ??
+      false; // Varsayılan değer false (açık tema) olarak değiştirildi
 
   runApp(
     ChangeNotifierProvider(
@@ -50,7 +51,7 @@ class ThemeProvider with ChangeNotifier {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) 
 
   @override
   State<MyApp> createState() => _MyAppState();

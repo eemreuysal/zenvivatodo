@@ -13,7 +13,8 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   final BehaviorSubject<String?> onNotificationClick = BehaviorSubject();
 
   NotificationService._internal();
@@ -21,28 +22,30 @@ class NotificationService {
   Future<void> initNotification() async {
     // Initialize timezone
     await _configureLocalTimeZone();
-    
+
     // Initialize notification settings
-    const AndroidInitializationSettings initializationSettingsAndroid = 
+    const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    
+
     // iOS bildirim ayarları
-    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
     );
-        
-    const InitializationSettings initializationSettings = InitializationSettings(
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: iosSettings,
     );
-    
+
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
     );
-    
+
     // Request permissions
     await requestPermissions();
   }
@@ -59,7 +62,7 @@ class NotificationService {
       tz.setLocalLocation(tz.getLocation('Etc/UTC'));
     }
   }
-  
+
   void onDidReceiveNotificationResponse(NotificationResponse response) {
     final String? payload = response.payload;
     if (payload != null) {
@@ -67,10 +70,10 @@ class NotificationService {
       _handleNotificationPayload(payload);
     }
   }
-  
+
   void _handleNotificationPayload(String payload) {
     onNotificationClick.add(payload);
-    
+
     // Parse the payload to get task ID
     try {
       final int taskId = int.parse(payload);
@@ -110,12 +113,13 @@ class NotificationService {
       debugPrint('Scheduled time is in the past, skipping notification');
       return;
     }
-    
+
     // Convert DateTime to TZDateTime
     tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-    
+
     // Bildirim detaylarını belirleme
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
       'task_reminder_channel',
       'Görev Hatırlatmaları',
       channelDescription: 'Görev zamanı yaklaştığında hatırlatma gönderir',
@@ -134,7 +138,7 @@ class NotificationService {
       android: androidDetails,
       iOS: iosDetails,
     );
-    
+
     try {
       await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
@@ -147,7 +151,7 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
       );
-      
+
       debugPrint('Notification scheduled for: $scheduledDate with ID: $id');
     } catch (e) {
       debugPrint('Error scheduling notification: $e');
@@ -162,7 +166,7 @@ class NotificationService {
         // Parse date and time
         List<String> dateParts = task.date.split('-');
         List<String> timeParts = task.time!.split(':');
-        
+
         if (dateParts.length == 3 && timeParts.length == 2) {
           // Task time
           final taskDateTime = DateTime(
@@ -172,10 +176,11 @@ class NotificationService {
             int.parse(timeParts[0]), // hour
             int.parse(timeParts[1]), // minute
           );
-          
+
           // Schedule 5 minutes before task time
-          final reminderDateTime = taskDateTime.subtract(const Duration(minutes: 5));
-          
+          final reminderDateTime =
+              taskDateTime.subtract(const Duration(minutes: 5));
+
           await scheduleNotification(
             id: task.id!,
             title: AppTexts.taskReminder,
@@ -204,28 +209,34 @@ class NotificationService {
     try {
       if (Platform.isIOS) {
         // iOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
-        await plugin.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+        final FlutterLocalNotificationsPlugin plugin =
+            FlutterLocalNotificationsPlugin();
+        await plugin
+            .resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>()
+            ?.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            );
       } else if (Platform.isMacOS) {
         // macOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
-        await plugin.resolvePlatformSpecificImplementation<
-            MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+        final FlutterLocalNotificationsPlugin plugin =
+            FlutterLocalNotificationsPlugin();
+        await plugin
+            .resolvePlatformSpecificImplementation<
+                MacOSFlutterLocalNotificationsPlugin>()
+            ?.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+            );
       } else if (Platform.isAndroid) {
         // Android için bildirim ayarları
         debugPrint('Android bildirimleri hazırlanıyor');
         // Android 13 (API 33+) için bildirim izinleri otomatik olarak işlenir
       }
-      
+
       debugPrint('Notification permissions requested successfully');
     } catch (e) {
       debugPrint('Error requesting notification permissions: $e');
