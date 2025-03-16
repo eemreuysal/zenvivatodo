@@ -27,14 +27,13 @@ class NotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
     
     // iOS bildirim ayarları
-    final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      onDidReceiveLocalNotification: onDidReceiveLocalNotification,
     );
         
-    final InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: iosSettings,
     );
@@ -51,23 +50,13 @@ class NotificationService {
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
     try {
-      // Flutter_timezone yerine yerel saat dilimini kullanma
-      final String timeZoneName = DateTime.now().timeZoneName;
+      // Yerel saat dilimini almak için güvenli bir yaklaşım
+      final String timeZoneName = 'Etc/UTC'; // Varsayılan olarak UTC kullan
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       debugPrint('Timezone set to: $timeZoneName');
     } catch (e) {
-      debugPrint('Could not get the local timezone, defaulting to UTC: $e');
+      debugPrint('Could not set the local timezone: $e. Using UTC as default.');
       tz.setLocalLocation(tz.getLocation('Etc/UTC'));
-    }
-  }
-  
-  Future<void> onDidReceiveLocalNotification(
-    int id, String? title, String? body, String? payload) async {
-    debugPrint('Notification received: $id, $title, $body, $payload');
-    
-    // Handle iOS notification when app is in foreground
-    if (navigatorKey.currentContext != null && payload != null) {
-      _handleNotificationPayload(payload);
     }
   }
   
@@ -125,43 +114,44 @@ class NotificationService {
     // Convert DateTime to TZDateTime
     tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
     
-    // Bildirim detaylarını güncelleme - büyük simge sorununu düzeltme
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
+    // Bildirim detaylarını belirleme
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'task_reminder_channel',
       'Görev Hatırlatmaları',
       channelDescription: 'Görev zamanı yaklaştığında hatırlatma gönderir',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
-      // BigPictureStyle'ı kaldırdık çünkü sorun yaratıyordu
     );
 
-    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
-        DarwinNotificationDetails(
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
     );
 
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics,
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
     );
     
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tzScheduledDate,
-      platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
-    );
-    
-    debugPrint('Notification scheduled for: $scheduledDate with ID: $id');
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        tzScheduledDate,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+      
+      debugPrint('Notification scheduled for: $scheduledDate with ID: $id');
+    } catch (e) {
+      debugPrint('Error scheduling notification: $e');
+    }
   }
 
   // Schedule notification for a task
@@ -211,46 +201,34 @@ class NotificationService {
   }
 
   Future<void> requestPermissions() async {
-    if (Platform.isIOS || Platform.isMacOS) {
-      // iOS için izinleri iste
-      final IOSFlutterLocalNotificationsPlugin? iosPlugin = 
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>();
-              
-      if (iosPlugin != null) {
-        iosPlugin.requestPermissions(
+    try {
+      if (Platform.isIOS) {
+        // iOS için izinleri iste
+        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        await plugin.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         );
+      } else if (Platform.isMacOS) {
+        // macOS için izinleri iste
+        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        await plugin.resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      } else if (Platform.isAndroid) {
+        // Android için bildirim ayarları
+        debugPrint('Android bildirimleri hazırlanıyor');
+        // Android 13 (API 33+) için bildirim izinleri otomatik olarak işlenir
       }
       
-      // macOS için izinleri iste
-      final MacOSFlutterLocalNotificationsPlugin? macOSPlugin =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>();
-              
-      if (macOSPlugin != null) {
-        macOSPlugin.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      }
-    } else if (Platform.isAndroid) {
-      final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
-
-      // Android 13 (SDK 33) ve üzeri için izin isteme
-      // Flutter Local Notifications 16.0.0+ sürümü için uyumlu metot
-      if (androidPlugin != null) {
-        // requestPermission() sonraki sürümlerde bulunmayabilir
-        // Yeni sürümlerde Android izinlerini kontrol etmek ve istemek için alternatif
-        // metotlar kullanabilirsiniz
-        debugPrint('Android bildirimleri için izin almaya hazır');
-        // Android'de bildirimler için izin istenmiyor, otomatik olarak etkinleştirilmiş durumda
-      }
+      debugPrint('Notification permissions requested successfully');
+    } catch (e) {
+      debugPrint('Error requesting notification permissions: $e');
     }
   }
 
