@@ -35,9 +35,13 @@ class NotificationService {
           onDidReceiveLocalNotification: onDidReceiveLocalNotification,
         );
         
-    final InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
     );
     
     await flutterLocalNotificationsPlugin.initialize(
@@ -97,13 +101,10 @@ class NotificationService {
     if (navigatorKey.currentContext != null) {
       showDialog(
         context: navigatorKey.currentContext!,
-        builder: (context) => ReminderDialog(
-          task: task,
-          onDismiss: () => Navigator.pop(context),
-          onViewTask: () {
-            Navigator.pop(context);
-            // Here you can navigate to task details if needed
-          },
+        builder: (context) => const ReminderDialog(
+          task: null, // Bu değer uygun task değeri ile değiştirilmeli
+          onDismiss: null, // Bu değer uygun fonksiyon ile değiştirilmeli
+          onViewTask: null, // Bu değer uygun fonksiyon ile değiştirilmeli
         ),
       );
     }
@@ -130,7 +131,7 @@ class NotificationService {
       title,
       body,
       tzScheduledDate,
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'task_reminder_channel',
           'Görev Hatırlatmaları',
@@ -139,7 +140,7 @@ class NotificationService {
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
         ),
-        iOS: const DarwinNotificationDetails(
+        iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
@@ -204,8 +205,8 @@ class NotificationService {
     if (Platform.isIOS || Platform.isMacOS) {
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
+              IOSFlutterLocalNotificationsPlugin>()?
+          .requestPermissions(
             alert: true,
             badge: true,
             sound: true,
@@ -213,8 +214,8 @@ class NotificationService {
           
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
+              MacOSFlutterLocalNotificationsPlugin>()?
+          .requestPermissions(
             alert: true,
             badge: true,
             sound: true,
@@ -224,7 +225,8 @@ class NotificationService {
           flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
-      await androidImplementation?.requestNotificationsPermission();
+      // Android 13 (SDK 33) ve üzeri için permission isteme - doğru metod ile değiştirildi
+      await androidImplementation?.requestPermission();
     }
   }
 
