@@ -12,13 +12,13 @@ class TaskFilter extends StatelessWidget {
   final Function(int?) onPriorityChanged;
 
   const TaskFilter({
-    Key? key,
+    super.key,
     required this.categories,
     this.selectedCategoryId,
     this.selectedPriority,
     required this.onCategoryChanged,
     required this.onPriorityChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +76,7 @@ class TaskFilter extends StatelessWidget {
                       checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
