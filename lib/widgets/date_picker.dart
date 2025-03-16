@@ -7,10 +7,10 @@ class DatePickerWidget extends StatelessWidget {
   final Function(DateTime) onDateChanged;
 
   const DatePickerWidget({
-    Key? key,
+    super.key,
     required this.selectedDate,
     required this.onDateChanged,
-  }) : super(key: key);
+  });
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
