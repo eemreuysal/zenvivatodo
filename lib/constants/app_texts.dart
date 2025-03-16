@@ -35,6 +35,7 @@ class AppTexts {
   static const String cancel = 'İptal';
   static const String delete = 'Sil';
   static const String edit = 'Düzenle';
+  static const String taskReminder = 'Görev Hatırlatması'; // Eklenen yeni metin
 
   // Categories
   static const String categories = 'Kategoriler';
