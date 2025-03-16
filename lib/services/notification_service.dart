@@ -51,7 +51,7 @@ class NotificationService {
     tz.initializeTimeZones();
     try {
       // Yerel saat dilimini almak için güvenli bir yaklaşım
-      final String timeZoneName = 'Etc/UTC'; // Varsayılan olarak UTC kullan
+      const String timeZoneName = 'Etc/UTC'; // Varsayılan olarak UTC kullan
       tz.setLocalLocation(tz.getLocation(timeZoneName));
       debugPrint('Timezone set to: $timeZoneName');
     } catch (e) {
@@ -204,7 +204,7 @@ class NotificationService {
     try {
       if (Platform.isIOS) {
         // iOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        const FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         await plugin.resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
@@ -213,7 +213,7 @@ class NotificationService {
         );
       } else if (Platform.isMacOS) {
         // macOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        const FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         await plugin.resolvePlatformSpecificImplementation<
             MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
