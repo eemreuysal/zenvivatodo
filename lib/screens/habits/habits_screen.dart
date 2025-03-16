@@ -10,7 +10,7 @@ import 'habit_details_screen.dart';
 class HabitsScreen extends StatefulWidget {
   final int userId;
 
-  const HabitsScreen({Key? key, required this.userId}) : super(key: key);
+  const HabitsScreen({super.key, required this.userId}) : super(key: key);
 
   @override
   State<HabitsScreen> createState() => _HabitsScreenState();
