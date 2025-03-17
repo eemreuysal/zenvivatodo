@@ -10,11 +10,7 @@ class DatePickerWidget extends StatelessWidget {
     super.key,
     required this.selectedDate,
     required this.onDateChanged,
-<<<<<<< HEAD
-  }) 
-=======
   });
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
