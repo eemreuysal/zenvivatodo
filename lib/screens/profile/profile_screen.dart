@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart'; // SqfliteDatabaseException sınıfı için
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
@@ -66,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
         });
       }
-    } on DatabaseException catch (e) {
+    } on SqfliteDatabaseException catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -79,7 +80,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: Colors.red,
         ),
       );
-    } catch (e) {
+    } on FormatException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Format hatası - kullanıcı bilgileri yüklenirken: $e',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } on Exception catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -137,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
         }
-      } on DatabaseException catch (e) {
+      } on SqfliteDatabaseException catch (e) {
         if (!mounted) return;
         setState(() {
           _isUpdating = false;
@@ -148,7 +162,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.red,
           ),
         );
-      } catch (e) {
+      } on FormatException catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _isUpdating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Format hatası - profil güncellenirken: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } on Exception catch (e) {
         if (!mounted) return;
         setState(() {
           _isUpdating = false;
@@ -207,7 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
                   }
-                } on DatabaseException catch (e) {
+                } on SqfliteDatabaseException catch (e) {
                   if (!mounted) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +241,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.red,
                     ),
                   );
-                } catch (e) {
+                } on FormatException catch (e) {
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Format hatası - hesap silinirken: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } on Exception catch (e) {
                   if (!mounted) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -249,21 +283,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
+    } on FormatException catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Format hatası - çıkış yapılırken: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Çıkış yapılırken bir hata oluştu: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Beklenmeyen hata - çıkış yapılırken: $e'),
           backgroundColor: Colors.red,
         ),
       );
