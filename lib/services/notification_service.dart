@@ -6,14 +6,14 @@ import 'package:timezone/timezone.dart' as tz;
 import '../models/task.dart';
 
 class NotificationService {
-  // Singleton yapısı
-  static final NotificationService _instance = NotificationService._internal();
-  
   // Sınıf değişkenleri
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
   
-  // Constructorlar diğer üyelerden önce
+  // Singleton yapısı
+  static final NotificationService _instance = NotificationService._internal();
+  
+  // Constructorlar sınıf üyelerinden önce
   factory NotificationService() => _instance;
   NotificationService._internal();
 
@@ -62,20 +62,22 @@ class NotificationService {
         _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
         
     if (androidPlugin != null) {
-      await androidPlugin.requestNotificationsPermission();
-      await androidPlugin.createNotificationChannel(const AndroidNotificationChannel(
-        'task_reminders', 
-        'Görev Hatırlatıcıları',
-        description: 'Görevleriniz için hatırlatmalar',
-        importance: Importance.high,
-      ));
+      // requestNotificationsPermission yerine requestPermission kullanılır
+      await androidPlugin.requestPermission();
+      await androidPlugin.createNotificationChannel(
+        const AndroidNotificationChannel(
+          'task_reminders', 
+          'Görev Hatırlatıcıları',
+          description: 'Görevleriniz için hatırlatmalar',
+          importance: Importance.high,
+        ),
+      );
     }
 
     // iOS için izinler
-    // Darwin eklentisini Flutter 3.29+ uyumlu bir şekilde güncelliyoruz
     try {
       final darwinPlugin = 
-          _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+          _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
           
       if (darwinPlugin != null) {
         await darwinPlugin.requestPermissions(
@@ -86,7 +88,7 @@ class NotificationService {
       }
     } on UnsupportedError catch (e) {
       debugPrint('iOS bildirimleri için platform desteği yok: $e');
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('iOS bildirimleri izin isteme hatası: $e');
     }
   }
@@ -161,7 +163,7 @@ class NotificationService {
       debugPrint('Tarih veya saat ayrıştırma hatası: $e');
     } on ArgumentError catch (e) {
       debugPrint('Bildirim argüman hatası: $e');
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Bildirim planlama hatası: $e');
     }
   }
