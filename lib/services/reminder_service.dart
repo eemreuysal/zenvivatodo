@@ -4,6 +4,8 @@ import 'package:rxdart/rxdart.dart';
 import '../models/task.dart';
 import 'notification_service.dart';
 
+/// Bu servis şu anda kısmen devre dışı bırakılmıştır.
+/// Bildirimleri kullanmak yerine yerel diyalog gösterimini kullanıyor.
 class ReminderService {
   static final ReminderService _instance = ReminderService._internal();
   factory ReminderService() => _instance;
@@ -18,6 +20,8 @@ class ReminderService {
 
   // Initialize the reminder service
   void initialize() {
+    debugPrint('ReminderService devre dışı bildirimlerin yerine diyaloglar kullanılıyor.');
+    
     // Check for reminders every minute
     _checkTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _checkForReminders();
