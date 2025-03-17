@@ -343,13 +343,37 @@ class HabitService {
     }
   }
 
-  // Belirli bir tarihteki alışkanlıkların tamamlanma durumunu kontrol et
+  // Belirli bir tarihteki alışkanlıkların tamamlanma durumunu kontrol et - null güvenliği iyileştirildi
   Future<bool> isHabitCompletedOnDate(int habitId, String date) async {
     try {
-      final logs = await getHabitLogs(habitId, date: date);
-      return logs.isNotEmpty && logs.first.completed;
+      // Tarih formatını kontrol et
+      if (date.isEmpty) {
+        debugPrint('Geçersiz tarih formatı: Boş string');
+        return false;
+      }
+      
+      try {
+        // Tarihin geçerli formatta olduğunu doğrula
+        DateFormat('yyyy-MM-dd').parse(date);
+      } catch (e) {
+        debugPrint('Geçersiz tarih formatı: $date');
+        return false;
+      }
+      
+      final logs = await _dbHelper.getHabitLogs(habitId, date: date);
+      
+      if (logs.isEmpty) return false;
+      
+      final log = logs.first;
+      // 'completed' anahtarı doğrulama
+      if (!log.containsKey('completed')) {
+        debugPrint('completed anahtarı log nesnesinde bulunamadı');
+        return false;
+      }
+      
+      return log['completed'] == 1;
     } catch (e) {
-      debugPrint('Tamamlanma kontrolü hatası: $e');
+      debugPrint('Alışkanlık tamamlanma kontrolü hatası: $e');
       return false;
     }
   }
