@@ -20,11 +20,7 @@ dependencies:
   # Database
   sqflite: ^2.3.0
   path: ^1.8.3
-<<<<<<< HEAD
-  path_provider: ^2.1.5
-=======
   path_provider: ^2.1.5  # 2.2.2'den 2.1.5'e düşürüldü
->>>>>>> 625c5643e9ed48a7155cedd8a578c2797e8b296d
   
   # State management
   provider: ^6.1.1
