@@ -277,7 +277,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text(AppTexts.sortByDate),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement sorting by date
+                  // Tarihe göre sıralama
+                  setState(() {
+                    _activeTasks.sort((a, b) => a.date.compareTo(b.date));
+                    _completedTasks.sort((a, b) => a.date.compareTo(b.date));
+                  });
                 },
               ),
               ListTile(
@@ -285,7 +289,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text(AppTexts.sortByTime),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement sorting by time
+                  // Saate göre sıralama
+                  setState(() {
+                    _activeTasks.sort((a, b) {
+                      if (a.time == null) return 1;
+                      if (b.time == null) return -1;
+                      return a.time!.compareTo(b.time!);
+                    });
+                    _completedTasks.sort((a, b) {
+                      if (a.time == null) return 1;
+                      if (b.time == null) return -1;
+                      return a.time!.compareTo(b.time!);
+                    });
+                  });
                 },
               ),
               ListTile(
@@ -293,7 +309,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text(AppTexts.sortByPriority),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement sorting by priority
+                  // Önceliğe göre sıralama (yüksek öncelikli önce)
+                  setState(() {
+                    _activeTasks.sort((a, b) => b.priority.compareTo(a.priority));
+                    _completedTasks.sort((a, b) => b.priority.compareTo(a.priority));
+                  });
                 },
               ),
               ListTile(
@@ -301,7 +321,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text(AppTexts.sortByCategory),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement sorting by category
+                  // Kategoriye göre sıralama
+                  setState(() {
+                    _activeTasks.sort((a, b) {
+                      if (a.categoryId == null) return 1;
+                      if (b.categoryId == null) return -1;
+                      return a.categoryId!.compareTo(b.categoryId!);
+                    });
+                    _completedTasks.sort((a, b) {
+                      if (a.categoryId == null) return 1;
+                      if (b.categoryId == null) return -1;
+                      return a.categoryId!.compareTo(b.categoryId!);
+                    });
+                  });
                 },
               ),
               ListTile(
@@ -309,7 +341,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: const Text(AppTexts.sortByCreation),
                 onTap: () {
                   Navigator.pop(context);
-                  // Implement sorting by creation order
+                  // ID'ye göre sıralama (oluşturma sırasını temsil eder)
+                  setState(() {
+                    _activeTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+                    _completedTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+                  });
                 },
               ),
             ],
