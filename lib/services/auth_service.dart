@@ -1,17 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart'; // Eklendi: DatabaseException için gerekli
 import '../models/user.dart';
 import 'database_helper.dart';
 
 /// Kullanıcı kimlik doğrulama ve yönetimi hizmetleri
 class AuthService {
-  // Singleton pattern
-  static final AuthService _instance = AuthService._internal();
-  
   // Sınıf değişkenleri
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   
-  // Constructorlar (sınıf üyelerinden önce)
+  // Singleton pattern
+  static final AuthService _instance = AuthService._internal();
+  
+  // Constructor'lar (başa taşındı)
   factory AuthService() => _instance;
   AuthService._internal();
 
@@ -36,7 +37,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - kullanıcı kaydolurken: $e');
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error registering user: $e');
       return false;
     }
@@ -78,7 +79,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - giriş yaparken: $e');
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error logging in: $e');
       return null;
     }
@@ -109,7 +110,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - mevcut kullanıcıyı alırken: $e');
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting current user: $e');
       return null;
     }
@@ -143,7 +144,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - profil güncellenirken: $e');
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error updating user profile: $e');
       return false;
     }
@@ -178,7 +179,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - şifre değiştirilirken: $e');
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error changing password: $e');
       return false;
     }
@@ -193,7 +194,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - kullanıcı hesabı silinirken: $e');
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error deleting user account: $e');
       return false;
     }
@@ -229,7 +230,7 @@ class AuthService {
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - test kullanıcısı oluşturulurken: $e');
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error creating test user: $e');
       return null;
     }
