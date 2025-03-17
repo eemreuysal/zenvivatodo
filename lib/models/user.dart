@@ -1,13 +1,14 @@
-// User modeli - Modern Dart 3.7 özellikleri kullanılarak güncellendi
+// User modeli - Modern Dart 3.7 özellikleri ve güvenli şifreleme kullanılarak güncellendi
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'dart:math';
 
 /// Uygulama kullanıcısı sınıfı
 class User {
   final int? id;
   final String username;
   final String email;
-  final String password;
+  final String password; // Artık "salt:hash" formatında saklanıyor
   final String? createdAt;
   final String? lastLogin;
 
@@ -21,14 +22,14 @@ class User {
     this.lastLogin,
   });
   
-  // Şifreyi hash'leyerek yeni kullanıcı oluştur (kayıt için)
+  // Şifreyi güvenli şekilde hash'leyerek yeni kullanıcı oluştur (kayıt için)
   factory User.withHashedPassword({
     int? id,
     required String username,
     required String email,
     required String plainPassword,
   }) {
-    final hashedPassword = _hashPassword(plainPassword);
+    final hashedPassword = _secureHash(plainPassword);
     
     return User(
       id: id,
@@ -39,17 +40,49 @@ class User {
     );
   }
   
-  // Şifreleri hash'leme yöntemi
-  static String _hashPassword(String password) {
-    final bytes = utf8.encode(password); // Şifreyi UTF-8'e dönüştür
-    final digest = sha256.convert(bytes); // SHA-256 hash değerini al
-    return digest.toString();
+  // Daha güvenli şifre hashleme yöntemi
+  static String _secureHash(String password) {
+    // Rastgele salt (tuz) oluştur
+    final Random random = Random.secure();
+    final List<int> saltBytes = List<int>.generate(32, (_) => random.nextInt(256));
+    final String salt = base64Encode(saltBytes);
+    
+    // PBKDF2 benzeri bir yaklaşım - daha fazla iterasyon güvenliği artırır
+    String hash = password + salt;
+    for (int i = 0; i < 1000; i++) {
+      final bytes = utf8.encode(hash);
+      hash = sha256.convert(bytes).toString();
+    }
+    
+    // salt:hash formatında döndür
+    return "$salt:$hash";
   }
 
-  // Şifre doğrulama yöntemi
+  // Şifre doğrulama yöntemi - yeni formata uygun
   bool verifyPassword(String plainPassword) {
-    final hashedInput = _hashPassword(plainPassword);
-    return hashedInput == password;
+    // Şifre eski formatta mı kontrol et (geçiş süreci için)
+    if (!password.contains(':')) {
+      // Eski formatta, basit SHA-256 kontrolü yap
+      final bytes = utf8.encode(plainPassword);
+      final digest = sha256.convert(bytes).toString();
+      return digest == password;
+    }
+    
+    // Yeni format (salt:hash)
+    final parts = password.split(':');
+    if (parts.length != 2) return false;
+    
+    final salt = parts[0];
+    final storedHash = parts[1];
+    
+    // Aynı algoritma ile kontrol et
+    String hash = plainPassword + salt;
+    for (int i = 0; i < 1000; i++) {
+      final bytes = utf8.encode(hash);
+      hash = sha256.convert(bytes).toString();
+    }
+    
+    return hash == storedHash;
   }
 
   // Kopyalama yöntemi (immutability için)
