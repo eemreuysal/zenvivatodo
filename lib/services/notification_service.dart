@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// Bildirim paketi geçici olarak kaldırıldı
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:rxdart/rxdart.dart';
@@ -13,8 +14,8 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  // Bildirim paketi geçici olarak kaldırıldı
+  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   final BehaviorSubject<String?> onNotificationClick = BehaviorSubject();
 
   NotificationService._internal();
@@ -23,31 +24,10 @@ class NotificationService {
     // Initialize timezone
     await _configureLocalTimeZone();
 
-    // Initialize notification settings
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    // iOS bildirim ayarları
-    const IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onSelectNotification: onSelectNotification,
-    );
-
-    // Request permissions
-    await requestPermissions();
+    // Bildirim paketi geçici olarak kaldırıldı
+    // Initialize notification settings işlemleri kaldırıldı
+    
+    debugPrint('Notifications temporarily disabled');
   }
 
   Future<void> _configureLocalTimeZone() async {
@@ -70,6 +50,7 @@ class NotificationService {
     }
   }
 
+  // Bildirim yerine dialog kullanılıyor
   Future<void> onSelectNotification(String? payload) async {
     if (payload != null) {
       debugPrint('Notification payload: $payload');
@@ -120,48 +101,8 @@ class NotificationService {
       return;
     }
 
-    // Convert DateTime to TZDateTime
-    tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
-
-    // Bildirim detaylarını belirleme
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-      'task_reminder_channel',
-      'Görev Hatırlatmaları',
-      'Görev zamanı yaklaştığında hatırlatma gönderir',
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-    );
-
-    const IOSNotificationDetails iosDetails = IOSNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    const NotificationDetails details = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    try {
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tzScheduledDate,
-        details,
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
-      );
-
-      debugPrint('Notification scheduled for: $scheduledDate with ID: $id');
-    } catch (e) {
-      debugPrint('Error scheduling notification: $e');
-    }
+    // Bildirim paketi geçici olarak kaldırıldı
+    debugPrint('Would schedule notification: "$title" for $scheduledDate');
   }
 
   // Schedule notification for a task
@@ -187,6 +128,7 @@ class NotificationService {
           final reminderDateTime =
               taskDateTime.subtract(const Duration(minutes: 5));
 
+          debugPrint('Would schedule task reminder: "${task.title}" for $reminderDateTime');
           await scheduleNotification(
             id: task.id!,
             title: AppTexts.taskReminder,
@@ -202,37 +144,18 @@ class NotificationService {
   }
 
   Future<void> cancelNotification(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
-    debugPrint('Cancelled notification with ID: $id');
+    // Bildirim paketi geçici olarak kaldırıldı
+    debugPrint('Would cancel notification with ID: $id');
   }
 
   Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
-    debugPrint('Cancelled all notifications');
+    // Bildirim paketi geçici olarak kaldırıldı
+    debugPrint('Would cancel all notifications');
   }
 
   Future<void> requestPermissions() async {
-    try {
-      if (Platform.isIOS) {
-        // iOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
-        
-        await plugin.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      } else if (Platform.isAndroid) {
-        // Android için bildirim ayarları
-        debugPrint('Android bildirimleri hazırlanıyor');
-        // Android 13 (API 33+) için bildirim izinleri otomatik olarak işlenir
-      }
-
-      debugPrint('Notification permissions requested successfully');
-    } catch (e) {
-      debugPrint('Error requesting notification permissions: $e');
-    }
+    // Bildirim paketi geçici olarak kaldırıldı
+    debugPrint('Would request notification permissions');
   }
 
   // Dispose method
