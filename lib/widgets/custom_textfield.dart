@@ -28,11 +28,7 @@ class CustomTextField extends StatefulWidget {
     this.onTap,
     this.validator,
     this.onChanged,
-<<<<<<< HEAD
-  }) 
-=======
   });
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
