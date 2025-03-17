@@ -7,15 +7,12 @@ plugins {
 
 android {
     namespace = "com.example.zenvivatodo"
-    compileSdk = 35 // Güncellendi: Android 15 için
-    ndkVersion = "27.0.12077973"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        // Java 11 kullanımı
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-        // Desugaring etkinleştirme
-        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -23,61 +20,23 @@ android {
     }
 
     defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.zenvivatodo"
-        minSdk = 23 // Android 6.0 (Marshmallow) için daha iyi destek
-        targetSdk = 34 // Android 14
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        
-        // MultiDex desteği
-        multiDexEnabled = true
     }
 
     buildTypes {
         release {
-            // Optimizasyonlar
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
-        
-        debug {
-            // Debug için optimizasyonlar
-            applicationIdSuffix = ".debug"
-            isDebuggable = true
-        }
     }
-    
-    // Lint kontrolleri
-    lint {
-        disable += "MissingTranslation"
-        abortOnError = false
-    }
-    
-    // Çoklu APK desteği
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = false
-        }
-    }
-    
-    // Java 8+ özelliklerini etkinleştir ama eski Java uyarılarını bastır
-    tasks.withType<JavaCompile> {
-        options.compilerArgs.add("-Xlint:-options")
-    }
-}
-
-// Desugaring ve MultiDex bağımlılıkları
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
-    implementation("androidx.multidex:multidex:2.0.1")
 }
 
 flutter {

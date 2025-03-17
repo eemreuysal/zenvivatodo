@@ -1,11 +1,3 @@
-// Gradle sürüm yapılandırması
-buildscript {
-    extra.apply {
-        set("kotlinVersion", "1.9.0")
-        set("gradleVersion", "8.1.1")
-    }
-}
-
 allprojects {
     repositories {
         google()
@@ -20,7 +12,6 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
-
 subprojects {
     project.evaluationDependsOn(":app")
 }

@@ -41,16 +41,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- Permission options for the `notification` group -->
-	<key>NSCalendarsUsageDescription</key>
-	<string>Görev hatırlatıcıları için takvim erişimi gereklidir.</string>
-	<key>NSNotificationsUsageDescription</key>
-	<string>Uygulama, görev zamanından 5 dakika önce bildirim göndermek için izninize ihtiyaç duyar.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>remote-notification</string>
-	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
