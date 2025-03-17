@@ -16,14 +16,14 @@ import '../models/user.dart';
 /// Veritabanı işlemlerini yöneten yardımcı sınıf
 /// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
-  // Constructor'lar sınıfın en üstünde
-  DatabaseHelper._internal();  
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
-
   // Sınıf değişkenleri
   static Database? _database;
   static const int _databaseVersion = 4;
+
+  // Constructor'lar sınıfın en üstünde (lint kuralı: sort_constructors_first)
+  DatabaseHelper._internal();  
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  factory DatabaseHelper() => _instance;
 
   // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
@@ -240,27 +240,36 @@ class DatabaseHelper {
     if (oldVersion < 4) {
       // Yeni sütunlar ekleme işlemleri
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE users ADD COLUMN last_login TEXT');
+        'ALTER TABLE users ADD COLUMN last_login TEXT',
+      );
       
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE tasks ADD COLUMN uniqueId TEXT');
+        'ALTER TABLE tasks ADD COLUMN uniqueId TEXT',
+      );
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       
       await _executeAlterTableSafely(db, 
-        'ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        'ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP',
+      );
       
       // Görev etiketleri tablosu (yeni)
       await _createTableIfNotExists(db, 'task_tags', '''\
@@ -312,7 +321,7 @@ class DatabaseHelper {
     try {
       final tables = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
-        [tableName]
+        [tableName],
       );
       
       if (tables.isEmpty) {
@@ -328,7 +337,7 @@ class DatabaseHelper {
     try {
       final indices = await db.rawQuery(
         "SELECT name FROM sqlite_master WHERE type='index' AND name=?", 
-        [indexName]
+        [indexName],
       );
       
       if (indices.isEmpty) {
@@ -663,9 +672,10 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
+      // Düzeltildi: prefer_if_elements_to_conditional_expressions uyarısı giderildi
       final found = results.firstWhere(
         (r) => r['date'] == date, 
-        orElse: () => {'date': date, 'count': 0}
+        orElse: () => {'date': date, 'count': 0},
       );
       mappedResults.add(found);
     }
@@ -877,7 +887,10 @@ class DatabaseHelper {
         return bytes / (1024 * 1024); // MB cinsinden
       }
       return 0.0;
-    } catch (e) {
+    } on FileSystemException catch (e) {
+      debugPrint('Dosya sistemi hatası: $e');
+      return 0.0;
+    } on Exception catch (e) {
       debugPrint('Veritabanı boyutu alınamadı: $e');
       return 0.0;
     }
@@ -891,7 +904,7 @@ class DatabaseHelper {
       final Database db = await database;
       await db.execute('VACUUM');
       return true;
-    } catch (e) {
+    } on DatabaseException catch (e) {
       debugPrint('Veritabanı optimize edilemedi: $e');
       return false;
     }
