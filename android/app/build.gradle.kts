@@ -11,7 +11,7 @@ android {
     ndkVersion = "27.0.12077973"
 
     compileOptions {
-        // Desugaring için Java 11 kullanımı
+        // Java 11 kullanımı
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
         // Desugaring etkinleştirme
@@ -66,6 +66,11 @@ android {
             include("armeabi-v7a", "arm64-v8a", "x86_64")
             isUniversalApk = false
         }
+    }
+    
+    // Java 8+ özelliklerini etkinleştir ama eski Java uyarılarını bastır
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-Xlint:-options")
     }
 }
 
