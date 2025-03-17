@@ -1,15 +1,19 @@
+import 'package:flutter/foundation.dart' hide Category;
+import 'package:sqflite/sqflite.dart';
 import '../models/category.dart';
 import 'database_helper.dart';
-import 'package:flutter/foundation.dart' hide Category;
 
 class CategoryService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   Future<bool> addCategory(Category category) async {
     try {
-      int categoryId = await _databaseHelper.insertCategory(category);
+      final int categoryId = await _databaseHelper.insertCategory(category);
       return categoryId > 0;
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kategori eklerken: $e');
+      return false;
+    } on Exception catch (e) {
       debugPrint('Error adding category: $e');
       return false;
     }
@@ -18,7 +22,10 @@ class CategoryService {
   Future<List<Category>> getCategories(int userId) async {
     try {
       return await _databaseHelper.getCategories(userId);
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kategori listesi alınırken: $e');
+      return [];
+    } on Exception catch (e) {
       debugPrint('Error getting categories: $e');
       return [];
     }
@@ -26,9 +33,12 @@ class CategoryService {
 
   Future<bool> updateCategory(Category category) async {
     try {
-      int result = await _databaseHelper.updateCategory(category);
+      final int result = await _databaseHelper.updateCategory(category);
       return result > 0;
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kategori güncellenirken: $e');
+      return false;
+    } on Exception catch (e) {
       debugPrint('Error updating category: $e');
       return false;
     }
@@ -36,9 +46,12 @@ class CategoryService {
 
   Future<bool> deleteCategory(int categoryId) async {
     try {
-      int result = await _databaseHelper.deleteCategory(categoryId);
+      final int result = await _databaseHelper.deleteCategory(categoryId);
       return result > 0;
-    } catch (e) {
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kategori silinirken: $e');
+      return false;
+    } on Exception catch (e) {
       debugPrint('Error deleting category: $e');
       return false;
     }
