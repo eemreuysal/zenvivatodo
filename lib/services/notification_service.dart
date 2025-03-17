@@ -54,8 +54,9 @@ class NotificationService {
     tz.initializeTimeZones();
     try {
       // Tarayarak mevcut sistemin zaman dilimini bulmaya çalış
-      final String? timeZoneName = tz.local.name;
-      if (timeZoneName != null && timeZoneName.isNotEmpty) {
+      // Nullable yerine non-nullable tip kullanma
+      final String timeZoneName = tz.local.name;
+      if (timeZoneName.isNotEmpty) {
         tz.setLocalLocation(tz.getLocation(timeZoneName));
         debugPrint('Timezone set to: $timeZoneName');
       } else {
