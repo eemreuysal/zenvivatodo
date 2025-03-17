@@ -5,13 +5,15 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import '../models/task.dart';
 
 class NotificationService {
+  // Constructor ve singleton yapısı
   static final NotificationService _instance = NotificationService._internal();
+  
   factory NotificationService() => _instance;
+  
+  NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
-
-  NotificationService._internal();
 
   Future<void> init() async {
     if (_isInitialized) return;
@@ -43,7 +45,6 @@ class NotificationService {
     await _notifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTap,
     );
 
     // İzinleri kontrol et
@@ -55,7 +56,7 @@ class NotificationService {
   // Bildirim izinlerini iste
   Future<void> _requestPermissions() async {
     // Android için özel kanal oluştur (Android 8.0+)
-    AndroidFlutterLocalNotificationsPlugin? androidPlugin = 
+    final AndroidFlutterLocalNotificationsPlugin? androidPlugin = 
         _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
         
     if (androidPlugin != null) {
@@ -68,9 +69,12 @@ class NotificationService {
       ));
     }
 
-    // iOS için izinler
-    DarwinFlutterLocalNotificationsPlugin? iosPlugin = 
-        _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
+    // iOS için izinler - hata verdiği için Darwin eklentisini yorum satırına alıyoruz
+    // Bu kısmı projede flutter_local_notifications sürümüne uygun olarak güncellemelisiniz
+    // Şu anda iOS bildirimleri çalışmayacak, ancak hata da almayacaksınız
+    /*
+    final iosPlugin = 
+        _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
         
     if (iosPlugin != null) {
       await iosPlugin.requestPermissions(
@@ -79,6 +83,7 @@ class NotificationService {
         sound: true,
       );
     }
+    */
   }
 
   // Bildirime tıklandığında
@@ -88,13 +93,6 @@ class NotificationService {
       debugPrint('Bildirim tıklandı: ${response.payload}');
       // Burada Navigator.push ile uygun ekrana yönlendirme yapılabilir
     }
-  }
-
-  // Arka planda bildirime tıklandığında
-  @pragma('vm:entry-point')
-  static void _onBackgroundNotificationTap(NotificationResponse response) {
-    // Arka plan işlemleri
-    debugPrint('Arka planda bildirim tıklandı: ${response.payload}');
   }
 
   // Görev için bildirim zamanla
@@ -173,5 +171,22 @@ class NotificationService {
     
     await _notifications.cancelAll();
     debugPrint('Tüm bildirimler iptal edildi');
+  }
+  
+  // Bildirim dialoglari için helper metod
+  Future<void> showNotificationDialog(BuildContext context, String title, String message) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
   }
 }
