@@ -13,13 +13,13 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   const TaskCard({
-    Key? key,
+    super.key,
     required this.task,
     this.category,
     required this.onToggleCompletion,
     required this.onEdit,
     required this.onDelete,
-  }) 
+  });
 
   Color get _priorityColor {
     switch (PriorityExtension.fromValue(task.priority)) {
