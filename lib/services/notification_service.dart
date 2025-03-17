@@ -28,7 +28,7 @@ class NotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS bildirim ayarları
-    const IOSInitializationSettings iosSettings =
+    const IOSInitializationSettings initializationSettingsIOS =
         IOSInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -38,7 +38,7 @@ class NotificationService {
     const InitializationSettings initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
-      iOS: iosSettings,
+      iOS: initializationSettingsIOS,
     );
 
     await flutterLocalNotificationsPlugin.initialize(
@@ -54,7 +54,6 @@ class NotificationService {
     tz.initializeTimeZones();
     try {
       // Tarayarak mevcut sistemin zaman dilimini bulmaya çalış
-      // Nullable yerine non-nullable tip kullanma
       final String timeZoneName = tz.local.name;
       if (timeZoneName.isNotEmpty) {
         tz.setLocalLocation(tz.getLocation(timeZoneName));
