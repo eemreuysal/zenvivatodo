@@ -53,12 +53,19 @@ class NotificationService {
   Future<void> _configureLocalTimeZone() async {
     tz.initializeTimeZones();
     try {
-      // Yerel saat dilimini almak için güvenli bir yaklaşım
-      const String timeZoneName = 'Etc/UTC'; // Varsayılan olarak UTC kullan
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
-      debugPrint('Timezone set to: $timeZoneName');
+      // Tarayarak mevcut sistemin zaman dilimini bulmaya çalış
+      final String? timeZoneName = tz.local.name;
+      if (timeZoneName != null && timeZoneName.isNotEmpty) {
+        tz.setLocalLocation(tz.getLocation(timeZoneName));
+        debugPrint('Timezone set to: $timeZoneName');
+      } else {
+        // Eğer bulunamazsa, cihaz zaman dilimini kullan veya varsayılan UTC
+        tz.setLocalLocation(tz.getLocation('Europe/Istanbul')); // Türkiye için varsayılan
+        debugPrint('Could not determine local timezone, using default Europe/Istanbul');
+      }
     } catch (e) {
       debugPrint('Could not set the local timezone: $e. Using UTC as default.');
+      // Eğer hata oluşursa varsayılan olarak UTC kullan
       tz.setLocalLocation(tz.getLocation('Etc/UTC'));
     }
   }
@@ -207,24 +214,25 @@ class NotificationService {
 
   Future<void> requestPermissions() async {
     try {
-      if (Platform.isIOS) {
-        // iOS için izinleri iste
+      if (Platform.isIOS || Platform.isMacOS) {
+        // iOS ve macOS için izinleri iste
         final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
-        await plugin.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-      } else if (Platform.isMacOS) {
-        // macOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
-        await plugin.resolvePlatformSpecificImplementation<
-            MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+        
+        if (Platform.isIOS) {
+          await plugin.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        } else {
+          await plugin.resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+        }
       } else if (Platform.isAndroid) {
         // Android için bildirim ayarları
         debugPrint('Android bildirimleri hazırlanıyor');
