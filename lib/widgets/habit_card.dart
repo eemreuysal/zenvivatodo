@@ -31,7 +31,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isCompleted 
-            ? BorderSide(color: Color.fromARGB(128, habitColor.red, habitColor.green, habitColor.blue), width: 1.5) 
+            ? BorderSide(color: Color.fromRGBO(habitColor.red, habitColor.green, habitColor.blue, 0.5), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi
@@ -96,7 +96,7 @@ class HabitCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isCompleted
-                                  ? Color.fromARGB(153, colorScheme.onSurface.red, colorScheme.onSurface.green, colorScheme.onSurface.blue) // 0.6 opacity
+                                  ? Color.fromRGBO(colorScheme.onSurface.red, colorScheme.onSurface.green, colorScheme.onSurface.blue, 0.6)
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -145,7 +145,7 @@ class HabitCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(51, habitColor.red, habitColor.green, habitColor.blue), // 0.2 opacity
+                        color: Color.fromRGBO(habitColor.red, habitColor.green, habitColor.blue, 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -177,8 +177,8 @@ class HabitCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Color.fromARGB(51, Colors.orange.red, Colors.orange.green, Colors.orange.blue) // 0.2 opacity
-                            : Color.fromARGB(26, Colors.orange.red, Colors.orange.green, Colors.orange.blue), // 0.1 opacity
+                            ? Color.fromRGBO(Colors.orange.red, Colors.orange.green, Colors.orange.blue, 0.2)
+                            : Color.fromRGBO(Colors.orange.red, Colors.orange.green, Colors.orange.blue, 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
