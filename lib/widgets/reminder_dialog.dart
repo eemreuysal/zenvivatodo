@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import '../models/task.dart';
 
 class ReminderDialog extends StatelessWidget {
-  final Task task;
-  final VoidCallback onDismiss;
-  final VoidCallback onViewTask;
-
+  // Constructor moved to top of class
   const ReminderDialog({
     super.key,
     required this.task,
     required this.onDismiss,
     required this.onViewTask,
   });
+
+  final Task task;
+  final VoidCallback onDismiss;
+  final VoidCallback onViewTask;
 
   @override
   Widget build(BuildContext context) {
