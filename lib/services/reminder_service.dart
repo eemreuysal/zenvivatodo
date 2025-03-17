@@ -7,16 +7,18 @@ import 'notification_service.dart';
 /// Bu servis şu anda kısmen devre dışı bırakılmıştır.
 /// Bildirimleri kullanmak yerine yerel diyalog gösterimini kullanıyor.
 class ReminderService {
+  // Singleton pattern
   static final ReminderService _instance = ReminderService._internal();
+  
+  // Constructorlar diğer üyelerden önce
   factory ReminderService() => _instance;
+  ReminderService._internal();
 
   // Stream that sends task IDs when they are due (5 minutes before the task time)
   final BehaviorSubject<Task> onTaskReminder = BehaviorSubject<Task>();
   Timer? _checkTimer;
   List<Task> _activeTasks = [];
   final NotificationService _notificationService = NotificationService();
-
-  ReminderService._internal();
 
   // Initialize the reminder service
   void initialize() {
@@ -29,8 +31,11 @@ class ReminderService {
 
     // Listen to the onTaskReminder stream and show notifications
     onTaskReminder.listen((task) {
-      // Show dialog notification instead of system notification
-      _notificationService.showNotificationDialog(task);
+      // NotificationService içindeki showNotificationDialog metodu BuildContext gerektiriyor
+      // Bu sebeple burada direkt çağıramıyoruz, global navigator key kullanmamız gerekiyor
+      // BuildContext olmayan ortamda hata göstermek yerine log basıyoruz
+      debugPrint('🔔 Görev hatırlatıcısı: ${task.title} - ${task.date} ${task.time}');
+      // Uygun context ile NotificationService'in showNotificationDialog metodunu çağırabilirsiniz
     });
   }
 
@@ -48,8 +53,8 @@ class ReminderService {
       if (!task.isCompleted && task.time != null && task.time!.isNotEmpty) {
         // Parse date and time
         try {
-          List<String> dateParts = task.date.split('-');
-          List<String> timeParts = task.time!.split(':');
+          final List<String> dateParts = task.date.split('-');
+          final List<String> timeParts = task.time!.split(':');
 
           if (dateParts.length == 3 && timeParts.length == 2) {
             final taskDateTime = DateTime(
@@ -74,6 +79,8 @@ class ReminderService {
               debugPrint('🔔 Reminder for task: ${task.title}');
             }
           }
+        } on FormatException catch (e) {
+          debugPrint('Tarih/saat formatı hatası: $e');
         } catch (e) {
           debugPrint('Error parsing task date/time: $e');
         }
