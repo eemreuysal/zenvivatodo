@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../constants/app_colors.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../models/task.dart';
 import '../models/category.dart';
-import '../models/priority.dart';
+import '../constants/app_colors.dart';
 
+// Modern material design ve Flutter 3.29 özelliklerini kullanan TaskCard
 class TaskCard extends StatelessWidget {
   final Task task;
   final Category? category;
@@ -21,179 +21,255 @@ class TaskCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  Color get _priorityColor {
-    switch (PriorityExtension.fromValue(task.priority)) {
-      case Priority.low:
-        return AppColors.lowPriorityColor;
-      case Priority.medium:
-        return AppColors.mediumPriorityColor;
-      case Priority.high:
-        return AppColors.highPriorityColor;
-    }
-  }
-
-  String get _priorityText {
-    return PriorityExtension.fromValue(task.priority).name;
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Material 3 tasarım dilini kullanan UI bileşenleri
     final theme = Theme.of(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
+    
+    // Öncelik rengi
+    final priorityColor = switch (task.priority) {
+      TaskPriority.low => Colors.green,
+      TaskPriority.medium => Colors.orange,
+      TaskPriority.high => Colors.red,
+    };
+    
+    // Kategori rengi veya varsayılan renk
+    final categoryColor = category != null 
+        ? Color(category!.color)
+        : AppColors.defaultCategoryColor;
+    
+    // Zaman bilgisi formatı
+    final hasTime = task.time != null && task.time!.isNotEmpty;
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shadowColor: Colors.black26,
+      surfaceTintColor: colorScheme.surfaceTint,
+      // Material 3 Card şekli
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: task.isCompleted 
+            ? BorderSide(color: Colors.green.withOpacity(0.5), width: 1.5) 
+            : BorderSide.none,
+      ),
+      // Animasyon eklendi - Flutter Animate paketi kullanılarak
+      child: Animate(
+        effects: [
+          FadeEffect(duration: 300.ms),
+          SlideEffect(
+            begin: const Offset(0, 0.1),
+            end: Offset.zero,
+            duration: 300.ms,
+            curve: Curves.easeOutQuad,
+          ),
+        ],
+        child: InkWell(
+          onTap: onEdit,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Completion toggle
-                InkWell(
-                  onTap: onToggleCompletion,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: theme.colorScheme.primary,
-                        width: 2,
-                      ),
-                      color: task.isCompleted
-                          ? theme.colorScheme.primary
-                          : Colors.transparent,
-                    ),
-                    child: task.isCompleted
-                        ? const Icon(
-                            Icons.check,
-                            size: 16,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Title
-                Expanded(
-                  child: Text(
-                    task.title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                // Edit and delete buttons
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20),
-                  onPressed: onEdit,
-                  splashRadius: 24,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: onDelete,
-                  splashRadius: 24,
-                ),
-              ],
-            ),
-            if (task.description.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.only(left: 36),
-                child: Text(
-                  task.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
-            ],
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.only(left: 36),
-              child: Row(
-                children: [
-                  // Category
-                  if (category != null) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDarkMode
-                            ? Color(category!.color).withAlpha(50)
-                            : Color(category!.color).withAlpha(25),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        category!.name,
-                        style: TextStyle(
-                          color: isDarkMode
-                              ? _getLighterColor(Color(category!.color))
-                              : Color(category!.color),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                // Başlık ve işler
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Tamamlandı işareti
+                    Semantics(
+                      label: task.isCompleted ? 'Tamamlandı, işareti kaldırmak için dokunun' : 'Tamamlanmadı, tamamlamak için dokunun',
+                      child: InkWell(
+                        onTap: onToggleCompletion,
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          margin: const EdgeInsets.only(right: 8, top: 2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: task.isCompleted ? Colors.green : Colors.transparent,
+                            border: Border.all(
+                              color: task.isCompleted ? Colors.green : colorScheme.outline,
+                              width: 2,
+                            ),
+                          ),
+                          child: task.isCompleted
+                              ? const Icon(Icons.check, size: 16, color: Colors.white)
+                              : null,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                  ],
-                  // Priority
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? _priorityColor.withAlpha(50)
-                          : _priorityColor.withAlpha(25),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      _priorityText,
-                      style: TextStyle(
-                        color: isDarkMode
-                            ? _getLighterColor(_priorityColor)
-                            : _priorityColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                    
+                    // Başlık ve açıklama
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Başlık
+                          Text(
+                            task.title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              decoration: task.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: task.isCompleted
+                                  ? colorScheme.onSurface.withOpacity(0.6)
+                                  : colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          
+                          // Açıklama (varsa)
+                          if (task.description.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              task.description,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                decoration: task.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  // Due date/time
-                  if (task.time != null) ...[
-                    const Icon(Icons.access_time, size: 14),
-                    const SizedBox(width: 4),
-                    Text(task.time!, style: theme.textTheme.bodySmall),
-                    const SizedBox(width: 8),
+                    
+                    // Öncelik göstergesi
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: priorityColor,
+                      ),
+                    ),
                   ],
-                  const Icon(Icons.calendar_today, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    DateFormat('dd/MM/yyyy').format(DateTime.parse(task.date)),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
-              ),
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Alt bilgiler
+                Row(
+                  children: [
+                    // Kategori etiketi
+                    if (category != null) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: categoryColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          category!.name,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: categoryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    
+                    // Tarih ve saat
+                    Icon(
+                      Icons.event,
+                      size: 16,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      task.date,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    
+                    if (hasTime) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        task.time!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                    
+                    const Spacer(),
+                    
+                    // Düzenleme ve silme butonları
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      tooltip: 'Düzenle',
+                      onPressed: onEdit,
+                      style: IconButton.styleFrom(
+                        foregroundColor: colorScheme.primary,
+                        minimumSize: const Size(40, 40),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      tooltip: 'Sil',
+                      onPressed: onDelete,
+                      style: IconButton.styleFrom(
+                        foregroundColor: colorScheme.error,
+                        minimumSize: const Size(40, 40),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+}
 
-  // Helper method to get lighter version of a color for dark mode
-  Color _getLighterColor(Color color) {
-    // Convert to HSL for better lightness control
-    HSLColor hsl = HSLColor.fromColor(color);
-    // Increase lightness (0.7 to 0.9 is a good range for visibility)
-    return hsl
-        .withLightness(hsl.lightness < 0.7 ? 0.8 : hsl.lightness)
-        .toColor();
+// Hero animasyonlu görev detay kartı - Geçiş animasyonları için
+class TaskHeroCard extends StatelessWidget {
+  final Task task;
+  final Category? category;
+
+  const TaskHeroCard({
+    super.key,
+    required this.task,
+    this.category,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final uniqueTag = 'task-${task.id}';
+    
+    return Hero(
+      tag: uniqueTag,
+      child: Material(
+        type: MaterialType.transparency,
+        child: TaskCard(
+          task: task,
+          category: category,
+          onToggleCompletion: () {}, // Hero geçişi için boş fonksiyonlar
+          onEdit: () {},
+          onDelete: () {},
+        ),
+      ),
+    );
   }
 }
