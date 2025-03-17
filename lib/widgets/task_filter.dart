@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../constants/app_texts.dart';
 import '../constants/app_colors.dart';
 import '../models/category.dart';
-import '../models/priority.dart';
+import '../models/task.dart';
 
 class TaskFilter extends StatelessWidget {
   final List<Category> categories;
@@ -22,137 +23,209 @@ class TaskFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final chipBackground =
-        isDarkMode ? AppColors.darkCardColor : Colors.transparent;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          // Categories filter
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text(AppTexts.allCategories),
-                  selected: selectedCategoryId == null,
-                  onSelected: (_) => onCategoryChanged(null),
-                  backgroundColor: chipBackground,
-                  shape: StadiumBorder(
-                    side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withAlpha(128),
-                    ),
-                  ),
-                  selectedColor: Theme.of(
-                    context,
-                  ).colorScheme.primary.withAlpha(isDarkMode ? 50 : 26),
-                  labelStyle: TextStyle(
-                    color: isDarkMode
-                        ? AppColors.darkTextColor
-                        : AppColors.lightTextColor,
-                  ),
-                  checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    // Animasyon etkisi için widget'ı sarmala
+    return Animate(
+      effects: [
+        FadeEffect(
+          duration: 300.ms,
+          curve: Curves.easeOut,
+        ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Filtre başlığı
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                'Filtrele',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
                 ),
-                const SizedBox(width: 8),
-                ...categories.map((category) {
-                  final categoryColor = Color(category.color);
-                  return Padding(
+              ),
+            ),
+            
+            // Kategoriler filtresi
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  // Tüm kategoriler seçeneği
+                  Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(category.name),
-                      selected: selectedCategoryId == category.id,
-                      onSelected: (_) => onCategoryChanged(category.id),
-                      backgroundColor: chipBackground,
-                      shape: StadiumBorder(
-                        side: BorderSide(
-                          color: categoryColor.withAlpha(128),
-                        ),
-                      ),
-                      selectedColor:
-                          categoryColor.withAlpha(isDarkMode ? 50 : 26),
+                      label: const Text(AppTexts.allCategories),
+                      selected: selectedCategoryId == null,
+                      onSelected: (_) => onCategoryChanged(null),
+                      showCheckmark: false,
+                      avatar: selectedCategoryId == null 
+                          ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
+                          : null,
                       labelStyle: TextStyle(
-                        color: isDarkMode
-                            ? AppColors.darkTextColor
-                            : AppColors.lightTextColor,
+                        color: selectedCategoryId == null
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
+                        fontWeight: selectedCategoryId == null 
+                            ? FontWeight.bold 
+                            : FontWeight.normal,
                       ),
-                      checkmarkColor:
-                          isDarkMode ? AppColors.darkTextColor : null,
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Priorities filter
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text(AppTexts.allPriorities),
-                  selected: selectedPriority == null,
-                  onSelected: (_) => onPriorityChanged(null),
-                  backgroundColor: chipBackground,
-                  shape: StadiumBorder(
-                    side: BorderSide(
-                      color: isDarkMode ? Colors.grey.shade600 : Colors.grey,
+                      backgroundColor: colorScheme.surface,
+                      selectedColor: colorScheme.primaryContainer,
+                      side: BorderSide(
+                        color: selectedCategoryId == null
+                            ? Colors.transparent
+                            : colorScheme.outline.withOpacity(0.3),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     ),
                   ),
-                  selectedColor:
-                      (isDarkMode ? Colors.grey.shade700 : Colors.grey)
-                          .withAlpha(isDarkMode ? 100 : 26),
-                  labelStyle: TextStyle(
-                    color: isDarkMode
-                        ? AppColors.darkTextColor
-                        : AppColors.lightTextColor,
-                  ),
-                  checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
-                ),
-                const SizedBox(width: 8),
-                _buildPriorityChip(Priority.high, isDarkMode),
-                const SizedBox(width: 8),
-                _buildPriorityChip(Priority.medium, isDarkMode),
-                const SizedBox(width: 8),
-                _buildPriorityChip(Priority.low, isDarkMode),
-              ],
+                  
+                  // Diğer kategoriler
+                  ...categories.map((category) {
+                    final categoryColor = Color(category.color);
+                    final isSelected = selectedCategoryId == category.id;
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(category.name),
+                        selected: isSelected,
+                        onSelected: (_) => onCategoryChanged(category.id),
+                        showCheckmark: false,
+                        avatar: isSelected 
+                            ? Icon(Icons.check, size: 16, color: Colors.white)
+                            : null,
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : colorScheme.onSurface,
+                          fontWeight: isSelected 
+                              ? FontWeight.bold 
+                              : FontWeight.normal,
+                        ),
+                        backgroundColor: colorScheme.surface,
+                        selectedColor: categoryColor,
+                        side: BorderSide(
+                          color: isSelected
+                              ? Colors.transparent
+                              : categoryColor.withOpacity(0.3),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      ),
+                    );
+                  }),
+                ],
+              ),
             ),
-          ),
-        ],
+            
+            const SizedBox(height: 12),
+            
+            // Öncelik filtresi
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  // Tüm öncelikler seçeneği
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: const Text(AppTexts.allPriorities),
+                      selected: selectedPriority == null,
+                      onSelected: (_) => onPriorityChanged(null),
+                      showCheckmark: false,
+                      avatar: selectedPriority == null 
+                          ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
+                          : null,
+                      labelStyle: TextStyle(
+                        color: selectedPriority == null
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurface,
+                        fontWeight: selectedPriority == null 
+                            ? FontWeight.bold 
+                            : FontWeight.normal,
+                      ),
+                      backgroundColor: colorScheme.surface,
+                      selectedColor: colorScheme.primaryContainer,
+                      side: BorderSide(
+                        color: selectedPriority == null
+                            ? Colors.transparent
+                            : colorScheme.outline.withOpacity(0.3),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    ),
+                  ),
+                  
+                  // Öncelikler
+                  _buildPriorityChip(TaskPriority.high, context),
+                  _buildPriorityChip(TaskPriority.medium, context),
+                  _buildPriorityChip(TaskPriority.low, context),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPriorityChip(Priority priority, bool isDarkMode) {
-    Color chipColor;
-    switch (priority) {
-      case Priority.high:
-        chipColor = AppColors.highPriorityColor;
-        break;
-      case Priority.medium:
-        chipColor = AppColors.mediumPriorityColor;
-        break;
-      case Priority.low:
-        chipColor = AppColors.lowPriorityColor;
-        break;
-    }
+  Widget _buildPriorityChip(TaskPriority priority, BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isSelected = selectedPriority == priority.value;
+    
+    // Öncelik rengi
+    final priorityColor = switch (priority) {
+      TaskPriority.high => Colors.red,
+      TaskPriority.medium => Colors.orange,
+      TaskPriority.low => Colors.green,
+    };
 
-    return FilterChip(
-      label: Text(priority.name),
-      selected: selectedPriority == priority.value,
-      onSelected: (_) => onPriorityChanged(priority.value),
-      backgroundColor:
-          isDarkMode ? AppColors.darkCardColor : Colors.transparent,
-      shape: StadiumBorder(side: BorderSide(color: chipColor.withAlpha(128))),
-      selectedColor: chipColor.withAlpha(isDarkMode ? 70 : 26),
-      labelStyle: TextStyle(
-        color: isDarkMode ? AppColors.darkTextColor : AppColors.lightTextColor,
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(priority.label),
+        selected: isSelected,
+        onSelected: (_) => onPriorityChanged(priority.value),
+        showCheckmark: false,
+        avatar: isSelected 
+            ? Icon(Icons.check, size: 16, color: Colors.white)
+            : null,
+        labelStyle: TextStyle(
+          color: isSelected
+              ? Colors.white
+              : colorScheme.onSurface,
+          fontWeight: isSelected 
+              ? FontWeight.bold 
+              : FontWeight.normal,
+        ),
+        backgroundColor: colorScheme.surface,
+        selectedColor: priorityColor,
+        side: BorderSide(
+          color: isSelected
+              ? Colors.transparent
+              : priorityColor.withOpacity(0.3),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
-      checkmarkColor: isDarkMode ? AppColors.darkTextColor : null,
     );
   }
 }
