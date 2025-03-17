@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 import '../models/task.dart';
 import 'notification_service.dart';
 
