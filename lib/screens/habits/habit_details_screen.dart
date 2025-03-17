@@ -450,8 +450,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                           !currentStatus,
                         );
 
-                        if (!mounted)
+                        if (!mounted) {
                           return; // Asenkron işlemden sonra mounted kontrolü ekledik
+                        }
                         _loadData(); // Verileri yenile
                       }
                     },
