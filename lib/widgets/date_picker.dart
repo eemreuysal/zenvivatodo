@@ -28,7 +28,7 @@ class DatePickerWidget extends StatelessWidget {
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          child: child, // Removed redundant null check
+          child: child ?? const SizedBox(), // Null kontrolü eklendi
         );
       },
     );
