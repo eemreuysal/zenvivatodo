@@ -94,9 +94,9 @@ class Task {
       title: title ?? this.title,
       description: description ?? this.description,
       date: date ?? this.date,
-      time: time != null ? time : this.time,
+      time: time ?? this.time, // if-null operatörü (??) kullanıldı
       isCompleted: isCompleted ?? this.isCompleted,
-      categoryId: categoryId != null ? categoryId : this.categoryId,
+      categoryId: categoryId ?? this.categoryId, // if-null operatörü (??) kullanıldı
       priority: priority ?? this.priority.value,
       userId: userId ?? this.userId,
       uniqueId: uniqueId ?? this.uniqueId,
