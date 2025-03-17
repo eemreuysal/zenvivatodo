@@ -10,7 +10,6 @@ class AppTheme {
       primary: AppColors.primaryColor,
       secondary: AppColors.secondaryColor,
       error: AppColors.errorColor,
-      background: Colors.grey.shade50,
       surface: Colors.white,
     ),
     appBarTheme: const AppBarTheme(
@@ -43,18 +42,16 @@ class AppTheme {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.errorColor),
+        borderSide: BorderSide(color: AppColors.errorColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      // Flutter 3.29 özelliği - year2023 false kullanılarak en son Material 3 stili
-      year2023: false,
+      // Kullanımdan kaldırılmış year2023 yerine ProgressIndicatorTheme kullanarak
       color: AppColors.primaryColor,
     ),
     sliderTheme: SliderThemeData(
-      // Flutter 3.29 özelliği - year2023 false kullanılarak en son Material 3 stili
-      year2023: false,
+      // Kullanımdan kaldırılmış year2023 yerine SliderTheme kullanarak
     ),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(
@@ -85,7 +82,6 @@ class AppTheme {
       primary: AppColors.primaryLightColor,
       secondary: AppColors.secondaryLightColor,
       error: AppColors.errorLightColor,
-      background: Colors.grey.shade900,
       surface: Colors.grey.shade800,
     ),
     appBarTheme: const AppBarTheme(
@@ -118,18 +114,16 @@ class AppTheme {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.errorLightColor),
+        borderSide: BorderSide(color: AppColors.errorLightColor),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      // Flutter 3.29 özelliği - year2023 false kullanılarak en son Material 3 stili
-      year2023: false,
+      // Kullanımdan kaldırılmış year2023 yerine ProgressIndicatorTheme kullanarak
       color: AppColors.primaryLightColor,
     ),
     sliderTheme: SliderThemeData(
-      // Flutter 3.29 özelliği - year2023 false kullanılarak en son Material 3 stili
-      year2023: false,
+      // Kullanımdan kaldırılmış year2023 yerine SliderTheme kullanarak
     ),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(
