@@ -4,6 +4,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../models/task.dart';
+import '../main.dart'; // NavigatorKey için
 
 /// Uygulama içi bildirimlerin yönetiminden sorumlu servis
 class NotificationService {
@@ -15,6 +16,10 @@ class NotificationService {
   static const String _channelId = 'task_reminders';
   static const String _channelName = 'Görev Hatırlatıcıları';
   static const String _channelDesc = 'Görevleriniz için hatırlatmalar';
+  
+  // Kanal grup tanımı (Android 8+ için önerilir)
+  static const String _groupId = 'zenviva_todo_group';
+  static const String _groupName = 'ZenViva Todo Bildirimleri';
   
   // Constructorlar sınıf üyelerinden önce (lint kuralı: sort_constructors_first)
   // Singleton yapısı
@@ -77,34 +82,45 @@ class NotificationService {
           
       if (androidPlugin != null) {
         await androidPlugin.requestPermission();
+        
+        // Bildirim kanalı oluştur
         await androidPlugin.createNotificationChannel(
           const AndroidNotificationChannel(
             _channelId, 
             _channelName,
             description: _channelDesc,
             importance: Importance.high,
+            groupId: _groupId,
+          ),
+        );
+        
+        // Bildirim grubu oluştur - gruplanmış bildirimler için
+        await androidPlugin.createNotificationChannelGroup(
+          const AndroidNotificationChannelGroup(
+            _groupId,
+            _groupName,
           ),
         );
       }
 
       // iOS için izinler
-      // DarwinFlutterLocalNotificationsPlugin tipini kullanmak için aşağıdaki cast'i kullanalım
-      // (Bu, tür hatası olan kısım)
-      final darwinPlugin = 
-          _notifications.resolvePlatformSpecificImplementation<Object>() as dynamic;
-          
-      if (darwinPlugin != null && darwinPlugin.requestPermissions != null) {
+      // DarwinFlutterLocalNotificationsPlugin tipini kullanmak için güvenli tip dönüşümü
+      final dynamic darwinPlugin = 
+          _notifications.resolvePlatformSpecificImplementation<Object>();
+      
+      // İlgili platform özelliklerini kontrol et
+      if (darwinPlugin != null && 
+          darwinPlugin is dynamic && 
+          darwinPlugin.requestPermissions != null) {
         await darwinPlugin.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
+          critical: true, // Kritik bildirimler için (Focus Mode durumunda bile bildirim gösterme)
         );
       }
     } on UnsupportedError catch (e) {
-      // Error alt sınıfı olduğu için yakalamak yerine loglama
       debugPrint('Platform izin desteği yok: $e');
-      // Hatayı yeniden fırlat
-      rethrow;
     } on Exception catch (e) {
       debugPrint('Bildirim izinleri alınamadı: $e');
     }
@@ -115,8 +131,21 @@ class NotificationService {
     // Payload içeriğine göre uygun ekrana yönlendirme
     if (response.payload != null) {
       debugPrint('Bildirim tıklandı: ${response.payload}');
-      // Burada Navigator.push ile uygun ekrana yönlendirme yapılabilir
-      // Bu işlemleri başka bir servise veya provider'a taşımak daha iyi olabilir
+      
+      // Bildirim payload'ından görev ID'sini ayıkla
+      final taskId = int.tryParse(response.payload!);
+      
+      if (taskId != null && navigatorKey.currentContext != null) {
+        // TODO: Görev detay sayfasına yönlendir
+        // Bu kısmı düzeltmek için TaskDetail ekranını gerektiriyor
+        /*
+        Navigator.of(navigatorKey.currentContext!).push(
+          MaterialPageRoute(
+            builder: (_) => TaskDetailScreen(taskId: taskId),
+          ),
+        );
+        */
+      }
     }
   }
 
@@ -155,8 +184,9 @@ class NotificationService {
         timeComponents[1], // dakika
       );
       
-      // Bildirim zamanını, görev zamanından 5 dakika önce olacak şekilde ayarla
+      // Bildirim zamanları oluştur - ikili bildirim sistemi
       final reminderTime = scheduledDate.subtract(const Duration(minutes: 5));
+      final exactTime = scheduledDate;
       
       // Şu andan önceki bildirimler için kontrol
       if (reminderTime.isBefore(DateTime.now())) {
@@ -164,31 +194,23 @@ class NotificationService {
         return false;
       }
 
-      // Bildirimi planla
-      await _notifications.zonedSchedule(
-        task.id!, // Bildirim ID'si olarak görev ID'sini kullan
-        'Görev Hatırlatıcısı', 
-        '${task.title} göreviniz 5 dakika içinde başlayacak',
-        tz.TZDateTime.from(reminderTime, tz.local),
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            _channelId,
-            _channelName,
-            channelDescription: _channelDesc,
-            importance: Importance.high,
-            priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: 
-          UILocalNotificationDateInterpretation.absoluteTime,
+      // 5 dakika öncesi hatırlatma
+      await _scheduleNotification(
+        id: task.id!,
+        title: 'Görev Hatırlatıcısı', 
+        body: '${task.title} göreviniz 5 dakika içinde başlayacak',
+        scheduledTime: reminderTime,
         payload: task.id.toString(),
+      );
+      
+      // Tam zamanında hatırlatma
+      await _scheduleNotification(
+        id: task.id! + 100000, // İlk bildirimle çakışmasın diye farklı ID
+        title: 'Görev Zamanı', 
+        body: '${task.title} görevi için planlanan zaman geldi',
+        scheduledTime: exactTime,
+        payload: task.id.toString(),
+        useFullScreenIntent: true, // Tam ekran bildirim (önemli görevler için)
       );
       
       debugPrint('Bildirim planlandı: ${task.id} - ${task.title} için ${reminderTime.toString()}');
@@ -201,6 +223,65 @@ class NotificationService {
       return false;
     }
   }
+  
+  /// Bildirimi planlayan yardımcı metod
+  Future<void> _scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledTime,
+    required String payload,
+    bool useFullScreenIntent = false,
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      _channelId,
+      _channelName,
+      channelDescription: _channelDesc,
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+      groupKey: _groupId,
+      fullScreenIntent: useFullScreenIntent,
+      category: AndroidNotificationCategory.reminder,
+      actions: [
+        const AndroidNotificationAction(
+          'complete',
+          'Tamamlandı olarak işaretle',
+          showsUserInterface: true,
+        ),
+        const AndroidNotificationAction(
+          'snooze',
+          'Ertele',
+          showsUserInterface: true,
+        ),
+      ],
+    );
+    
+    final iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+      categoryIdentifier: 'reminder',
+    );
+    
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+    
+    await _notifications.zonedSchedule(
+      id,
+      title, 
+      body,
+      tz.TZDateTime.from(scheduledTime, tz.local),
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation: 
+        UILocalNotificationDateInterpretation.absoluteTime,
+      payload: payload,
+    );
+  }
 
   /// Bildirimi iptal etme
   /// 
@@ -212,7 +293,11 @@ class NotificationService {
         if (!initialized) return false;
       }
       
+      // Ana hatırlatıcı bildirimi iptal et
       await _notifications.cancel(taskId);
+      // Tam zaman bildirimi de iptal et
+      await _notifications.cancel(taskId + 100000);
+      
       debugPrint('Bildirim iptal edildi: $taskId');
       return true;
     } on Exception catch (e) {
@@ -238,6 +323,55 @@ class NotificationService {
     }
   }
   
+  /// Acil bildirim gösterme (anlık)
+  Future<bool> showImmediateNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    try {
+      if (!_isInitialized) {
+        final initialized = await init();
+        if (!initialized) return false;
+      }
+      
+      final androidDetails = AndroidNotificationDetails(
+        _channelId,
+        _channelName,
+        channelDescription: _channelDesc,
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+        groupKey: _groupId,
+      );
+      
+      final iosDetails = const DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+      
+      final notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+      
+      await _notifications.show(
+        id,
+        title,
+        body,
+        notificationDetails,
+        payload: payload,
+      );
+      
+      return true;
+    } on Exception catch (e) {
+      debugPrint('Anlık bildirim gösterilirken hata: $e');
+      return false;
+    }
+  }
+  
   /// Bildirim dialoglari için helper metod
   /// 
   /// [context] için geçerli BuildContext gereklidir
@@ -257,6 +391,32 @@ class NotificationService {
           ],
         ),
       );
+    }
+  }
+
+  /// Bildirim izinlerini kontrol et
+  Future<bool> areNotificationsEnabled() async {
+    try {
+      if (!_isInitialized) {
+        final initialized = await init();
+        if (!initialized) return false;
+      }
+      
+      // Android için izin kontrolü
+      final AndroidFlutterLocalNotificationsPlugin? androidPlugin = 
+          _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+          
+      if (androidPlugin != null) {
+        final areEnabled = await androidPlugin.areNotificationsEnabled();
+        return areEnabled ?? false;
+      }
+      
+      // iOS için izin kontrolü buraya eklenebilir
+      
+      return true;
+    } on Exception catch (e) {
+      debugPrint('Bildirim izinleri kontrol edilirken hata: $e');
+      return false;
     }
   }
 }
