@@ -46,6 +46,9 @@ dependencies:
   uuid: ^4.2.1          # Benzersiz ID oluşturmak için
   flutter_animate: ^4.4.0  # Animasyonlar için
   google_fonts: ^6.1.0  # Modern font desteği
+  
+  # Web için JS interoperabilite (dart:html yerine)
+  web: ^0.5.0           # Web destekli API'ler için
 
 dev_dependencies:
   flutter_test:
@@ -62,3 +65,7 @@ flutter:
   # assets:
   #   - assets/images/
   #   - assets/icons/
+
+# Dart formatter ayarları - Dart 3.7 yeni biçimlendirme stili
+formatter:
+  page_width: 100  # Sayfa genişliği
