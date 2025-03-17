@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../constants/app_colors.dart';
 
 class DatePickerWidget extends StatelessWidget {
@@ -28,7 +29,7 @@ class DatePickerWidget extends StatelessWidget {
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          child: child, // Removed redundant null check
+          child: child ?? Container(), // Added proper null check with fallback
         );
       },
     );
@@ -49,7 +50,7 @@ class DatePickerWidget extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
-                Colors.grey.withAlpha(76),
+                Colors.grey.withOpacity(0.3),
           ),
           borderRadius: BorderRadius.circular(8),
           color: theme.inputDecorationTheme.fillColor,
