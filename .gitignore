@@ -51,6 +51,16 @@ app.*.map.json
 *.com
 n6icd38tr.*
 ssh-keygen*
+*.crt
+*.p12
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+.env
+.env.*
+secrets.json
+credentials.json
 
 # Backup files
 *.bak
