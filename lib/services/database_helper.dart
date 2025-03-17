@@ -20,7 +20,7 @@ class DatabaseHelper {
   static Database? _database;
   static const int _databaseVersion = 4;
 
-  // Constructor'lar sınıfın en üstünde (lint kuralı: sort_constructors_first)
+  // Constructor'lar sınıfın en üstünde
   DatabaseHelper._internal();  
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
@@ -673,7 +673,7 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
-      // Düzeltildi: prefer_if_elements_to_conditional_expressions uyarısı giderildi
+      // if-else koşullu ifade yerine firstWhere kullanımı tercih edildi
       final found = results.firstWhere(
         (r) => r['date'] == date, 
         orElse: () => {'date': date, 'count': 0},
