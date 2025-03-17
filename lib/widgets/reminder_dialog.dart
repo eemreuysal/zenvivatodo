@@ -11,11 +11,7 @@ class ReminderDialog extends StatelessWidget {
     required this.task,
     required this.onDismiss,
     required this.onViewTask,
-<<<<<<< HEAD
-  }) 
-=======
   });
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
 
   @override
   Widget build(BuildContext context) {
