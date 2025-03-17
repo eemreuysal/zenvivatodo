@@ -13,7 +13,8 @@ import '../models/category.dart' as models;
 import '../models/task.dart';
 import '../models/user.dart';
 
-// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
+/// Veritabanı işlemlerini yöneten yardımcı sınıf
+/// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
   // Constructor'lar sınıfın en üstünde
   DatabaseHelper._internal();  
@@ -53,7 +54,7 @@ class DatabaseHelper {
   // Veritabanı oluşturma
   Future<void> _onCreate(Database db, int version) async {
     // Kullanıcılar tablosu
-    await db.execute('''
+    await db.execute('''\
       CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
@@ -65,7 +66,7 @@ class DatabaseHelper {
     ''');
 
     // Kategoriler tablosu
-    await db.execute('''
+    await db.execute('''\
       CREATE TABLE categories(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -76,8 +77,8 @@ class DatabaseHelper {
       )
     ''');
 
-    // Görevler tablosu
-    await db.execute('''
+    // Görevler tablosu - indeksler eklendi
+    await db.execute('''\
       CREATE TABLE tasks(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -95,9 +96,14 @@ class DatabaseHelper {
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
+    
+    // Performans iyileştirmesi: sık kullanılan alanlara index ekle
+    await db.execute('CREATE INDEX idx_tasks_userId ON tasks(userId)');
+    await db.execute('CREATE INDEX idx_tasks_date ON tasks(date)');
+    await db.execute('CREATE INDEX idx_tasks_isCompleted ON tasks(isCompleted)');
 
-    // Alışkanlıklar tablosu
-    await db.execute('''
+    // Alışkanlıklar tablosu - indeksler eklendi
+    await db.execute('''\
       CREATE TABLE habits(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -118,9 +124,13 @@ class DatabaseHelper {
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
+    
+    // Performans iyileştirmesi: sık kullanılan alanlara index ekle
+    await db.execute('CREATE INDEX idx_habits_userId ON habits(userId)');
+    await db.execute('CREATE INDEX idx_habits_isArchived ON habits(isArchived)');
 
-    // Alışkanlık kayıtları tablosu
-    await db.execute('''
+    // Alışkanlık kayıtları tablosu - indeksler eklendi
+    await db.execute('''\
       CREATE TABLE habit_logs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         habitId INTEGER NOT NULL,
@@ -131,9 +141,13 @@ class DatabaseHelper {
         FOREIGN KEY(habitId) REFERENCES habits(id) ON DELETE CASCADE
       )
     ''');
+    
+    // Performans iyileştirmesi: sık kullanılan alanlara index ekle
+    await db.execute('CREATE INDEX idx_habit_logs_habitId ON habit_logs(habitId)');
+    await db.execute('CREATE INDEX idx_habit_logs_date ON habit_logs(date)');
 
-    // Görev etiketleri tablosu (yeni) - birden fazla etiket ekleyebilmek için
-    await db.execute('''
+    // Görev etiketleri tablosu (yeni)
+    await db.execute('''\
       CREATE TABLE task_tags(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -142,9 +156,12 @@ class DatabaseHelper {
         FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
+    
+    // Performans iyileştirmesi: etiketler için index
+    await db.execute('CREATE INDEX idx_task_tags_userId ON task_tags(userId)');
 
     // Görev-etiket ilişki tablosu (yeni)
-    await db.execute('''
+    await db.execute('''\
       CREATE TABLE task_tag_relations(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         taskId INTEGER NOT NULL,
@@ -153,6 +170,10 @@ class DatabaseHelper {
         FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
       )
     ''');
+    
+    // Etiket ilişkileri için index
+    await db.execute('CREATE INDEX idx_task_tag_relations_taskId ON task_tag_relations(taskId)');
+    await db.execute('CREATE INDEX idx_task_tag_relations_tagId ON task_tag_relations(tagId)');
 
     // Varsayılan kategorileri ekle
     await db.insert(
@@ -178,7 +199,7 @@ class DatabaseHelper {
     // Her sürüm değişikliği için kontrol
     if (oldVersion < 2) {
       // Alışkanlıklar tablosu
-      await db.execute('''
+      await db.execute('''\
         CREATE TABLE IF NOT EXISTS habits(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
@@ -198,7 +219,7 @@ class DatabaseHelper {
       ''');
 
       // Alışkanlık kayıtları tablosu
-      await db.execute('''
+      await db.execute('''\
         CREATE TABLE IF NOT EXISTS habit_logs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           habitId INTEGER NOT NULL,
@@ -217,72 +238,104 @@ class DatabaseHelper {
     }
     
     if (oldVersion < 4) {
-      // Yeni sütunlar ekle
+      // Yeni sütunlar ekleme işlemleri
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE users ADD COLUMN last_login TEXT');
       
-      // users tablosuna son giriş tarihi
-      try {
-        await db.execute('ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-        await db.execute('ALTER TABLE users ADD COLUMN last_login TEXT');
-      } on DatabaseException catch (e) {
-        debugPrint('Users tablosu güncellenemedi: $e');
-      }
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE tasks ADD COLUMN uniqueId TEXT');
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
       
-      // tasks tablosuna oluşturma ve güncelleme tarihi ekle
-      try {
-        await db.execute('ALTER TABLE tasks ADD COLUMN uniqueId TEXT');
-        await db.execute('ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-        await db.execute('ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } on DatabaseException catch (e) {
-        debugPrint('Tasks tablosu güncellenemedi: $e');
-      }
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
       
-      // habits tablosuna oluşturma ve güncelleme tarihi ekle
-      try {
-        await db.execute('ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-        await db.execute('ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } on DatabaseException catch (e) {
-        debugPrint('Habits tablosu güncellenemedi: $e');
-      }
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
       
-      // categories tablosuna oluşturma tarihi ekle
-      try {
-        await db.execute('ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } on DatabaseException catch (e) {
-        debugPrint('Categories tablosu güncellenemedi: $e');
-      }
-      
-      // habit_logs tablosuna oluşturma tarihi ekle
-      try {
-        await db.execute('ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } on DatabaseException catch (e) {
-        debugPrint('Habit_logs tablosu güncellenemedi: $e');
-      }
+      await _executeAlterTableSafely(db, 
+        'ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
       
       // Görev etiketleri tablosu (yeni)
-      try {
-        await db.execute('''
-          CREATE TABLE IF NOT EXISTS task_tags(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            color INTEGER NOT NULL DEFAULT 0xFF9E9E9E,
-            userId INTEGER NOT NULL,
-            FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
-          )
-        ''');
+      await _createTableIfNotExists(db, 'task_tags', '''\
+        CREATE TABLE task_tags(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          color INTEGER NOT NULL DEFAULT 0xFF9E9E9E,
+          userId INTEGER NOT NULL,
+          FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+        )
+      ''');
 
-        // Görev-etiket ilişki tablosu (yeni)
-        await db.execute('''
-          CREATE TABLE IF NOT EXISTS task_tag_relations(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            taskId INTEGER NOT NULL,
-            tagId INTEGER NOT NULL,
-            FOREIGN KEY(taskId) REFERENCES tasks(id) ON DELETE CASCADE,
-            FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
-          )
-        ''');
-      } on DatabaseException catch (e) {
-        debugPrint('Etiket tabloları oluşturulamadı: $e');
+      // Görev-etiket ilişki tablosu (yeni)
+      await _createTableIfNotExists(db, 'task_tag_relations', '''\
+        CREATE TABLE task_tag_relations(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          taskId INTEGER NOT NULL,
+          tagId INTEGER NOT NULL,
+          FOREIGN KEY(taskId) REFERENCES tasks(id) ON DELETE CASCADE,
+          FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
+        )
+      ''');
+      
+      // Sürüm 4'te yapılan indeks eklemeleri
+      await _createIndexIfNotExists(db, 'idx_tasks_userId', 'tasks', 'userId');
+      await _createIndexIfNotExists(db, 'idx_tasks_date', 'tasks', 'date');
+      await _createIndexIfNotExists(db, 'idx_tasks_isCompleted', 'tasks', 'isCompleted');
+      await _createIndexIfNotExists(db, 'idx_habits_userId', 'habits', 'userId');
+      await _createIndexIfNotExists(db, 'idx_habits_isArchived', 'habits', 'isArchived');
+      await _createIndexIfNotExists(db, 'idx_habit_logs_habitId', 'habit_logs', 'habitId');
+      await _createIndexIfNotExists(db, 'idx_habit_logs_date', 'habit_logs', 'date');
+      await _createIndexIfNotExists(db, 'idx_task_tags_userId', 'task_tags', 'userId');
+      await _createIndexIfNotExists(db, 'idx_task_tag_relations_taskId', 'task_tag_relations', 'taskId');
+      await _createIndexIfNotExists(db, 'idx_task_tag_relations_tagId', 'task_tag_relations', 'tagId');
+    }
+  }
+  
+  // Güvenli şekilde ALTER TABLE çalıştır (hata olursa devam et)
+  Future<void> _executeAlterTableSafely(Database db, String sql) async {
+    try {
+      await db.execute(sql);
+    } on DatabaseException catch (e) {
+      debugPrint('Tablo değişikliği hatası: $e');
+    }
+  }
+  
+  // Tablo yoksa oluştur
+  Future<void> _createTableIfNotExists(Database db, String tableName, String sql) async {
+    try {
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", 
+        [tableName]
+      );
+      
+      if (tables.isEmpty) {
+        await db.execute(sql);
       }
+    } on DatabaseException catch (e) {
+      debugPrint('Tablo oluşturma hatası: $e');
+    }
+  }
+  
+  // İndeks yoksa oluştur
+  Future<void> _createIndexIfNotExists(Database db, String indexName, String tableName, String column) async {
+    try {
+      final indices = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='index' AND name=?", 
+        [indexName]
+      );
+      
+      if (indices.isEmpty) {
+        await db.execute('CREATE INDEX $indexName ON $tableName($column)');
+      }
+    } on DatabaseException catch (e) {
+      debugPrint('İndeks oluşturma hatası: $e');
     }
   }
 
@@ -301,20 +354,25 @@ class DatabaseHelper {
     // Kullanıcıyı kontrol et
     final List<Map<String, dynamic>> maps = await db.query(
       'users',
-      where: 'username = ? AND password = ?',
-      whereArgs: [username, password],
+      where: 'username = ?',
+      whereArgs: [username],
     );
 
     if (maps.isNotEmpty) {
-      // Son giriş zamanını güncelle
-      await db.update(
-        'users',
-        {'last_login': DateTime.now().toIso8601String()},
-        where: 'id = ?',
-        whereArgs: [maps.first['id']],
-      );
+      // Şifreyi doğrula (User sınıfında şifre doğrulama yapılacak)
+      final user = User.fromMap(maps.first);
       
-      return User.fromMap(maps.first);
+      if (user.verifyPassword(password)) {
+        // Son giriş zamanını güncelle
+        await db.update(
+          'users',
+          {'last_login': DateTime.now().toIso8601String()},
+          where: 'id = ?',
+          whereArgs: [user.id],
+        );
+        
+        return user;
+      }
     }
     return null;
   }
@@ -442,7 +500,7 @@ class DatabaseHelper {
     });
   }
 
-  // Görev arama fonksiyonu - yeni
+  // Görev arama fonksiyonu - SQL enjeksiyon riskine karşı iyileştirildi
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
@@ -450,26 +508,17 @@ class DatabaseHelper {
   ) async {
     final Database db = await database;
     
-    final queryBuilder = StringBuffer('''
-      SELECT * FROM tasks 
-      WHERE userId = ? AND
-      (title LIKE ? OR description LIKE ?)
-    ''');
-    final whereArgs = <dynamic>[
-      userId, 
-      '%$query%', 
-      '%$query%',
-    ];
-
-    if (!includeCompleted) {
-      queryBuilder.write(' AND isCompleted = 0');
-    }
-    
-    queryBuilder.write(' ORDER BY date ASC, time ASC');
-
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
-      queryBuilder.toString(),
-      whereArgs,
+    // SQL enjeksiyon riskini azaltmak için parametre kullanımı
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tasks',
+      where: 'userId = ? AND (title LIKE ? OR description LIKE ?) AND isCompleted = ?',
+      whereArgs: [
+        userId, 
+        '%$query%', 
+        '%$query%',
+        includeCompleted ? 1 : 0,
+      ],
+      orderBy: 'date ASC, time ASC',
     );
 
     return List.generate(maps.length, (i) {
@@ -527,7 +576,7 @@ class DatabaseHelper {
   
   Future<List<Map<String, dynamic>>> getTaskTags(int taskId) async {
     final Database db = await database;
-    return await db.rawQuery('''
+    return await db.rawQuery('''\
       SELECT t.* FROM task_tags t
       INNER JOIN task_tag_relations r ON t.id = r.tagId
       WHERE r.taskId = ?
@@ -551,8 +600,6 @@ class DatabaseHelper {
     );
   }
 
-  // Veritabanı işlemleri için daha detaylı hata yönetimi eklenmiştir
-  
   // Transaction kullanımı örneği - veritabanı işlemlerini atomik olarak yürütür
   Future<bool> batchUpdateTasks(List<Task> tasks) async {
     final Database db = await database;
@@ -577,12 +624,12 @@ class DatabaseHelper {
     }
   }
   
-  // İstatistik metodları (yeni)
+  // İstatistik metodları
   
   // Kategori bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByCategory(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''
+    return await db.rawQuery('''\
       SELECT c.name, c.color, COUNT(t.id) as taskCount, 
              SUM(CASE WHEN t.isCompleted = 1 THEN 1 ELSE 0 END) as completedCount
       FROM tasks t
@@ -592,7 +639,7 @@ class DatabaseHelper {
     ''', [userId]);
   }
   
-  // Günlük tamamlanan görev sayısı - son 7 gün
+  // Günlük tamamlanan görev sayısı - son 7 gün - performans iyileştirmesi
   Future<List<Map<String, dynamic>>> getCompletedTasksLast7Days(int userId) async {
     final Database db = await database;
     
@@ -602,28 +649,34 @@ class DatabaseHelper {
       return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     });
     
-    // Her tarih için tamamlanan görev sayısını sorgula
-    final result = <Map<String, dynamic>>[];
+    // Tek bir sorgu ile tamamlanan görev sayılarını al (performans iyileştirmesi)
+    final query = '''
+      SELECT date, COUNT(*) as count 
+      FROM tasks 
+      WHERE userId = ? AND date IN (${dates.map((_) => '?').join(',')}) AND isCompleted = 1
+      GROUP BY date
+    ''';
     
-    await Future.forEach(dates, (date) async {
-      final count = Sqflite.firstIntValue(await db.rawQuery('''
-        SELECT COUNT(*) FROM tasks 
-        WHERE userId = ? AND date = ? AND isCompleted = 1
-      ''', [userId, date])) ?? 0;
-      
-      result.add({
-        'date': date,
-        'count': count,
-      });
-    });
+    final List<dynamic> args = [userId, ...dates];
+    final List<Map<String, dynamic>> results = await db.rawQuery(query, args);
     
-    return result;
+    // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
+    final mappedResults = <Map<String, dynamic>>[];
+    for (final date in dates) {
+      final found = results.firstWhere(
+        (r) => r['date'] == date, 
+        orElse: () => {'date': date, 'count': 0}
+      );
+      mappedResults.add(found);
+    }
+    
+    return mappedResults;
   }
   
   // Öncelik bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByPriority(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''
+    return await db.rawQuery('''\
       SELECT priority, COUNT(*) as count
       FROM tasks
       WHERE userId = ?
@@ -631,7 +684,7 @@ class DatabaseHelper {
     ''', [userId]);
   }
   
-  // Alışkanlık metodları (güncellendi)
+  // Alışkanlık metodları
   Future<int> insertHabit(Map<String, dynamic> habit) async {
     final Database db = await database;
     
@@ -648,17 +701,10 @@ class DatabaseHelper {
     bool includeArchived = false,
   }) async {
     final Database db = await database;
-    String whereClause = 'userId = ?';
-    final List<dynamic> whereArgs = [userId];
-
-    if (!includeArchived) {
-      whereClause += ' AND isArchived = 0';
-    }
-
     return await db.query(
       'habits',
-      where: whereClause,
-      whereArgs: whereArgs,
+      where: 'userId = ? AND isArchived = ?',
+      whereArgs: [userId, includeArchived ? 1 : 0],
       orderBy: 'created_at DESC',
     );
   }
@@ -737,7 +783,7 @@ class DatabaseHelper {
     );
   }
 
-  // Habit Logs methods
+  // Habit Logs methods - SQL enjeksiyon önlemi
   Future<int> insertHabitLog(Map<String, dynamic> log) async {
     final Database db = await database;
     
@@ -752,20 +798,22 @@ class DatabaseHelper {
     String? date,
   }) async {
     final Database db = await database;
-    String whereClause = 'habitId = ?';
-    final List<dynamic> whereArgs = [habitId];
-
+    
     if (date != null) {
-      whereClause += ' AND date = ?';
-      whereArgs.add(date);
+      return await db.query(
+        'habit_logs',
+        where: 'habitId = ? AND date = ?',
+        whereArgs: [habitId, date],
+        orderBy: 'date DESC',
+      );
+    } else {
+      return await db.query(
+        'habit_logs',
+        where: 'habitId = ?',
+        whereArgs: [habitId],
+        orderBy: 'date DESC',
+      );
     }
-
-    return await db.query(
-      'habit_logs',
-      where: whereClause,
-      whereArgs: whereArgs,
-      orderBy: 'date DESC',
-    );
   }
 
   Future<int> toggleHabitCompletion(
@@ -814,5 +862,38 @@ class DatabaseHelper {
   Future<int> deleteHabitLog(int id) async {
     final Database db = await database;
     return await db.delete('habit_logs', where: 'id = ?', whereArgs: [id]);
+  }
+  
+  /// Veritabanının boyutunu megabayt olarak döndürür.
+  /// Performans analizi için kullanılabilir.
+  Future<double> getDatabaseSize() async {
+    try {
+      final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      final String path = join(documentsDirectory.path, 'zenviva.db');
+      final File dbFile = File(path);
+      
+      if (await dbFile.exists()) {
+        final int bytes = await dbFile.length();
+        return bytes / (1024 * 1024); // MB cinsinden
+      }
+      return 0.0;
+    } catch (e) {
+      debugPrint('Veritabanı boyutu alınamadı: $e');
+      return 0.0;
+    }
+  }
+  
+  /// Veritabanını optimize etmek için VACUUM komutunu çalıştırır.
+  /// Uzun süren işlemleri, silinen verileri ve geniş transactionları takiben
+  /// veritabanı dosyasının boyutunu küçültmek için kullanılabilir.
+  Future<bool> optimizeDatabase() async {
+    try {
+      final Database db = await database;
+      await db.execute('VACUUM');
+      return true;
+    } catch (e) {
+      debugPrint('Veritabanı optimize edilemedi: $e');
+      return false;
+    }
   }
 }
