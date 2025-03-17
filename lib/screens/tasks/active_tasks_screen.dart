@@ -15,7 +15,7 @@ import 'edit_task_screen.dart';
 class ActiveTasksScreen extends StatefulWidget {
   final int userId;
 
-  const ActiveTasksScreen({super.key, required this.userId}) 
+  const ActiveTasksScreen({super.key, required this.userId});
 
   @override
   State<ActiveTasksScreen> createState() => _ActiveTasksScreenState();
