@@ -9,11 +9,7 @@ import '../../widgets/custom_button.dart';
 class CategoriesScreen extends StatefulWidget {
   final int userId;
 
-<<<<<<< HEAD
-  const CategoriesScreen({super.key, required this.userId}) 
-=======
   const CategoriesScreen({super.key, required this.userId});
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
