@@ -66,15 +66,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         (c) => c.id == widget.task.categoryId,
         orElse: () => _categories.isNotEmpty
             ? _categories.first
-            : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32()),
+            : Category(name: 'Kategori Yok', color: Colors.grey.value),
       );
     } else {
       _selectedCategory = _categories.isNotEmpty
           ? _categories.first
-          : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32());
+          : Category(name: 'Kategori Yok', color: Colors.grey.value);
     }
 
-    _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
+    _selectedPriority = PriorityExtension.fromValue(widget.task.priority.value);
   }
 
   @override
@@ -176,7 +176,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.toARGB32(),
+                    color: selectedColor.value,
                     userId: widget.userId,
                   );
 
