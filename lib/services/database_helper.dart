@@ -1,29 +1,30 @@
+// Dart paketi importları
 import 'dart:async';
 import 'dart:io';
 
-// Flutter paketleri
+// Flutter paketi importları
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-// Proje içi importlar
-import '../models/category.dart';
+// Proje içi importlar - en son olmalı
+import '../models/category.dart' as models;
 import '../models/task.dart';
 import '../models/user.dart';
 
 // Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
+  static Database? _database;
+
+  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
+  static const int _databaseVersion = 4;
+  
   // Constructor en üste alındı
   DatabaseHelper._internal();
   
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
-
-  static Database? _database;
-
-  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
-  static const int _databaseVersion = 4;
 
   // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
@@ -158,11 +159,11 @@ class DatabaseHelper {
     // Varsayılan kategorileri ekle
     await db.insert(
       'categories',
-      const Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
+      const models.Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
     );
     await db.insert(
       'categories',
-      const Category(
+      const models.Category(
         name: 'Kişisel Gelişim',
         color: 0xFF673AB7,
         userId: null,
@@ -170,7 +171,7 @@ class DatabaseHelper {
     );
     await db.insert(
       'categories',
-      const Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
+      const models.Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
     );
   }
 
@@ -352,12 +353,12 @@ class DatabaseHelper {
   }
 
   // Kategori metodları
-  Future<int> insertCategory(Category category) async {
+  Future<int> insertCategory(models.Category category) async {
     final Database db = await database;
     return await db.insert('categories', category.toMap());
   }
 
-  Future<List<Category>> getCategories(int userId) async {
+  Future<List<models.Category>> getCategories(int userId) async {
     final Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'categories',
@@ -366,11 +367,11 @@ class DatabaseHelper {
     );
 
     return List.generate(maps.length, (i) {
-      return Category.fromMap(maps[i]);
+      return models.Category.fromMap(maps[i]);
     });
   }
 
-  Future<int> updateCategory(Category category) async {
+  Future<int> updateCategory(models.Category category) async {
     final Database db = await database;
     return await db.update(
       'categories',
@@ -447,7 +448,7 @@ class DatabaseHelper {
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
-    {bool includeCompleted = false}
+    {bool includeCompleted = false},
   ) async {
     final Database db = await database;
     
@@ -552,7 +553,6 @@ class DatabaseHelper {
     );
   }
 
-  // Alışkanlık metodları kısmını yukarıdaki değişikliklere uygun şekilde güncelliyorum...
   // Veritabanı işlemleri için daha detaylı hata yönetimi eklenmiştir
   
   // Transaction kullanımı örneği - veritabanı işlemlerini atomik olarak yürütür
@@ -645,8 +645,10 @@ class DatabaseHelper {
     return await db.insert('habits', habit);
   }
 
-  Future<List<Map<String, dynamic>>> getHabits(int userId,
-      {bool includeArchived = false}) async {
+  Future<List<Map<String, dynamic>>> getHabits(
+    int userId,
+    {bool includeArchived = false},
+  ) async {
     final Database db = await database;
     String whereClause = 'userId = ?';
     final List<dynamic> whereArgs = [userId];
@@ -664,8 +666,10 @@ class DatabaseHelper {
   }
 
   // Dashboard için gösterilecek alışkanlıkları getir
-  Future<List<Map<String, dynamic>>> getDashboardHabits(int userId,
-      {required String date}) async {
+  Future<List<Map<String, dynamic>>> getDashboardHabits(
+    int userId,
+    {required String date},
+  ) async {
     final Database db = await database;
     return await db.query(
       'habits',
@@ -745,8 +749,10 @@ class DatabaseHelper {
     return await db.insert('habit_logs', log);
   }
 
-  Future<List<Map<String, dynamic>>> getHabitLogs(int habitId,
-      {String? date}) async {
+  Future<List<Map<String, dynamic>>> getHabitLogs(
+    int habitId,
+    {String? date},
+  ) async {
     final Database db = await database;
     String whereClause = 'habitId = ?';
     final List<dynamic> whereArgs = [habitId];
