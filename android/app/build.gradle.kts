@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.zenvivatodo"
-    compileSdk = 34 // Android 14
+    compileSdk = 35 // Güncellendi: Android 15 için
     ndkVersion = "27.0.12077973"
 
     compileOptions {
