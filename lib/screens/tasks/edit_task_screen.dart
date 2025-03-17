@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
-import '../../models/task.dart';
 import '../../models/category.dart';
 import '../../models/priority.dart';
-import '../../services/task_service.dart';
+import '../../models/task.dart';
 import '../../services/category_service.dart';
+import '../../services/task_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 import '../../widgets/date_picker.dart';
 import '../../widgets/time_picker.dart';
 
 class EditTaskScreen extends StatefulWidget {
-  final int userId;
-  final Task task;
-  final List<Category> categories;
-
   const EditTaskScreen({
     super.key,
     required this.userId,
     required this.task,
     required this.categories,
   });
+
+  final int userId;
+  final Task task;
+  final List<Category> categories;
 
   @override
   State<EditTaskScreen> createState() => _EditTaskScreenState();
@@ -66,15 +67,15 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         (c) => c.id == widget.task.categoryId,
         orElse: () => _categories.isNotEmpty
             ? _categories.first
-            : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32()),
+            : Category(name: 'Kategori Yok', color: Colors.grey.value),
       );
     } else {
       _selectedCategory = _categories.isNotEmpty
           ? _categories.first
-          : Category(name: 'Kategori Yok', color: Colors.grey.toARGB32());
+          : Category(name: 'Kategori Yok', color: Colors.grey.value);
     }
 
-    _selectedPriority = PriorityExtension.fromValue(widget.task.priority);
+    _selectedPriority = PriorityExtension.fromValue(widget.task.priority.value);
   }
 
   @override
@@ -128,7 +129,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
           );
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
@@ -176,7 +177,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
                   final category = Category(
                     name: categoryNameController.text.trim(),
-                    color: selectedColor.toARGB32(),
+                    color: selectedColor.value,
                     userId: widget.userId,
                   );
 
@@ -218,7 +219,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         ),
                       );
                     }
-                  } catch (e) {
+                  } on Exception catch (e) {
                     if (!mounted) return;
 
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -354,7 +355,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     border: Border.all(
                       color: theme.inputDecorationTheme.enabledBorder
                               ?.borderSide.color ??
-                          Colors.grey.withAlpha(76),
+                          Colors.grey.withOpacity(0.3),
                     ),
                     borderRadius: BorderRadius.circular(8),
                     color: theme.inputDecorationTheme.fillColor,
