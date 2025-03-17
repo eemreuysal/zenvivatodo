@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:io';
+
+import '../models/category.dart';
+import '../models/task.dart';
+import '../models/user.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:collection/collection.dart';
-import '../models/task.dart';
-import '../models/user.dart';
-import '../models/category.dart';
 
 // Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
+  // Constructor en üste alındı
+  DatabaseHelper._internal();
+  
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
 
@@ -17,8 +21,6 @@ class DatabaseHelper {
 
   // Veritabanı sürümü - şema değişikliklerinde artırılmalı
   static const int _databaseVersion = 4;
-
-  DatabaseHelper._internal();
 
   // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
@@ -153,11 +155,11 @@ class DatabaseHelper {
     // Varsayılan kategorileri ekle
     await db.insert(
       'categories',
-      Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
+      const Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
     );
     await db.insert(
       'categories',
-      Category(
+      const Category(
         name: 'Kişisel Gelişim',
         color: 0xFF673AB7,
         userId: null,
@@ -165,7 +167,7 @@ class DatabaseHelper {
     );
     await db.insert(
       'categories',
-      Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
+      const Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
     );
   }
 
@@ -219,8 +221,8 @@ class DatabaseHelper {
       try {
         await db.execute('ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
         await db.execute('ALTER TABLE users ADD COLUMN last_login TEXT');
-      } catch (e) {
-        print('Users tablosu güncellenemedi: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Users tablosu güncellenemedi: $e');
       }
       
       // tasks tablosuna oluşturma ve güncelleme tarihi ekle
@@ -228,30 +230,30 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE tasks ADD COLUMN uniqueId TEXT');
         await db.execute('ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
         await db.execute('ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } catch (e) {
-        print('Tasks tablosu güncellenemedi: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Tasks tablosu güncellenemedi: $e');
       }
       
       // habits tablosuna oluşturma ve güncelleme tarihi ekle
       try {
         await db.execute('ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
         await db.execute('ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } catch (e) {
-        print('Habits tablosu güncellenemedi: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Habits tablosu güncellenemedi: $e');
       }
       
       // categories tablosuna oluşturma tarihi ekle
       try {
         await db.execute('ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } catch (e) {
-        print('Categories tablosu güncellenemedi: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Categories tablosu güncellenemedi: $e');
       }
       
       // habit_logs tablosuna oluşturma tarihi ekle
       try {
         await db.execute('ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
-      } catch (e) {
-        print('Habit_logs tablosu güncellenemedi: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Habit_logs tablosu güncellenemedi: $e');
       }
       
       // Görev etiketleri tablosu (yeni)
@@ -276,8 +278,8 @@ class DatabaseHelper {
             FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
           )
         ''');
-      } catch (e) {
-        print('Etiket tabloları oluşturulamadı: $e');
+      } on DatabaseException catch (e) {
+        debugPrint('Etiket tabloları oluşturulamadı: $e');
       }
     }
   }
@@ -454,7 +456,7 @@ class DatabaseHelper {
     final whereArgs = <dynamic>[
       userId, 
       '%$query%', 
-      '%$query%'
+      '%$query%',
     ];
 
     if (!includeCompleted) {
@@ -494,7 +496,7 @@ class DatabaseHelper {
       'tasks',
       {
         'isCompleted': isCompleted ? 1 : 0,
-        'updated_at': DateTime.now().toIso8601String()
+        'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
       whereArgs: [id],
@@ -568,8 +570,8 @@ class DatabaseHelper {
         }
       });
       return true;
-    } catch (e) {
-      print('Toplu görev güncelleme hatası: $e');
+    } on DatabaseException catch (e) {
+      debugPrint('Toplu görev güncelleme hatası: $e');
       return false;
     }
   }
@@ -602,7 +604,7 @@ class DatabaseHelper {
     // Her tarih için tamamlanan görev sayısını sorgula
     final result = <Map<String, dynamic>>[];
     
-    await Future.forEach(dates, (String date) async {
+    await Future.forEach(dates, (date) async {
       final count = Sqflite.firstIntValue(await db.rawQuery('''
         SELECT COUNT(*) FROM tasks 
         WHERE userId = ? AND date = ? AND isCompleted = 1
@@ -644,7 +646,7 @@ class DatabaseHelper {
       {bool includeArchived = false}) async {
     final Database db = await database;
     String whereClause = 'userId = ?';
-    List<dynamic> whereArgs = [userId];
+    final List<dynamic> whereArgs = [userId];
 
     if (!includeArchived) {
       whereClause += ' AND isArchived = 0';
@@ -672,7 +674,7 @@ class DatabaseHelper {
 
   Future<Map<String, dynamic>?> getHabitById(int id) async {
     final Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final List<Map<String, dynamic>> maps = await db.query(
       'habits',
       where: 'id = ?',
       whereArgs: [id],
@@ -723,7 +725,7 @@ class DatabaseHelper {
       'habits',
       {
         'showInDashboard': showInDashboard ? 1 : 0,
-        'updated_at': DateTime.now().toIso8601String()
+        'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
       whereArgs: [id],
@@ -744,7 +746,7 @@ class DatabaseHelper {
       {String? date}) async {
     final Database db = await database;
     String whereClause = 'habitId = ?';
-    List<dynamic> whereArgs = [habitId];
+    final List<dynamic> whereArgs = [habitId];
 
     if (date != null) {
       whereClause += ' AND date = ?';
@@ -764,7 +766,7 @@ class DatabaseHelper {
     final Database db = await database;
 
     // Check if log exists
-    List<Map<String, dynamic>> logs = await db.query(
+    final List<Map<String, dynamic>> logs = await db.query(
       'habit_logs',
       where: 'habitId = ? AND date = ?',
       whereArgs: [habitId, date],
