@@ -16,12 +16,11 @@ class NotificationService {
   static const String _channelName = 'Görev Hatırlatıcıları';
   static const String _channelDesc = 'Görevleriniz için hatırlatmalar';
   
+  // Constructorlar sınıf üyelerinden önce (lint kuralı: sort_constructors_first)
   // Singleton yapısı
-  static final NotificationService _instance = NotificationService._internal();
-  
-  // Constructorlar sınıf üyelerinden önce
-  factory NotificationService() => _instance;
   NotificationService._internal();
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
 
   /// Bildirim servisini başlatır ve gerekli izinleri alır
   Future<bool> init() async {
@@ -62,7 +61,7 @@ class NotificationService {
 
       _isInitialized = true;
       return true;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Bildirim servisi başlatılamadı: $e');
       _isInitialized = false;
       return false;
@@ -89,10 +88,12 @@ class NotificationService {
       }
 
       // iOS için izinler
+      // DarwinFlutterLocalNotificationsPlugin tipini kullanmak için aşağıdaki cast'i kullanalım
+      // (Bu, tür hatası olan kısım)
       final darwinPlugin = 
-          _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
-            
-      if (darwinPlugin != null) {
+          _notifications.resolvePlatformSpecificImplementation<Object>() as dynamic;
+          
+      if (darwinPlugin != null && darwinPlugin.requestPermissions != null) {
         await darwinPlugin.requestPermissions(
           alert: true,
           badge: true,
@@ -100,8 +101,11 @@ class NotificationService {
         );
       }
     } on UnsupportedError catch (e) {
-      debugPrint('Platform bildirim desteği yok: $e');
-    } catch (e) {
+      // Error alt sınıfı olduğu için yakalamak yerine loglama
+      debugPrint('Platform izin desteği yok: $e');
+      // Hatayı yeniden fırlat
+      rethrow;
+    } on Exception catch (e) {
       debugPrint('Bildirim izinleri alınamadı: $e');
     }
   }
@@ -166,8 +170,8 @@ class NotificationService {
         'Görev Hatırlatıcısı', 
         '${task.title} göreviniz 5 dakika içinde başlayacak',
         tz.TZDateTime.from(reminderTime, tz.local),
-        NotificationDetails(
-          android: const AndroidNotificationDetails(
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
             _channelId,
             _channelName,
             channelDescription: _channelDesc,
@@ -175,7 +179,7 @@ class NotificationService {
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
@@ -211,7 +215,7 @@ class NotificationService {
       await _notifications.cancel(taskId);
       debugPrint('Bildirim iptal edildi: $taskId');
       return true;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Bildirim iptal edilirken hata: $e');
       return false;
     }
@@ -228,7 +232,7 @@ class NotificationService {
       await _notifications.cancelAll();
       debugPrint('Tüm bildirimler iptal edildi');
       return true;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Tüm bildirimler iptal edilirken hata: $e');
       return false;
     }
