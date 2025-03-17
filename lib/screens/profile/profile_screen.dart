@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
+import '../../main.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 import '../auth/login_screen.dart';
-import '../../main.dart';
 
 class ProfileScreen extends StatefulWidget {
   final int userId;
 
+  // Constructor en başta
   const ProfileScreen({super.key, required this.userId});
 
   @override
@@ -64,6 +66,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
         });
       }
+    } on DatabaseException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Veritabanı hatası - kullanıcı bilgileri yüklenirken: $e',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -87,14 +102,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       try {
-        final updatedUser = User(
-          id: _user!.id,
+        // AuthService.updateUserProfile metodu farklı parametreler bekliyor
+        final success = await _authService.updateUserProfile(
+          userId: _user!.id!,
           username: _usernameController.text.trim(),
           email: _emailController.text.trim(),
-          password: _passwordController.text,
         );
-
-        final success = await _authService.updateUserProfile(updatedUser);
 
         if (!mounted) return;
 
@@ -106,7 +119,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
           setState(() {
-            _user = updatedUser;
+            // Kullanıcı nesnesini güncelle ama şifre alanını değiştirme
+            _user = _user!.copyWith(
+              username: _usernameController.text.trim(),
+              email: _emailController.text.trim(),
+            );
             _isUpdating = false;
           });
         } else {
@@ -120,6 +137,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
         }
+      } on DatabaseException catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _isUpdating = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Veritabanı hatası - profil güncellenirken: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       } catch (e) {
         if (!mounted) return;
         setState(() {
@@ -179,6 +207,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
                   }
+                } on DatabaseException catch (e) {
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Veritabanı hatası - hesap silinirken: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 } catch (e) {
                   if (!mounted) return;
 
@@ -212,12 +249,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Çıkış yapılırken bir hata oluştu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Beklenmeyen hata - çıkış yapılırken: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -362,14 +408,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 },
                               ),
                               const SizedBox(height: 16),
-                              _isUpdating
-                                  ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : CustomButton(
-                                      text: 'Profili Güncelle',
-                                      onPressed: _updateProfile,
-                                    ),
+                              if (_isUpdating)
+                                const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              else
+                                CustomButton(
+                                  text: 'Profili Güncelle',
+                                  onPressed: _updateProfile,
+                                ),
                             ],
                           ),
                         ),

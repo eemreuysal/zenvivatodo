@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
+
 import '../models/task.dart';
 
 class NotificationService {
+  // Singleton yapısı
   static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
-
+  
+  // Sınıf değişkenleri
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
-
+  
+  // Constructorlar diğer üyelerden önce
+  factory NotificationService() => _instance;
   NotificationService._internal();
 
   Future<void> init() async {
@@ -43,7 +47,6 @@ class NotificationService {
     await _notifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTap,
     );
 
     // İzinleri kontrol et
@@ -55,7 +58,7 @@ class NotificationService {
   // Bildirim izinlerini iste
   Future<void> _requestPermissions() async {
     // Android için özel kanal oluştur (Android 8.0+)
-    AndroidFlutterLocalNotificationsPlugin? androidPlugin = 
+    final AndroidFlutterLocalNotificationsPlugin? androidPlugin = 
         _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
         
     if (androidPlugin != null) {
@@ -69,15 +72,22 @@ class NotificationService {
     }
 
     // iOS için izinler
-    DarwinFlutterLocalNotificationsPlugin? iosPlugin = 
-        _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
-        
-    if (iosPlugin != null) {
-      await iosPlugin.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+    // Darwin eklentisini Flutter 3.29+ uyumlu bir şekilde güncelliyoruz
+    try {
+      final darwinPlugin = 
+          _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+          
+      if (darwinPlugin != null) {
+        await darwinPlugin.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+    } on UnsupportedError catch (e) {
+      debugPrint('iOS bildirimleri için platform desteği yok: $e');
+    } catch (e) {
+      debugPrint('iOS bildirimleri izin isteme hatası: $e');
     }
   }
 
@@ -88,13 +98,6 @@ class NotificationService {
       debugPrint('Bildirim tıklandı: ${response.payload}');
       // Burada Navigator.push ile uygun ekrana yönlendirme yapılabilir
     }
-  }
-
-  // Arka planda bildirime tıklandığında
-  @pragma('vm:entry-point')
-  static void _onBackgroundNotificationTap(NotificationResponse response) {
-    // Arka plan işlemleri
-    debugPrint('Arka planda bildirim tıklandı: ${response.payload}');
   }
 
   // Görev için bildirim zamanla
@@ -132,8 +135,8 @@ class NotificationService {
         'Görev Hatırlatıcısı', 
         '${task.title} göreviniz 5 dakika içinde başlayacak',
         tz.TZDateTime.from(reminderTime, tz.local),
-        NotificationDetails(
-          android: const AndroidNotificationDetails(
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
             'task_reminders',
             'Görev Hatırlatıcıları',
             channelDescription: 'Görevleriniz için hatırlatmalar',
@@ -141,7 +144,7 @@ class NotificationService {
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
@@ -154,6 +157,10 @@ class NotificationService {
       );
       
       debugPrint('Bildirim planlandı: ${task.id} - ${task.title} için ${reminderTime.toString()}');
+    } on FormatException catch (e) {
+      debugPrint('Tarih veya saat ayrıştırma hatası: $e');
+    } on ArgumentError catch (e) {
+      debugPrint('Bildirim argüman hatası: $e');
     } catch (e) {
       debugPrint('Bildirim planlama hatası: $e');
     }
@@ -173,5 +180,22 @@ class NotificationService {
     
     await _notifications.cancelAll();
     debugPrint('Tüm bildirimler iptal edildi');
+  }
+  
+  // Bildirim dialoglari için helper metod
+  Future<void> showNotificationDialog(BuildContext context, String title, String message) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
   }
 }

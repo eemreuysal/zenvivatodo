@@ -1,14 +1,17 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'database_helper.dart';
 
 /// Kullanıcı kimlik doğrulama ve yönetimi hizmetleri
 class AuthService {
-  final DatabaseHelper _databaseHelper = DatabaseHelper();
-  
   // Singleton pattern
   static final AuthService _instance = AuthService._internal();
+  
+  // Sınıf değişkenleri
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  
+  // Constructorlar (sınıf üyelerinden önce)
   factory AuthService() => _instance;
   AuthService._internal();
 
@@ -25,10 +28,13 @@ class AuthService {
         plainPassword: password,
       );
 
-      int userId = await _databaseHelper.insertUser(user);
+      final int userId = await _databaseHelper.insertUser(user);
       if (userId > 0) {
         return true;
       }
+      return false;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kullanıcı kaydolurken: $e');
       return false;
     } catch (e) {
       debugPrint('Error registering user: $e');
@@ -69,6 +75,9 @@ class AuthService {
       }
       
       return null;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - giriş yaparken: $e');
+      return null;
     } catch (e) {
       debugPrint('Error logging in: $e');
       return null;
@@ -77,25 +86,28 @@ class AuthService {
 
   /// Kullanıcı çıkışı
   Future<void> logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('userId');
   }
 
   /// Kullanıcı oturumu kaydetme
   Future<void> _saveUserSession(int userId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('userId', userId);
   }
 
   /// Mevcut kullanıcıyı getir
   Future<User?> getCurrentUser() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? userId = prefs.getInt('userId');
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final int? userId = prefs.getInt('userId');
 
       if (userId != null) {
         return await _databaseHelper.getUserById(userId);
       }
+      return null;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - mevcut kullanıcıyı alırken: $e');
       return null;
     } catch (e) {
       debugPrint('Error getting current user: $e');
@@ -117,7 +129,7 @@ class AuthService {
   }) async {
     try {
       // Mevcut kullanıcıyı getir
-      User? user = await _databaseHelper.getUserById(userId);
+      final User? user = await _databaseHelper.getUserById(userId);
       if (user == null) return false;
       
       // Değişimleri uygula
@@ -126,8 +138,11 @@ class AuthService {
         email: email,
       );
       
-      int result = await _databaseHelper.updateUser(updatedUser);
+      final int result = await _databaseHelper.updateUser(updatedUser);
       return result > 0;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - profil güncellenirken: $e');
+      return false;
     } catch (e) {
       debugPrint('Error updating user profile: $e');
       return false;
@@ -142,7 +157,7 @@ class AuthService {
   }) async {
     try {
       // Mevcut kullanıcıyı getir
-      User? user = await _databaseHelper.getUserById(userId);
+      final User? user = await _databaseHelper.getUserById(userId);
       if (user == null) return false;
       
       // Mevcut şifreyi doğrula
@@ -158,8 +173,11 @@ class AuthService {
         plainPassword: newPassword,
       );
       
-      int result = await _databaseHelper.updateUser(updatedUser);
+      final int result = await _databaseHelper.updateUser(updatedUser);
       return result > 0;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - şifre değiştirilirken: $e');
+      return false;
     } catch (e) {
       debugPrint('Error changing password: $e');
       return false;
@@ -170,8 +188,11 @@ class AuthService {
   Future<bool> deleteUserAccount(int userId) async {
     try {
       await logout();
-      int result = await _databaseHelper.deleteUser(userId);
+      final int result = await _databaseHelper.deleteUser(userId);
       return result > 0;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kullanıcı hesabı silinirken: $e');
+      return false;
     } catch (e) {
       debugPrint('Error deleting user account: $e');
       return false;
@@ -204,6 +225,9 @@ class AuthService {
         return login(testUsername, 'password');
       }
       
+      return null;
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - test kullanıcısı oluşturulurken: $e');
       return null;
     } catch (e) {
       debugPrint('Error creating test user: $e');
