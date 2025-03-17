@@ -25,44 +25,90 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     // Navigate to login screen directly for now
+    // Dart 3.7+ wildcard değişken kullanımı
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
+    // Material 3 renklerini kullanalım
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(24),
+      body: Container(
+        // Gradient arkaplan
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colorScheme.primaryContainer,
+              colorScheme.surface,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo container - modern tasarım
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(Icons.show_chart, size: 60, color: Colors.white),
+                ),
               ),
-              child: const Center(
-                child: Icon(Icons.show_chart, size: 60, color: Colors.white),
+              
+              const SizedBox(height: 24),
+              
+              // Uygulama adı
+              Text(
+                AppTexts.appName,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              AppTexts.appName,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppTexts.appSlogan,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(color: AppColors.primaryColor),
-          ],
+              
+              const SizedBox(height: 8),
+              
+              // Slogan
+              Text(
+                AppTexts.appSlogan,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              
+              const SizedBox(height: 48),
+              
+              // Animasyonlu yükleme göstergesi
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.0, end: 1.0),
+                duration: const Duration(seconds: 2),
+                builder: (_, value, __) {
+                  return CircularProgressIndicator(
+                    value: value, 
+                    color: colorScheme.primary,
+                    strokeWidth: 4,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
