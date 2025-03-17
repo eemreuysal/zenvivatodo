@@ -33,10 +33,10 @@ dependencies:
   
   # Timer for reminders
   rxdart: ^0.27.7
-  timezone: ^0.8.0  # Eski sürüme düşürüldü
+  timezone: ^0.8.0
   
-  # Notifications - Uyumlu eski sürüm
-  flutter_local_notifications: 9.9.1
+  # Notifications - Daha eski bir sürüm
+  flutter_local_notifications: ^8.2.0
   
   # Security
   crypto: ^3.0.3
