@@ -209,7 +209,7 @@ class NotificationService {
     try {
       if (Platform.isIOS) {
         // iOS için izinleri iste
-        const FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         await plugin.resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
@@ -218,7 +218,7 @@ class NotificationService {
         );
       } else if (Platform.isMacOS) {
         // macOS için izinleri iste
-        const FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+        final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         await plugin.resolvePlatformSpecificImplementation<
             MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
           alert: true,
