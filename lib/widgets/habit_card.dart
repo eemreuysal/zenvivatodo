@@ -3,11 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../models/habit.dart';
 
 class HabitCard extends StatelessWidget {
-  final Habit habit;
-  final bool isCompleted;
-  final VoidCallback onToggleCompletion;
-  final VoidCallback onTap;
-
+  // Constructor moved to the top
   const HabitCard({
     super.key,
     required this.habit,
@@ -15,6 +11,11 @@ class HabitCard extends StatelessWidget {
     required this.onToggleCompletion,
     required this.onTap,
   });
+
+  final Habit habit;
+  final bool isCompleted;
+  final VoidCallback onToggleCompletion;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isCompleted 
-            ? BorderSide(color: habitColor.withOpacity(0.5), width: 1.5) 
+            ? BorderSide(color: habitColor.withAlpha(128), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi
@@ -95,7 +96,7 @@ class HabitCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isCompleted
-                                  ? colorScheme.onSurface.withOpacity(0.6)
+                                  ? colorScheme.onSurface.withAlpha(153) // 0.6 opacity
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -144,7 +145,7 @@ class HabitCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: habitColor.withOpacity(0.2),
+                        color: habitColor.withAlpha(51), // 0.2 opacity
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -176,13 +177,13 @@ class HabitCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.orange.withOpacity(0.2)
-                            : Colors.orange.withOpacity(0.1),
+                            ? Colors.orange.withAlpha(51) // 0.2 opacity
+                            : Colors.orange.withAlpha(26), // 0.1 opacity
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.local_fire_department,
                             size: 12,
                             color: Colors.orange,
@@ -218,7 +219,7 @@ class HabitCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: habit.completionRate.clamp(0.0, 1.0),
-                      backgroundColor: colorScheme.surfaceVariant,
+                      backgroundColor: colorScheme.surfaceContainerHighest, // Fixed deprecated surfaceVariant
                       valueColor: AlwaysStoppedAnimation<Color>(habitColor),
                       minHeight: 6,
                     ),
@@ -243,14 +244,15 @@ class HabitCard extends StatelessWidget {
 
 /// Hero animasyonlu geçiş için alışkanlık kartı
 class HabitHeroCard extends StatelessWidget {
-  final Habit habit;
-  final bool isCompleted;
-
+  // Constructor moved to top
   const HabitHeroCard({
     super.key,
     required this.habit,
     required this.isCompleted,
   });
+  
+  final Habit habit;
+  final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
