@@ -18,11 +18,11 @@ class EditTaskScreen extends StatefulWidget {
   final List<Category> categories;
 
   const EditTaskScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.task,
     required this.categories,
-  }) 
+  });
 
   @override
   State<EditTaskScreen> createState() => _EditTaskScreenState();
