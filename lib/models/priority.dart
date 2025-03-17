@@ -1,38 +1,42 @@
-enum Priority { low, medium, high }
+// Priority enum - Modern Dart 3.7 özellikleri kullanılarak güncellendi
 
+/// Görev önceliği enumeration
+enum Priority {
+  low(value: 0, label: 'Düşük'),
+  medium(value: 1, label: 'Orta'),
+  high(value: 2, label: 'Yüksek');
+
+  const Priority({required this.value, required this.label});
+  
+  final int value;
+  final String label;
+  
+  /// Öncelik değerinden enum değeri oluşturma
+  static Priority fromValue(int value) => switch (value) {
+    0 => Priority.low,
+    1 => Priority.medium,
+    2 => Priority.high,
+    _ => Priority.medium,
+  };
+  
+  /// String temsilini döndürme
+  @override
+  String toString() => label;
+  
+  /// Öncelik rengini almak için yardımcı metod (eski kodlarla uyumluluk için)
+  String getColorName() => switch (this) {
+    Priority.low => 'green',
+    Priority.medium => 'orange',
+    Priority.high => 'red',
+  };
+}
+
+/// Eski kodlar için uyumluluk sağlayan extension
+/// Not: Yeni kodlarda doğrudan Priority enum'ını kullanın
 extension PriorityExtension on Priority {
-  String get name {
-    switch (this) {
-      case Priority.low:
-        return 'Düşük';
-      case Priority.medium:
-        return 'Orta';
-      case Priority.high:
-        return 'Yüksek';
-    }
-  }
-
-  int get value {
-    switch (this) {
-      case Priority.low:
-        return 0;
-      case Priority.medium:
-        return 1;
-      case Priority.high:
-        return 2;
-    }
-  }
-
-  static Priority fromValue(int value) {
-    switch (value) {
-      case 0:
-        return Priority.low;
-      case 1:
-        return Priority.medium;
-      case 2:
-        return Priority.high;
-      default:
-        return Priority.medium;
-    }
-  }
+  String get name => label;
+  
+  int get value => this.value;
+  
+  static Priority fromValue(int value) => Priority.fromValue(value);
 }
