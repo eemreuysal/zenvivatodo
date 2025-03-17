@@ -10,12 +10,12 @@ class HabitHeatmap extends StatelessWidget {
   final Function(String)? onDayTap;
 
   const HabitHeatmap({
-    Key? key,
+    super.key,
     required this.logs,
     required this.color,
     this.days = 30,
     this.onDayTap,
-  }) 
+  });
 
   @override
   Widget build(BuildContext context) {
