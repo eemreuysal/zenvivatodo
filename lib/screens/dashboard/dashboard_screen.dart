@@ -1,8 +1,8 @@
-// Dashboard ekranına erişilebilirlik iyileştirmeleri eklenecek
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../models/task.dart';
@@ -13,6 +13,7 @@ import '../../services/task_service.dart';
 import '../../services/category_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/habit_service.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
 import '../../widgets/habit_card.dart';
@@ -40,6 +41,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final CategoryService _categoryService = CategoryService();
   final AuthService _authService = AuthService();
   final HabitService _habitService = HabitService();
+  final NotificationService _notificationService = NotificationService();
+  
   // Global key for SnackBar
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
@@ -54,6 +57,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int? _selectedCategoryId;
   int? _selectedPriority;
   bool _isLoading = true;
+  bool _isSearching = false;
+  String _searchQuery = '';
+  
+  // Kaydırma denetleyicisi
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -61,6 +69,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     initializeDateFormatting('tr_TR');
     _loadData();
     _loadUserInfo();
+    
+    // Bildirim servisini başlat
+    _notificationService.init();
+  }
+  
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserInfo() async {
@@ -83,6 +100,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         SnackBar(
           content: Text(message),
           backgroundColor: backgroundColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          margin: const EdgeInsets.all(8),
+          duration: const Duration(seconds: 3),
+          dismissDirection: DismissDirection.horizontal,
         ),
       );
     }
@@ -100,12 +122,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final categories = await _categoryService.getCategories(widget.userId);
 
       // Load tasks for the selected date
-      final tasks = await _taskService.getFilteredTasks(
-        widget.userId,
-        date: dateStr,
-        categoryId: _selectedCategoryId,
-        priority: _selectedPriority,
-      );
+      final tasks = _isSearching
+          ? await _taskService.searchTasks(widget.userId, _searchQuery)
+          : await _taskService.getFilteredTasks(
+              widget.userId,
+              date: dateStr,
+              categoryId: _selectedCategoryId,
+              priority: _selectedPriority,
+            );
 
       final activeTasks = tasks.where((task) => !task.isCompleted).toList();
       final completedTasks = tasks.where((task) => task.isCompleted).toList();
@@ -150,41 +174,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _selectDate(BuildContext context) async {
     try {
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-
+      // Material 3 uyumlu tarih seçici
       final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: _selectedDate,
         firstDate: DateTime(2020),
         lastDate: DateTime(2030),
+        // Material You tasarımı
         builder: (context, child) {
           if (child == null) return Container();
-
-          // Theme colors based on current brightness
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: isDark
-                  ? const ColorScheme.dark(
-                      primary: AppColors.primaryColor,
-                      onPrimary: Colors.white,
-                      surface: AppColors.darkCardColor,
-                      onSurface: AppColors.darkTextColor,
-                    )
-                  : const ColorScheme.light(
-                      primary: AppColors.primaryColor,
-                      onPrimary: Colors.white,
-                      onSurface: AppColors.lightTextColor,
-                    ),
-              dialogTheme: DialogTheme(
-                backgroundColor:
-                    isDark ? AppColors.darkBackground : Colors.white,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor:
-                      isDark ? Colors.white : AppColors.primaryColor,
-                ),
-              ),
+              useMaterial3: true,
+              colorScheme: Theme.of(context).colorScheme,
             ),
             child: child,
           );
@@ -200,7 +202,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _loadData();
       }
     } catch (e) {
-      // Using our safe method to show SnackBar
       if (mounted) {
         _showSnackBar('Tarih seçilirken bir hata oluştu: $e');
       }
@@ -214,6 +215,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadData();
   }
 
+  // Görev tamamlama durumunu güncelleme
   Future<void> _toggleTaskCompletion(Task task) async {
     try {
       final success = await _taskService.toggleTaskCompletion(
@@ -222,6 +224,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       if (success) {
+        // Görev tamamlandığında bildirimi iptal et
+        if (task.isCompleted == false) {
+          // Görev yeni tamamlandıysa bildirimini iptal et
+          await _notificationService.cancelTaskReminder(task.id!);
+        } else {
+          // Görev tamamlanmadan geri alındıysa yeniden bildirim planla
+          if (task.time != null) {
+            await _notificationService.scheduleTaskReminder(task);
+          }
+        }
         _loadData();
       } else {
         if (mounted) {
@@ -263,208 +275,350 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _showSortMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text(AppTexts.sortByDate),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Tarihe göre sıralama
-                  setState(() {
-                    _activeTasks.sort((a, b) => a.date.compareTo(b.date));
-                    _completedTasks.sort((a, b) => a.date.compareTo(b.date));
-                  });
-                },
+        return DraggableScrollableSheet(
+          initialChildSize: 0.4,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Sürüklenebilir tutaç
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Sıralama Seçenekleri',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        _buildSortOption(
+                          context: context,
+                          icon: Icons.calendar_today,
+                          title: AppTexts.sortByDate,
+                          onTap: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _activeTasks.sort((a, b) => a.date.compareTo(b.date));
+                              _completedTasks.sort((a, b) => a.date.compareTo(b.date));
+                            });
+                          },
+                        ),
+                        _buildSortOption(
+                          context: context,
+                          icon: Icons.access_time,
+                          title: AppTexts.sortByTime,
+                          onTap: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _activeTasks.sort((a, b) {
+                                if (a.time == null) return 1;
+                                if (b.time == null) return -1;
+                                return a.time!.compareTo(b.time!);
+                              });
+                              _completedTasks.sort((a, b) {
+                                if (a.time == null) return 1;
+                                if (b.time == null) return -1;
+                                return a.time!.compareTo(b.time!);
+                              });
+                            });
+                          },
+                        ),
+                        _buildSortOption(
+                          context: context,
+                          icon: Icons.flag,
+                          title: AppTexts.sortByPriority,
+                          onTap: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _activeTasks.sort((a, b) => b.priority.value.compareTo(a.priority.value));
+                              _completedTasks.sort((a, b) => b.priority.value.compareTo(a.priority.value));
+                            });
+                          },
+                        ),
+                        _buildSortOption(
+                          context: context,
+                          icon: Icons.category,
+                          title: AppTexts.sortByCategory,
+                          onTap: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _activeTasks.sort((a, b) {
+                                if (a.categoryId == null) return 1;
+                                if (b.categoryId == null) return -1;
+                                return a.categoryId!.compareTo(b.categoryId!);
+                              });
+                              _completedTasks.sort((a, b) {
+                                if (a.categoryId == null) return 1;
+                                if (b.categoryId == null) return -1;
+                                return a.categoryId!.compareTo(b.categoryId!);
+                              });
+                            });
+                          },
+                        ),
+                        _buildSortOption(
+                          context: context,
+                          icon: Icons.sort,
+                          title: AppTexts.sortByCreation,
+                          onTap: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _activeTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+                              _completedTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.access_time),
-                title: const Text(AppTexts.sortByTime),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Saate göre sıralama
-                  setState(() {
-                    _activeTasks.sort((a, b) {
-                      if (a.time == null) return 1;
-                      if (b.time == null) return -1;
-                      return a.time!.compareTo(b.time!);
-                    });
-                    _completedTasks.sort((a, b) {
-                      if (a.time == null) return 1;
-                      if (b.time == null) return -1;
-                      return a.time!.compareTo(b.time!);
-                    });
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.flag),
-                title: const Text(AppTexts.sortByPriority),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Önceliğe göre sıralama (yüksek öncelikli önce)
-                  setState(() {
-                    _activeTasks.sort((a, b) => b.priority.compareTo(a.priority));
-                    _completedTasks.sort((a, b) => b.priority.compareTo(a.priority));
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.category),
-                title: const Text(AppTexts.sortByCategory),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Kategoriye göre sıralama
-                  setState(() {
-                    _activeTasks.sort((a, b) {
-                      if (a.categoryId == null) return 1;
-                      if (b.categoryId == null) return -1;
-                      return a.categoryId!.compareTo(b.categoryId!);
-                    });
-                    _completedTasks.sort((a, b) {
-                      if (a.categoryId == null) return 1;
-                      if (b.categoryId == null) return -1;
-                      return a.categoryId!.compareTo(b.categoryId!);
-                    });
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.sort),
-                title: const Text(AppTexts.sortByCreation),
-                onTap: () {
-                  Navigator.pop(context);
-                  // ID'ye göre sıralama (oluşturma sırasını temsil eder)
-                  setState(() {
-                    _activeTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
-                    _completedTasks.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
-                  });
-                },
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
+    );
+  }
+
+  // Sıralama seçeneği satırı
+  Widget _buildSortOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(title),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 
   void _showProfileMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.task_alt),
-                title: const Text(AppTexts.activeTasks),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ActiveTasksScreen(userId: widget.userId),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.4,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          expand: false,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Sürüklenebilir tutaç
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                  ).then((_) => _loadData());
-                },
+                  ),
+                  
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          child: Text(
+                            _userInitial,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currentUser?.username ?? 'Kullanıcı',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            Text(
+                              _currentUser?.email ?? 'email@example.com',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const Divider(height: 32),
+                  
+                  Expanded(
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        _buildMenuOption(
+                          context: context,
+                          icon: Icons.task_alt,
+                          title: AppTexts.activeTasks,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ActiveTasksScreen(userId: widget.userId),
+                              ),
+                            ).then((_) => _loadData());
+                          },
+                        ),
+                        _buildMenuOption(
+                          context: context,
+                          icon: Icons.done_all,
+                          title: AppTexts.completedTasks,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    CompletedTasksScreen(userId: widget.userId),
+                              ),
+                            ).then((_) => _loadData());
+                          },
+                        ),
+                        _buildMenuOption(
+                          context: context,
+                          icon: Icons.category,
+                          title: AppTexts.categories,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CategoriesScreen(userId: widget.userId),
+                              ),
+                            ).then((_) => _loadData());
+                          },
+                        ),
+                        _buildMenuOption(
+                          context: context,
+                          icon: Icons.repeat,
+                          title: AppTexts.habits,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => HabitsScreen(userId: widget.userId),
+                              ),
+                            ).then((_) => _loadData());
+                          },
+                        ),
+                        _buildMenuOption(
+                          context: context,
+                          icon: Icons.person,
+                          title: AppTexts.profile,
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProfileScreen(userId: widget.userId),
+                              ),
+                            ).then((_) {
+                              _loadData();
+                              _loadUserInfo();
+                            });
+                          },
+                        ),
+                        Consumer<ThemeProvider>(
+                          builder: (context, themeProvider, child) {
+                            return SwitchListTile(
+                              secondary: Icon(
+                                themeProvider.isDarkMode
+                                    ? Icons.dark_mode
+                                    : Icons.light_mode,
+                                color: Theme.of(context).colorScheme.primary,
+                                semanticLabel: themeProvider.isDarkMode
+                                    ? 'Koyu tema aktif'
+                                    : 'Açık tema aktif',
+                              ),
+                              title: Text(
+                                themeProvider.isDarkMode
+                                    ? AppTexts.darkTheme
+                                    : AppTexts.lightTheme,
+                              ),
+                              value: themeProvider.isDarkMode,
+                              onChanged: (_) {
+                                themeProvider.toggleTheme();
+                                Navigator.pop(context);
+                              },
+                              activeColor: Theme.of(context).colorScheme.primary,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.done_all),
-                title: const Text(AppTexts.completedTasks),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          CompletedTasksScreen(userId: widget.userId),
-                    ),
-                  ).then((_) => _loadData());
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.category),
-                title: const Text(AppTexts.categories),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CategoriesScreen(userId: widget.userId),
-                    ),
-                  ).then((_) => _loadData());
-                },
-              ),
-              // Alışkanlıklar menü öğesi eklendi
-              ListTile(
-                leading: const Icon(Icons.repeat),
-                title: const Text(AppTexts.habits),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => HabitsScreen(userId: widget.userId),
-                    ),
-                  ).then((_) => _loadData());
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text(AppTexts.profile),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProfileScreen(userId: widget.userId),
-                    ),
-                  ).then((_) {
-                    _loadData();
-                    _loadUserInfo();
-                  });
-                },
-              ),
-              Consumer<ThemeProvider>(
-                builder: (context, themeProvider, child) {
-                  return SwitchListTile(
-                    secondary: Icon(
-                      themeProvider.isDarkMode
-                          ? Icons.dark_mode
-                          : Icons.light_mode,
-                      semanticLabel: themeProvider.isDarkMode
-                          ? 'Koyu tema aktif'
-                          : 'Açık tema aktif',
-                    ),
-                    title: Text(
-                      themeProvider.isDarkMode
-                          ? AppTexts.darkTheme
-                          : AppTexts.lightTheme,
-                    ),
-                    value: themeProvider.isDarkMode,
-                    onChanged: (_) {
-                      themeProvider.toggleTheme();
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
+    );
+  }
+
+  // Menü seçeneği satırı
+  Widget _buildMenuOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(title),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 
@@ -472,10 +626,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final success = await _taskService.deleteTask(task.id!);
       if (success) {
+        // Bildirimi iptal et
+        await _notificationService.cancelTaskReminder(task.id!);
+        
         _loadData();
         if (mounted) {
-          _showSnackBar(AppTexts.taskDeleted,
-              backgroundColor: AppColors.successColor);
+          _showSnackBar(
+            AppTexts.taskDeleted,
+            backgroundColor: AppColors.successColor,
+          );
         }
       } else {
         if (mounted) {
@@ -506,15 +665,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.pop(context);
                 _deleteTask(task);
               },
-              child: const Text(
+              child: Text(
                 AppTexts.delete,
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         );
       },
     );
+  }
+  
+  // Arama fonksiyonu
+  void _startSearch() {
+    setState(() {
+      _isSearching = true;
+    });
+  }
+  
+  void _stopSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchQuery = '';
+    });
+    _loadData();
+  }
+  
+  void _performSearch(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+    _loadData();
   }
 
   // Get user's first initial, or fallback to user ID if no username available
@@ -528,6 +712,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     // Dashboard'da gösterilecek aktif alışkanlıkları filtrele
     final activeHabits = _dashboardHabits
@@ -552,130 +737,170 @@ class _DashboardScreenState extends State<DashboardScreen> {
               )
             : Column(
                 children: [
-                  // Date and profile section
+                  // App bar
                   Container(
                     padding: const EdgeInsets.all(16),
-                    color: AppColors.primaryColor,
-                    child: Row(
+                    color: colorScheme.primary,
+                    child: Column(
                       children: [
-                        Semantics(
-                          label: _currentUser != null
-                              ? '${_currentUser!.username} profili'
-                              : 'Kullanıcı profili',
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white24,
-                            child: Text(
-                              _userInitial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(
-                              'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 14),
-                            ),
-                            const SizedBox(height: 4),
-                            // Aşağıdaki Text widget'ı sabit içerik kullandığı için const ile tanımlandı
-                            const Text(
-                              AppTexts.taskBoard,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            GestureDetector(
+                              onTap: () => _showProfileMenu(context),
+                              child: Semantics(
+                                label: _currentUser != null
+                                    ? '${_currentUser!.username} profili'
+                                    : 'Kullanıcı profili',
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white24,
+                                  child: Text(
+                                    _userInitial,
+                                    style: TextStyle(
+                                      color: colorScheme.onPrimary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
+                                  style: TextStyle(
+                                    color: colorScheme.onPrimary.withOpacity(0.8), 
+                                    fontSize: 14
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  AppTexts.taskBoard,
+                                  style: TextStyle(
+                                    color: colorScheme.onPrimary,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            if (_isSearching) ...[
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: TextField(
+                                    autofocus: true,
+                                    onChanged: _performSearch,
+                                    style: TextStyle(color: colorScheme.onPrimary),
+                                    decoration: InputDecoration(
+                                      hintText: 'Görev ara...',
+                                      hintStyle: TextStyle(color: colorScheme.onPrimary.withOpacity(0.7)),
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Aramayı iptal et',
+                                icon: Icon(Icons.close, color: colorScheme.onPrimary),
+                                onPressed: _stopSearch,
+                              ),
+                            ] else ...[
+                              IconButton(
+                                tooltip: 'Ara',
+                                icon: Icon(Icons.search, color: colorScheme.onPrimary),
+                                onPressed: _startSearch,
+                              ),
+                              IconButton(
+                                tooltip: 'Tarih seçin',
+                                icon: Icon(
+                                  Icons.calendar_today,
+                                  color: colorScheme.onPrimary,
+                                  semanticLabel: 'Tarih seçin',
+                                ),
+                                onPressed: () => _selectDate(context),
+                              ),
+                              IconButton(
+                                tooltip: 'Menüyü aç',
+                                icon: Icon(Icons.menu, color: colorScheme.onPrimary, 
+                                    semanticLabel: 'Menüyü aç'),
+                                onPressed: () => _showProfileMenu(context),
+                              ),
+                            ],
                           ],
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          tooltip: 'Tarih seçin',
-                          icon: const Icon(
-                            Icons.calendar_today,
-                            color: Colors.white,
-                            semanticLabel: 'Tarih seçin',
-                          ),
-                          onPressed: () => _selectDate(context),
-                        ),
-                        IconButton(
-                          tooltip: 'Menüyü aç',
-                          icon: const Icon(Icons.menu, color: Colors.white, 
-                              semanticLabel: 'Menüyü aç'),
-                          onPressed: () => _showProfileMenu(context),
                         ),
                       ],
                     ),
                   ),
 
                   // Date navigation
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          tooltip: 'Önceki gün',
-                          onPressed: () => _changeDate(-1),
-                          icon: const Icon(Icons.chevron_left, 
-                              semanticLabel: 'Önceki gün'),
-                        ),
-                        Semantics(
-                          label: 'Seçili tarih: $formattedDate',
-                          child: GestureDetector(
-                            onTap: () => _selectDate(context),
-                            child: Text(
-                              formattedDate,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+                  if (!_isSearching)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            tooltip: 'Önceki gün',
+                            onPressed: () => _changeDate(-1),
+                            icon: const Icon(Icons.chevron_left, 
+                                semanticLabel: 'Önceki gün'),
+                          ),
+                          Semantics(
+                            label: 'Seçili tarih: $formattedDate',
+                            child: GestureDetector(
+                              onTap: () => _selectDate(context),
+                              child: Text(
+                                formattedDate,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          tooltip: 'Sonraki gün',
-                          onPressed: () => _changeDate(1),
-                          icon: const Icon(Icons.chevron_right, 
-                              semanticLabel: 'Sonraki gün'),
-                        ),
-                      ],
+                          IconButton(
+                            tooltip: 'Sonraki gün',
+                            onPressed: () => _changeDate(1),
+                            icon: const Icon(Icons.chevron_right, 
+                                semanticLabel: 'Sonraki gün'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
 
                   // Filters
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TaskFilter(
-                      categories: _categories,
-                      selectedCategoryId: _selectedCategoryId,
-                      selectedPriority: _selectedPriority,
-                      onCategoryChanged: (categoryId) {
-                        setState(() {
-                          _selectedCategoryId = categoryId;
-                        });
-                        _loadData();
-                      },
-                      onPriorityChanged: (priority) {
-                        setState(() {
-                          _selectedPriority = priority;
-                        });
-                        _loadData();
-                      },
+                  if (!_isSearching)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TaskFilter(
+                        categories: _categories,
+                        selectedCategoryId: _selectedCategoryId,
+                        selectedPriority: _selectedPriority,
+                        onCategoryChanged: (categoryId) {
+                          setState(() {
+                            _selectedCategoryId = categoryId;
+                          });
+                          _loadData();
+                        },
+                        onPriorityChanged: (priority) {
+                          setState(() {
+                            _selectedPriority = priority;
+                          });
+                          _loadData();
+                        },
+                      ),
                     ),
-                  ),
 
                   // Tasks list
                   Expanded(
                     child: ListView(
+                      controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
                         // Active tasks section
@@ -689,16 +914,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   Container(
                                     width: 12,
                                     height: 12,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.error,
                                       shape: BoxShape.circle,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    AppTexts.activeTasks,
-                                    style:
-                                        theme.textTheme.titleMedium?.copyWith(
+                                    _isSearching 
+                                        ? 'Arama Sonuçları' 
+                                        : AppTexts.activeTasks,
+                                    style: theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -722,169 +948,195 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               child: Semantics(
                                 label: 'Aktif görev veya alışkanlık bulunamadı',
                                 child: Text(
-                                  'Aktif görev bulunamadı',
+                                  _isSearching
+                                      ? 'Arama kriterine uygun görev bulunamadı'
+                                      : 'Aktif görev bulunamadı',
                                   style: theme.textTheme.bodyLarge,
                                 ),
                               ),
                             ),
                           )
                         else
-                          Column(
-                            children: [
-                              // Aktif görevler
-                              ..._activeTasks.map((task) {
-                                final category = task.categoryId != null
-                                    ? _categories.firstWhere(
-                                        (c) => c.id == task.categoryId,
-                                        orElse: () => Category(
-                                          name: 'Kategori Yok',
-                                          color: 0xFF9E9E9E,
-                                        ),
-                                      )
-                                    : null;
-
-                                return TaskCard(
-                                  task: task,
-                                  category: category,
-                                  onToggleCompletion: () =>
-                                      _toggleTaskCompletion(task),
-                                  onEdit: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => EditTaskScreen(
-                                          userId: widget.userId,
-                                          task: task,
-                                          categories: _categories,
-                                        ),
-                                      ),
-                                    ).then((_) => _loadData());
-                                  },
-                                  onDelete: () =>
-                                      _showDeleteConfirmation(context, task),
-                                );
-                              }),
-
-                              // Aktif alışkanlıklar
-                              ...activeHabits.map((habit) {
-                                return HabitCard(
-                                  habit: habit,
-                                  isCompleted: false,
-                                  onToggleCompletion: () =>
-                                      _toggleHabitCompletion(habit),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => HabitDetailsScreen(
-                                          habit: habit,
-                                          userId: widget.userId,
-                                        ),
-                                      ),
-                                    ).then((_) => _loadData());
-                                  },
-                                );
-                              }),
-                            ],
-                          ),
-
-                        // Completed tasks section
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppTexts.completedTasks,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          // Aktif içerikleri animasyonla göster
+                          Animate(
+                            effects: [
+                              const FadeEffect(duration: Duration(milliseconds: 300)),
+                              const SlideEffect(
+                                begin: Offset(0, 0.1),
+                                end: Offset.zero,
+                                duration: Duration(milliseconds: 300),
                               ),
                             ],
-                          ),
-                        ),
+                            child: Column(
+                              children: [
+                                // Aktif görevler
+                                ..._activeTasks.map((task) {
+                                  final category = task.categoryId != null
+                                      ? _categories.firstWhere(
+                                          (c) => c.id == task.categoryId,
+                                          orElse: () => Category(
+                                            name: 'Kategori Yok',
+                                            color: 0xFF9E9E9E,
+                                          ),
+                                        )
+                                      : null;
 
-                        // Tamamlanmış görevler ve tamamlanmış alışkanlıklar
-                        if (_completedTasks.isEmpty && completedHabits.isEmpty)
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Semantics(
-                                label: 'Tamamlanmış görev veya alışkanlık bulunamadı',
-                                child: Text(
-                                  'Tamamlanmış görev bulunamadı',
-                                  style: theme.textTheme.bodyLarge,
+                                  return TaskCard(
+                                    task: task,
+                                    category: category,
+                                    onToggleCompletion: () =>
+                                        _toggleTaskCompletion(task),
+                                    onEdit: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EditTaskScreen(
+                                            userId: widget.userId,
+                                            task: task,
+                                            categories: _categories,
+                                          ),
+                                        ),
+                                      ).then((_) => _loadData());
+                                    },
+                                    onDelete: () =>
+                                        _showDeleteConfirmation(context, task),
+                                  );
+                                }),
+
+                                // Aktif alışkanlıklar
+                                ...activeHabits.map((habit) {
+                                  return HabitCard(
+                                    habit: habit,
+                                    isCompleted: false,
+                                    onToggleCompletion: () =>
+                                        _toggleHabitCompletion(habit),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => HabitDetailsScreen(
+                                            habit: habit,
+                                            userId: widget.userId,
+                                          ),
+                                        ),
+                                      ).then((_) => _loadData());
+                                    },
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+
+                        // Tamamlanmış görevler bölümü (arama sırasında gösterme)
+                        if (!_isSearching) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.primary,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  AppTexts.completedTasks,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Tamamlanmış görevler ve tamamlanmış alışkanlıklar
+                          if (_completedTasks.isEmpty && completedHabits.isEmpty)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Semantics(
+                                  label: 'Tamamlanmış görev veya alışkanlık bulunamadı',
+                                  child: Text(
+                                    'Tamamlanmış görev bulunamadı',
+                                    style: theme.textTheme.bodyLarge,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            // Tamamlanmış içerikleri animasyonla göster
+                            Animate(
+                              effects: [
+                                const FadeEffect(duration: Duration(milliseconds: 300)),
+                                const SlideEffect(
+                                  begin: Offset(0, 0.1),
+                                  end: Offset.zero,
+                                  duration: Duration(milliseconds: 300),
+                                ),
+                              ],
+                              child: Column(
+                                children: [
+                                  // Tamamlanmış görevler
+                                  ..._completedTasks.map((task) {
+                                    final category = task.categoryId != null
+                                        ? _categories.firstWhere(
+                                            (c) => c.id == task.categoryId,
+                                            orElse: () => Category(
+                                              name: 'Kategori Yok',
+                                              color: 0xFF9E9E9E,
+                                            ),
+                                          )
+                                        : null;
+
+                                    return TaskCard(
+                                      task: task,
+                                      category: category,
+                                      onToggleCompletion: () =>
+                                          _toggleTaskCompletion(task),
+                                      onEdit: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => EditTaskScreen(
+                                              userId: widget.userId,
+                                              task: task,
+                                              categories: _categories,
+                                            ),
+                                          ),
+                                        ).then((_) => _loadData());
+                                      },
+                                      onDelete: () =>
+                                          _showDeleteConfirmation(context, task),
+                                    );
+                                  }),
+
+                                  // Tamamlanmış alışkanlıklar
+                                  ...completedHabits.map((habit) {
+                                    return HabitCard(
+                                      habit: habit,
+                                      isCompleted: true,
+                                      onToggleCompletion: () =>
+                                          _toggleHabitCompletion(habit),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => HabitDetailsScreen(
+                                              habit: habit,
+                                              userId: widget.userId,
+                                            ),
+                                          ),
+                                        ).then((_) => _loadData());
+                                      },
+                                    );
+                                  }),
+                                ],
                               ),
                             ),
-                          )
-                        else
-                          Column(
-                            children: [
-                              // Tamamlanmış görevler
-                              ..._completedTasks.map((task) {
-                                final category = task.categoryId != null
-                                    ? _categories.firstWhere(
-                                        (c) => c.id == task.categoryId,
-                                        orElse: () => Category(
-                                          name: 'Kategori Yok',
-                                          color: 0xFF9E9E9E,
-                                        ),
-                                      )
-                                    : null;
-
-                                return TaskCard(
-                                  task: task,
-                                  category: category,
-                                  onToggleCompletion: () =>
-                                      _toggleTaskCompletion(task),
-                                  onEdit: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => EditTaskScreen(
-                                          userId: widget.userId,
-                                          task: task,
-                                          categories: _categories,
-                                        ),
-                                      ),
-                                    ).then((_) => _loadData());
-                                  },
-                                  onDelete: () =>
-                                      _showDeleteConfirmation(context, task),
-                                );
-                              }),
-
-                              // Tamamlanmış alışkanlıklar
-                              ...completedHabits.map((habit) {
-                                return HabitCard(
-                                  habit: habit,
-                                  isCompleted: true,
-                                  onToggleCompletion: () =>
-                                      _toggleHabitCompletion(habit),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => HabitDetailsScreen(
-                                          habit: habit,
-                                          userId: widget.userId,
-                                        ),
-                                      ),
-                                    ).then((_) => _loadData());
-                                  },
-                                );
-                              }),
-                            ],
-                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -908,9 +1160,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ).then((_) => _loadData());
           },
-          backgroundColor: AppColors.primaryColor,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+          backgroundColor: colorScheme.primaryContainer,
+          foregroundColor: colorScheme.onPrimaryContainer,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Icon(Icons.add),
+        ).animate()
+          .scale(duration: 300.ms, curve: Curves.elasticOut),
       ),
     );
   }
