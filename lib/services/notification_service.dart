@@ -209,30 +209,6 @@ class NotificationService {
     try {
       if (Platform.isIOS) {
         // iOS için izinleri iste
-<<<<<<< HEAD
-        final FlutterLocalNotificationsPlugin plugin =
-            FlutterLocalNotificationsPlugin();
-        await plugin
-            .resolvePlatformSpecificImplementation<
-                IOSFlutterLocalNotificationsPlugin>()
-            ?.requestPermissions(
-              alert: true,
-              badge: true,
-              sound: true,
-            );
-      } else if (Platform.isMacOS) {
-        // macOS için izinleri iste
-        final FlutterLocalNotificationsPlugin plugin =
-            FlutterLocalNotificationsPlugin();
-        await plugin
-            .resolvePlatformSpecificImplementation<
-                MacOSFlutterLocalNotificationsPlugin>()
-            ?.requestPermissions(
-              alert: true,
-              badge: true,
-              sound: true,
-            );
-=======
         const FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         await plugin.resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
@@ -249,7 +225,6 @@ class NotificationService {
           badge: true,
           sound: true,
         );
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
       } else if (Platform.isAndroid) {
         // Android için bildirim ayarları
         debugPrint('Android bildirimleri hazırlanıyor');
