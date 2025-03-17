@@ -3,7 +3,7 @@
 //
 // Bu dosyayı çalıştırmak yerine, aşağıdaki terminal komutunu kullanabilirsiniz:
 //
-// find lib -name "*.dart" -type f -exec sed -i '' -e 's/{\([ ]*\)Key?\([ ]*\)key,/{\1super.key,/g' {} \;
+// find lib -name "*.dart" -type f -exec sed -i '' -e 's/{\\([ ]*\\)Key?\\([ ]*\\)key,/{\\1super.key,/g' {} \\;
 //
 // Bu komut, tüm dart dosyalarında constructorları otomatik olarak güncelleyecektir.
 // 
@@ -18,7 +18,9 @@
 // Bu değişiklik, Dart 2.17 ve sonrası için daha modern bir yazım şeklidir ve 
 // aynı fonksiyonelliği sürdürür, sadece daha az kod ile.
 
+import 'package:flutter/foundation.dart';
+
 void main() {
-  print('Bu script çalıştırılmak için değil, referans amaçlıdır.');
-  print('Super parameter güncellemeleri için dosyaları manuel olarak düzenleyin veya yukarıdaki terminal komutunu kullanın.');
+  debugPrint('Bu script çalıştırılmak için değil, referans amaçlıdır.');
+  debugPrint('Super parameter güncellemeleri için dosyaları manuel olarak düzenleyin veya yukarıdaki terminal komutunu kullanın.');
 }
