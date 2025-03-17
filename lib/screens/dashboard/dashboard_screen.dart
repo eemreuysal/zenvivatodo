@@ -28,7 +28,7 @@ import '../../main.dart';
 class DashboardScreen extends StatefulWidget {
   final int userId;
 
-  const DashboardScreen({super.key, required this.userId}) 
+  const DashboardScreen({super.key, required this.userId});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
