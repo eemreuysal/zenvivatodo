@@ -8,12 +8,12 @@ class HabitCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const HabitCard({
-    Key? key,
+    super.key,
     required this.habit,
     required this.isCompleted,
     required this.onToggleCompletion,
     required this.onTap,
-  }) 
+  });
 
   @override
   Widget build(BuildContext context) {
