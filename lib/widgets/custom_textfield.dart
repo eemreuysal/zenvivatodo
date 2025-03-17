@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatefulWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final String? hintText;
-  final IconData? prefixIcon;
-  final bool isPassword;
-  final TextInputType keyboardType;
-  final int? maxLines;
-  final int? maxLength;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final String? Function(String?)? validator;
-  final void Function(String)? onChanged;
-
+  // Constructor declaration moved to the top
   const CustomTextField({
     super.key,
     required this.controller,
@@ -29,6 +17,19 @@ class CustomTextField extends StatefulWidget {
     this.validator,
     this.onChanged,
   });
+
+  final TextEditingController controller;
+  final String labelText;
+  final String? hintText;
+  final IconData? prefixIcon;
+  final bool isPassword;
+  final TextInputType keyboardType;
+  final int? maxLines;
+  final int? maxLength;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
