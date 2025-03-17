@@ -46,13 +46,10 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(
-      // Kullanımdan kaldırılmış year2023 yerine ProgressIndicatorTheme kullanarak
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.primaryColor,
     ),
-    sliderTheme: SliderThemeData(
-      // Kullanımdan kaldırılmış year2023 yerine SliderTheme kullanarak
-    ),
+    sliderTheme: const SliderThemeData(),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -118,13 +115,10 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(
-      // Kullanımdan kaldırılmış year2023 yerine ProgressIndicatorTheme kullanarak
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.primaryLightColor,
     ),
-    sliderTheme: SliderThemeData(
-      // Kullanımdan kaldırılmış year2023 yerine SliderTheme kullanarak
-    ),
+    sliderTheme: const SliderThemeData(),
     chipTheme: ChipThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
