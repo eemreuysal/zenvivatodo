@@ -51,11 +51,7 @@ class ThemeProvider with ChangeNotifier {
 }
 
 class MyApp extends StatefulWidget {
-<<<<<<< HEAD
-  const MyApp({Key? key}) 
-=======
   const MyApp({super.key});
->>>>>>> 24a5cd288fa8b05ddf6d021bb45a2ff48ae048f1
 
   @override
   State<MyApp> createState() => _MyAppState();
