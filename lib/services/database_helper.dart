@@ -15,15 +15,13 @@ import '../models/user.dart';
 
 // Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
-  // Constructor en üste alındı
-  DatabaseHelper._internal();
-  
+  // Constructor'lar sınıfın en üstünde
+  DatabaseHelper._internal();  
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
 
+  // Sınıf değişkenleri
   static Database? _database;
-
-  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
   static const int _databaseVersion = 4;
 
   // Veritabanı bağlantısını al veya oluştur
@@ -55,7 +53,7 @@ class DatabaseHelper {
   // Veritabanı oluşturma
   Future<void> _onCreate(Database db, int version) async {
     // Kullanıcılar tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
@@ -67,7 +65,7 @@ class DatabaseHelper {
     ''');
 
     // Kategoriler tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE categories(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -79,7 +77,7 @@ class DatabaseHelper {
     ''');
 
     // Görevler tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE tasks(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -99,7 +97,7 @@ class DatabaseHelper {
     ''');
 
     // Alışkanlıklar tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE habits(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -122,7 +120,7 @@ class DatabaseHelper {
     ''');
 
     // Alışkanlık kayıtları tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE habit_logs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         habitId INTEGER NOT NULL,
@@ -135,7 +133,7 @@ class DatabaseHelper {
     ''');
 
     // Görev etiketleri tablosu (yeni) - birden fazla etiket ekleyebilmek için
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE task_tags(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -146,7 +144,7 @@ class DatabaseHelper {
     ''');
 
     // Görev-etiket ilişki tablosu (yeni)
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE task_tag_relations(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         taskId INTEGER NOT NULL,
@@ -180,7 +178,7 @@ class DatabaseHelper {
     // Her sürüm değişikliği için kontrol
     if (oldVersion < 2) {
       // Alışkanlıklar tablosu
-      await db.execute('''\
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS habits(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
@@ -200,7 +198,7 @@ class DatabaseHelper {
       ''');
 
       // Alışkanlık kayıtları tablosu
-      await db.execute('''\
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS habit_logs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           habitId INTEGER NOT NULL,
@@ -262,7 +260,7 @@ class DatabaseHelper {
       
       // Görev etiketleri tablosu (yeni)
       try {
-        await db.execute('''\
+        await db.execute('''
           CREATE TABLE IF NOT EXISTS task_tags(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -273,7 +271,7 @@ class DatabaseHelper {
         ''');
 
         // Görev-etiket ilişki tablosu (yeni)
-        await db.execute('''\
+        await db.execute('''
           CREATE TABLE IF NOT EXISTS task_tag_relations(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             taskId INTEGER NOT NULL,
@@ -452,7 +450,7 @@ class DatabaseHelper {
   ) async {
     final Database db = await database;
     
-    final queryBuilder = StringBuffer('''\
+    final queryBuilder = StringBuffer('''
       SELECT * FROM tasks 
       WHERE userId = ? AND
       (title LIKE ? OR description LIKE ?)
@@ -529,7 +527,7 @@ class DatabaseHelper {
   
   Future<List<Map<String, dynamic>>> getTaskTags(int taskId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
+    return await db.rawQuery('''
       SELECT t.* FROM task_tags t
       INNER JOIN task_tag_relations r ON t.id = r.tagId
       WHERE r.taskId = ?
@@ -584,7 +582,7 @@ class DatabaseHelper {
   // Kategori bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByCategory(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
+    return await db.rawQuery('''
       SELECT c.name, c.color, COUNT(t.id) as taskCount, 
              SUM(CASE WHEN t.isCompleted = 1 THEN 1 ELSE 0 END) as completedCount
       FROM tasks t
@@ -608,7 +606,7 @@ class DatabaseHelper {
     final result = <Map<String, dynamic>>[];
     
     await Future.forEach(dates, (date) async {
-      final count = Sqflite.firstIntValue(await db.rawQuery('''\
+      final count = Sqflite.firstIntValue(await db.rawQuery('''
         SELECT COUNT(*) FROM tasks 
         WHERE userId = ? AND date = ? AND isCompleted = 1
       ''', [userId, date])) ?? 0;
@@ -625,7 +623,7 @@ class DatabaseHelper {
   // Öncelik bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByPriority(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
+    return await db.rawQuery('''
       SELECT priority, COUNT(*) as count
       FROM tasks
       WHERE userId = ?
@@ -646,9 +644,9 @@ class DatabaseHelper {
   }
 
   Future<List<Map<String, dynamic>>> getHabits(
-    int userId,
-    {bool includeArchived = false},
-  ) async {
+    int userId, {
+    bool includeArchived = false,
+  }) async {
     final Database db = await database;
     String whereClause = 'userId = ?';
     final List<dynamic> whereArgs = [userId];
@@ -667,9 +665,9 @@ class DatabaseHelper {
 
   // Dashboard için gösterilecek alışkanlıkları getir
   Future<List<Map<String, dynamic>>> getDashboardHabits(
-    int userId,
-    {required String date},
-  ) async {
+    int userId, {
+    required String date,
+  }) async {
     final Database db = await database;
     return await db.query(
       'habits',
@@ -750,9 +748,9 @@ class DatabaseHelper {
   }
 
   Future<List<Map<String, dynamic>>> getHabitLogs(
-    int habitId,
-    {String? date},
-  ) async {
+    int habitId, {
+    String? date,
+  }) async {
     final Database db = await database;
     String whereClause = 'habitId = ?';
     final List<dynamic> whereArgs = [habitId];
