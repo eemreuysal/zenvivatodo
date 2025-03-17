@@ -40,6 +40,7 @@ class AppColors {
   // Status colors
   static const Color successColor = Color(0xFF4CAF50);
   static const Color errorColor = Color(0xFFE53935);
+  static const Color errorLightColor = Color(0xFFFFB4AB); // Error light rengi eklendi
   static const Color warningColor = Color(0xFFFFA726);
   static const Color infoColor = Color(0xFF2196F3);
   
