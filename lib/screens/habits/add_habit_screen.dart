@@ -10,6 +10,7 @@ class AddHabitScreen extends StatefulWidget {
   final int userId;
   final Habit? habit; // Düzenleme durumu için
 
+  // Constructor en üstte olmalı
   const AddHabitScreen({
     super.key,
     required this.userId,
@@ -28,7 +29,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
   final HabitService _habitService = HabitService();
 
-  String _frequency = HabitConstants.daily;
+  // String yerine HabitFrequency kullanıyoruz
+  HabitFrequency _frequency = HabitFrequency.daily;
   List<int> _selectedWeekDays = [];
   DateTime _startDate = DateTime.now();
   TimeOfDay? _reminderTime;
@@ -60,13 +62,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       // Başlangıç tarihi
       try {
         _startDate = DateTime.parse(habit.startDate);
-      } catch (e) {
+      } on FormatException catch (e) {
+        debugPrint('Tarih ayrıştırma hatası: $e');
         // Tarih düzgün ayrıştırılamadıysa, bugünü kullan
+        _startDate = DateTime.now();
+      } catch (e) {
+        debugPrint('Beklenmeyen hata: $e');
         _startDate = DateTime.now();
       }
 
       // Haftalık seçilen günler
-      if (habit.frequency == HabitConstants.weekly &&
+      if (habit.frequency == HabitFrequency.weekly &&
           habit.frequencyDays != null &&
           habit.frequencyDays!.isNotEmpty) {
         _selectedWeekDays = habit.frequencyDays!
@@ -162,9 +168,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   const SizedBox(height: 16),
 
                   // Günlük
-                  RadioListTile<String>(
+                  RadioListTile<HabitFrequency>(
                     title: const Text('Her Gün'),
-                    value: HabitConstants.daily,
+                    value: HabitFrequency.daily,
                     groupValue: _frequency,
                     onChanged: (value) {
                       setModalState(() {
@@ -177,9 +183,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   ),
 
                   // Haftalık
-                  RadioListTile<String>(
+                  RadioListTile<HabitFrequency>(
                     title: const Text('Haftanın Belirli Günleri'),
-                    value: HabitConstants.weekly,
+                    value: HabitFrequency.weekly,
                     groupValue: _frequency,
                     onChanged: (value) {
                       setModalState(() {
@@ -192,7 +198,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   ),
 
                   // Haftalık gün seçimi
-                  if (_frequency == HabitConstants.weekly)
+                  if (_frequency == HabitFrequency.weekly)
                     Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Wrap(
@@ -222,9 +228,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                     ),
 
                   // Aylık
-                  RadioListTile<String>(
+                  RadioListTile<HabitFrequency>(
                     title: const Text('Ayda Bir (Aynı Gün)'),
-                    value: HabitConstants.monthly,
+                    value: HabitFrequency.monthly,
                     groupValue: _frequency,
                     onChanged: (value) {
                       setModalState(() {
@@ -327,7 +333,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
     try {
       // Frekans ayarlarını kontrol et
-      if (_frequency == HabitConstants.weekly && _selectedWeekDays.isEmpty) {
+      if (_frequency == HabitFrequency.weekly && _selectedWeekDays.isEmpty) {
         _showErrorMessage('Lütfen en az bir gün seçin');
         setState(() {
           _isLoading = false;
@@ -341,7 +347,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         frequency: _frequency,
-        frequencyDays: _frequency == HabitConstants.weekly
+        frequencyDays: _frequency == HabitFrequency.weekly
             ? _selectedWeekDays.join(',')
             : null,
         startDate: DateFormat('yyyy-MM-dd').format(_startDate),
@@ -373,7 +379,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         });
         _showErrorMessage('Alışkanlık kaydedilirken bir hata oluştu');
       }
+    } on FormatException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorMessage('Biçim hatası: $e');
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -392,9 +405,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
 
   String _getFrequencyText() {
     switch (_frequency) {
-      case HabitConstants.daily:
+      case HabitFrequency.daily:
         return 'Her Gün';
-      case HabitConstants.weekly:
+      case HabitFrequency.weekly:
         if (_selectedWeekDays.isEmpty) {
           return 'Haftanın Belirli Günleri';
         } else {
@@ -403,8 +416,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               .join(', ');
           return 'Haftada $days';
         }
-      case HabitConstants.monthly:
+      case HabitFrequency.monthly:
         return 'Ayda Bir (Ayın ${_startDate.day}. günü)';
+      case HabitFrequency.custom:
+        return 'Özel Tekrarlama';
       default:
         return 'Tekrarlama Sıklığı';
     }
