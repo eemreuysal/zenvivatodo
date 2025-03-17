@@ -1,17 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final bool isOutlined;
-  final double height;
-  final double? width;
-  final EdgeInsets? padding;
-  final double borderRadius;
-  final IconData? icon;
-
+  // Constructor declaration moved to the top
   const CustomButton({
     super.key,
     required this.text,
@@ -25,6 +15,17 @@ class CustomButton extends StatelessWidget {
     this.borderRadius = 8,
     this.icon,
   });
+
+  final String text;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final bool isOutlined;
+  final double height;
+  final double? width;
+  final EdgeInsets? padding;
+  final double borderRadius;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
