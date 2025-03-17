@@ -128,7 +128,7 @@ class NotificationService {
         AndroidNotificationDetails(
       'task_reminder_channel',
       'Görev Hatırlatmaları',
-      channelDescription: 'Görev zamanı yaklaştığında hatırlatma gönderir',
+      'Görev zamanı yaklaştığında hatırlatma gönderir',
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
