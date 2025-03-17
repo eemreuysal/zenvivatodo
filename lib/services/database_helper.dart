@@ -54,7 +54,7 @@ class DatabaseHelper {
   // Veritabanı oluşturma
   Future<void> _onCreate(Database db, int version) async {
     // Kullanıcılar tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
@@ -66,7 +66,7 @@ class DatabaseHelper {
     ''');
 
     // Kategoriler tablosu
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE categories(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -78,7 +78,7 @@ class DatabaseHelper {
     ''');
 
     // Görevler tablosu - indeksler eklendi
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE tasks(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -103,7 +103,7 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_tasks_isCompleted ON tasks(isCompleted)');
 
     // Alışkanlıklar tablosu - indeksler eklendi
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE habits(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
@@ -130,7 +130,7 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_habits_isArchived ON habits(isArchived)');
 
     // Alışkanlık kayıtları tablosu - indeksler eklendi
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE habit_logs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         habitId INTEGER NOT NULL,
@@ -147,7 +147,7 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_habit_logs_date ON habit_logs(date)');
 
     // Görev etiketleri tablosu (yeni)
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE task_tags(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -161,7 +161,7 @@ class DatabaseHelper {
     await db.execute('CREATE INDEX idx_task_tags_userId ON task_tags(userId)');
 
     // Görev-etiket ilişki tablosu (yeni)
-    await db.execute('''\
+    await db.execute('''
       CREATE TABLE task_tag_relations(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         taskId INTEGER NOT NULL,
@@ -199,7 +199,7 @@ class DatabaseHelper {
     // Her sürüm değişikliği için kontrol
     if (oldVersion < 2) {
       // Alışkanlıklar tablosu
-      await db.execute('''\
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS habits(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
@@ -219,7 +219,7 @@ class DatabaseHelper {
       ''');
 
       // Alışkanlık kayıtları tablosu
-      await db.execute('''\
+      await db.execute('''
         CREATE TABLE IF NOT EXISTS habit_logs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           habitId INTEGER NOT NULL,
@@ -272,7 +272,7 @@ class DatabaseHelper {
       );
       
       // Görev etiketleri tablosu (yeni)
-      await _createTableIfNotExists(db, 'task_tags', '''\
+      await _createTableIfNotExists(db, 'task_tags', '''
         CREATE TABLE task_tags(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
@@ -283,7 +283,7 @@ class DatabaseHelper {
       ''');
 
       // Görev-etiket ilişki tablosu (yeni)
-      await _createTableIfNotExists(db, 'task_tag_relations', '''\
+      await _createTableIfNotExists(db, 'task_tag_relations', '''
         CREATE TABLE task_tag_relations(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           taskId INTEGER NOT NULL,
@@ -473,35 +473,36 @@ class DatabaseHelper {
   }) async {
     final Database db = await database;
     
-    final queryBuilder = StringBuffer('SELECT * FROM tasks WHERE userId = ?');
-    final whereArgs = <dynamic>[userId];
-
+    List<String> whereConditions = ['userId = ?'];
+    List<dynamic> whereArgs = [userId];
+    
     if (date != null) {
-      queryBuilder.write(' AND date = ?');
+      whereConditions.add('date = ?');
       whereArgs.add(date);
     }
 
     if (isCompleted != null) {
-      queryBuilder.write(' AND isCompleted = ?');
+      whereConditions.add('isCompleted = ?');
       whereArgs.add(isCompleted ? 1 : 0);
     }
 
     if (categoryId != null) {
-      queryBuilder.write(' AND categoryId = ?');
+      whereConditions.add('categoryId = ?');
       whereArgs.add(categoryId);
     }
 
     if (priority != null) {
-      queryBuilder.write(' AND priority = ?');
+      whereConditions.add('priority = ?');
       whereArgs.add(priority);
     }
     
-    // Varsayılan sıralama - varsayılan olarak tarihe göre
-    queryBuilder.write(' ORDER BY date ASC, time ASC');
-
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
-      queryBuilder.toString(),
-      whereArgs,
+    final String whereClause = whereConditions.join(' AND ');
+    
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tasks',
+      where: whereClause,
+      whereArgs: whereArgs,
+      orderBy: 'date ASC, time ASC',
     );
 
     return List.generate(maps.length, (i) {
@@ -585,11 +586,11 @@ class DatabaseHelper {
   
   Future<List<Map<String, dynamic>>> getTaskTags(int taskId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
-      SELECT t.* FROM task_tags t
-      INNER JOIN task_tag_relations r ON t.id = r.tagId
-      WHERE r.taskId = ?
-    ''', [taskId]);
+    return await db.query(
+      'task_tags',
+      where: 'id IN (SELECT tagId FROM task_tag_relations WHERE taskId = ?)',
+      whereArgs: [taskId],
+    );
   }
   
   Future<void> assignTagToTask(int taskId, int tagId) async {
@@ -638,7 +639,7 @@ class DatabaseHelper {
   // Kategori bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByCategory(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
+    return await db.rawQuery('''
       SELECT c.name, c.color, COUNT(t.id) as taskCount, 
              SUM(CASE WHEN t.isCompleted = 1 THEN 1 ELSE 0 END) as completedCount
       FROM tasks t
@@ -662,7 +663,7 @@ class DatabaseHelper {
     final query = '''
       SELECT date, COUNT(*) as count 
       FROM tasks 
-      WHERE userId = ? AND date IN (${dates.map((_) => '?').join(',')}) AND isCompleted = 1
+      WHERE userId = ? AND date IN (${List.filled(dates.length, '?').join(',')}) AND isCompleted = 1
       GROUP BY date
     ''';
     
@@ -686,7 +687,7 @@ class DatabaseHelper {
   // Öncelik bazında görev sayıları
   Future<List<Map<String, dynamic>>> getTaskCountByPriority(int userId) async {
     final Database db = await database;
-    return await db.rawQuery('''\
+    return await db.rawQuery('''
       SELECT priority, COUNT(*) as count
       FROM tasks
       WHERE userId = ?
