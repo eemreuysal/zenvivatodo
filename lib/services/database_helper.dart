@@ -15,16 +15,16 @@ import '../models/user.dart';
 
 // Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
-  static Database? _database;
-
-  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
-  static const int _databaseVersion = 4;
-  
   // Constructor en üste alındı
   DatabaseHelper._internal();
   
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
+
+  static Database? _database;
+
+  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
+  static const int _databaseVersion = 4;
 
   // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
@@ -771,7 +771,10 @@ class DatabaseHelper {
   }
 
   Future<int> toggleHabitCompletion(
-      int habitId, String date, bool completed) async {
+    int habitId, 
+    String date, 
+    bool completed,
+  ) async {
     final Database db = await database;
 
     // Check if log exists
