@@ -194,24 +194,29 @@ class HabitService {
     }
   }
 
-  // Mevcut zinciri hesapla ve veritabanını güncelle
+  // Mevcut zinciri hesapla ve veritabanını güncelle - iyileştirilmiş versiyon
   Future<void> updateHabitStreak(int habitId) async {
     try {
-      // Alışkanlığı getir
+      // Alışkanlığı ve son 60 günlük kayıtları tek bir veritabanı bağlantısında getir
       final habit = await getHabitById(habitId);
       if (habit == null) return;
 
-      // Tüm kayıtları getir ve tarih sırasına göre sırala
-      final logs = await getHabitLogs(habitId);
-      logs.sort((a, b) => b.date.compareTo(a.date)); // En son tarih en başta
-
       final now = DateTime.now();
       final today = DateFormat('yyyy-MM-dd').format(now);
+      final startDate = DateTime.parse(habit.startDate);
+      
+      // Son 60 günlük kayıtları tarihe göre azalan sırayla getir
+      final logs = await getRecentHabitLogs(habitId, days: 60);
+      logs.sort((a, b) => b.date.compareTo(a.date)); // En son tarih en başta
+      
+      // Kayıtları hızlı arama için Map'e dönüştür
+      final completedDates = Map<String, bool>.fromEntries(
+        logs.where((log) => log.completed).map((log) => MapEntry(log.date, true))
+      );
 
       // Bugün için alışkanlık gerekliyse kontrol et
       final isTodayRequired = _isDateRequired(now, habit);
-      final isTodayCompleted =
-          logs.any((log) => log.date == today && log.completed);
+      final isTodayCompleted = completedDates.containsKey(today);
 
       // Bugün gerekliyse ama tamamlanmamışsa, zincir sıfırlanır
       if (isTodayRequired && !isTodayCompleted) {
@@ -225,12 +230,15 @@ class HabitService {
       // Geriye doğru tüm günleri kontrol et ve kesintisiz tamamlanmış günleri say
       int streak = 0;
       DateTime currentDate = now;
-
-      while (true) {
+      
+      // Maksimum 180 gün geriye git veya başlangıç tarihine kadar
+      for (int i = 0; i < 180; i++) {
+        // Başlangıç tarihinden önceyse çık
+        if (currentDate.isBefore(startDate)) break;
+        
         if (_isDateRequired(currentDate, habit)) {
           final dateStr = DateFormat('yyyy-MM-dd').format(currentDate);
-          final isCompleted =
-              logs.any((log) => log.date == dateStr && log.completed);
+          final isCompleted = completedDates.containsKey(dateStr);
 
           if (isCompleted) {
             streak++;
@@ -240,11 +248,7 @@ class HabitService {
         }
 
         // Bir gün geriye git
-        currentDate =
-            currentDate.subtract(const Duration(days: 1)); // const eklendi
-
-        // Başlangıç tarihinden önceyse çık
-        if (currentDate.isBefore(DateTime.parse(habit.startDate))) break;
+        currentDate = currentDate.subtract(const Duration(days: 1));
       }
 
       // Eğer mevcut streak değiştiği veya en uzun streakten büyükse güncelle
@@ -291,7 +295,7 @@ class HabitService {
     }
   }
 
-  // Alışkanlığın tamamlanma oranını hesapla (son 30 gün)
+  // Alışkanlığın tamamlanma oranını hesapla - optimizasyonlu
   Future<double> calculateCompletionRate(int habitId, {int days = 30}) async {
     try {
       final habit = await getHabitById(habitId);
@@ -308,6 +312,12 @@ class HabitService {
         periodStart = now.subtract(Duration(days: days));
       }
 
+      // Tüm kayıtları tek seferde getir ve Map'e dönüştür
+      final logs = await getHabitLogs(habitId);
+      final completedDates = Map<String, bool>.fromEntries(
+        logs.where((log) => log.completed).map((log) => MapEntry(log.date, true))
+      );
+
       int totalRequiredDays = 0;
       int completedDays = 0;
 
@@ -319,9 +329,7 @@ class HabitService {
           totalRequiredDays++;
 
           final dateStr = DateFormat('yyyy-MM-dd').format(currentDate);
-          final logs = await getHabitLogs(habitId, date: dateStr);
-
-          if (logs.any((log) => log.completed)) {
+          if (completedDates.containsKey(dateStr)) {
             completedDays++;
           }
         }
