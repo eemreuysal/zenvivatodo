@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../models/habit.dart';
 
 class HabitCard extends StatelessWidget {
@@ -31,7 +32,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isCompleted 
-            ? BorderSide(color: habitColor.withARGB(128, habitColor.red, habitColor.green, habitColor.blue), width: 1.5) 
+            ? BorderSide(color: Color.fromARGB(128, habitColor.red, habitColor.green, habitColor.blue), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi
@@ -96,7 +97,7 @@ class HabitCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isCompleted
-                                  ? colorScheme.onSurface.withARGB(153, colorScheme.onSurface.red, colorScheme.onSurface.green, colorScheme.onSurface.blue) // 0.6 opacity
+                                  ? Color.fromARGB(153, colorScheme.onSurface.red, colorScheme.onSurface.green, colorScheme.onSurface.blue) // 0.6 opacity
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -145,7 +146,7 @@ class HabitCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: habitColor.withARGB(51, habitColor.red, habitColor.green, habitColor.blue), // 0.2 opacity
+                        color: Color.fromARGB(51, habitColor.red, habitColor.green, habitColor.blue), // 0.2 opacity
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -177,8 +178,8 @@ class HabitCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.orange.withARGB(51, Colors.orange.red, Colors.orange.green, Colors.orange.blue) // 0.2 opacity
-                            : Colors.orange.withARGB(26, Colors.orange.red, Colors.orange.green, Colors.orange.blue), // 0.1 opacity
+                            ? Color.fromARGB(51, Colors.orange.red, Colors.orange.green, Colors.orange.blue) // 0.2 opacity
+                            : Color.fromARGB(26, Colors.orange.red, Colors.orange.green, Colors.orange.blue), // 0.1 opacity
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
