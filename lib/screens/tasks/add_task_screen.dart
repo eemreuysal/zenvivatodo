@@ -18,11 +18,11 @@ class AddTaskScreen extends StatefulWidget {
   final DateTime? initialDate;
 
   const AddTaskScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.categories,
     this.initialDate,
-  }) 
+  });
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
