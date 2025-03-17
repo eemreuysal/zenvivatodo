@@ -11,10 +11,10 @@ class AddHabitScreen extends StatefulWidget {
   final Habit? habit; // Düzenleme durumu için
 
   const AddHabitScreen({
-    Key? key,
+    super.key,
     required this.userId,
     this.habit,
-  }) 
+  });
 
   @override
   State<AddHabitScreen> createState() => _AddHabitScreenState();
