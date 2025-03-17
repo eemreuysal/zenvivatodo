@@ -12,8 +12,7 @@ import 'edit_task_screen.dart';
 class CompletedTasksScreen extends StatefulWidget {
   final int userId;
 
-  const CompletedTasksScreen({super.key, required this.userId})
-      
+  const CompletedTasksScreen({super.key, required this.userId});
 
   @override
   State<CompletedTasksScreen> createState() => _CompletedTasksScreenState();
