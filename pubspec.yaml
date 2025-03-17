@@ -18,42 +18,42 @@ dependencies:
   cupertino_icons: ^1.0.6
   
   # Database
-  sqflite: ^2.3.2
+  sqflite: ^2.3.0
   path: ^1.8.3
-  path_provider: ^2.2.2
+  path_provider: ^2.1.5  # 2.2.2'den 2.1.5'e düşürüldü
   
   # State management
   provider: ^6.1.1
   
   # Shared preferences for theme and user session
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.2.0
   
   # Date and time formatting
-  intl: ^0.19.0
+  intl: ^0.18.1  # 0.19.0 yerine 0.18.1'e düşürüldü
   
   # Timer for reminders
   rxdart: ^0.27.7
   timezone: ^0.9.2
   
   # Notifications - Yeniden etkinleştirildi ve güncellendi
-  flutter_local_notifications: ^16.1.0
+  flutter_local_notifications: ^14.0.0  # 16.1.0'dan 14.0.0'a düşürüldü
   
   # Security
   crypto: ^3.0.3
   
   # Yeni eklenen bağımlılıklar
-  collection: ^1.18.0    # Dart koleksiyon yardımcıları için
-  uuid: ^4.2.1          # Benzersiz ID oluşturmak için
-  flutter_animate: ^4.4.0  # Animasyonlar için
-  google_fonts: ^6.1.0  # Modern font desteği
+  collection: ^1.17.2  # 1.18.0'dan 1.17.2'ye düşürüldü
+  uuid: ^3.0.7  # 4.2.1'den 3.0.7'ye düşürüldü
+  flutter_animate: ^4.2.0  # 4.4.0'dan 4.2.0'a düşürüldü
+  google_fonts: ^5.1.0  # 6.1.0'dan 5.1.0'a düşürüldü
   
   # Web için JS interoperabilite (dart:html yerine)
-  web: ^0.5.0           # Web destekli API'ler için
+  web: ^0.3.0  # 0.5.0'dan 0.3.0'a düşürüldü
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^2.0.3  # 3.0.1'den 2.0.3'e düşürüldü
 
 flutter:
   uses-material-design: true
@@ -66,6 +66,8 @@ flutter:
   #   - assets/images/
   #   - assets/icons/
 
-# Dart formatter ayarları - Dart 3.7 yeni biçimlendirme stili
-formatter:
-  page_width: 100  # Sayfa genişliği
+# Dart formatter ayarları
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
