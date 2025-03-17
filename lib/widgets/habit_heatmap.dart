@@ -98,7 +98,8 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    final notCompletedColor = baseColor.withARGB(26, baseColor.red, baseColor.green, baseColor.blue);
+    // Fix: withARGB -> Color.fromARGB, ve red/green/blue -> r/g/b
+    final notCompletedColor = Color.fromARGB(26, baseColor.r, baseColor.g, baseColor.b);
     final todayBorderColor = Theme.of(context).primaryColor;
 
     return InkWell(
@@ -131,7 +132,8 @@ class HabitHeatmap extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withARGB(26, color.red, color.green, color.blue),
+            // Fix: withARGB -> Color.fromARGB, ve red/green/blue -> r/g/b
+            color: Color.fromARGB(26, color.r, color.g, color.b),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
