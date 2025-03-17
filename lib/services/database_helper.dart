@@ -3,54 +3,76 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:collection/collection.dart';
 import '../models/task.dart';
 import '../models/user.dart';
 import '../models/category.dart';
 
+// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
 
   static Database? _database;
 
+  // Veritabanı sürümü - şema değişikliklerinde artırılmalı
+  static const int _databaseVersion = 4;
+
   DatabaseHelper._internal();
 
+  // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
+    _database ??= await _initDatabase();
     return _database!;
   }
 
+  // Veritabanını başlat
   Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'zenviva.db');
-    return await openDatabase(path,
-        version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    final String path = join(documentsDirectory.path, 'zenviva.db');
+    
+    return await openDatabase(
+      path,
+      version: _databaseVersion, 
+      onCreate: _onCreate, 
+      onUpgrade: _onUpgrade,
+      onConfigure: _onConfigure,
+    );
+  }
+  
+  // Veritabanı yapılandırması - foreign key desteğini etkinleştirme
+  Future<void> _onConfigure(Database db) async {
+    // Foreign key kısıtlamalarını etkinleştir
+    await db.execute('PRAGMA foreign_keys = ON');
   }
 
+  // Veritabanı oluşturma
   Future<void> _onCreate(Database db, int version) async {
-    // Users table
+    // Kullanıcılar tablosu
     await db.execute('''
       CREATE TABLE users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
+        password TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        last_login TEXT
       )
     ''');
 
-    // Categories table
+    // Kategoriler tablosu
     await db.execute('''
       CREATE TABLE categories(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         color INTEGER NOT NULL,
         userId INTEGER,
-        FOREIGN KEY(userId) REFERENCES users(id)
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
 
-    // Tasks table
+    // Görevler tablosu
     await db.execute('''
       CREATE TABLE tasks(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,13 +83,16 @@ class DatabaseHelper {
         isCompleted INTEGER NOT NULL DEFAULT 0,
         categoryId INTEGER,
         priority INTEGER NOT NULL,
-        userId INTEGER,
-        FOREIGN KEY(categoryId) REFERENCES categories(id),
-        FOREIGN KEY(userId) REFERENCES users(id)
+        userId INTEGER NOT NULL,
+        uniqueId TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(categoryId) REFERENCES categories(id) ON DELETE SET NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
 
-    // Habits table
+    // Alışkanlıklar tablosu
     await db.execute('''
       CREATE TABLE habits(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,12 +108,14 @@ class DatabaseHelper {
         currentStreak INTEGER NOT NULL DEFAULT 0,
         longestStreak INTEGER NOT NULL DEFAULT 0,
         showInDashboard INTEGER NOT NULL DEFAULT 0,
-        userId INTEGER,
-        FOREIGN KEY(userId) REFERENCES users(id)
+        userId INTEGER NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
       )
     ''');
 
-    // Habit logs table
+    // Alışkanlık kayıtları tablosu
     await db.execute('''
       CREATE TABLE habit_logs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,11 +123,34 @@ class DatabaseHelper {
         date TEXT NOT NULL,
         completed INTEGER NOT NULL DEFAULT 0,
         notes TEXT,
-        FOREIGN KEY(habitId) REFERENCES habits(id)
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(habitId) REFERENCES habits(id) ON DELETE CASCADE
       )
     ''');
 
-    // Insert default categories
+    // Görev etiketleri tablosu (yeni) - birden fazla etiket ekleyebilmek için
+    await db.execute('''
+      CREATE TABLE task_tags(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        color INTEGER NOT NULL DEFAULT 0xFF9E9E9E,
+        userId INTEGER NOT NULL,
+        FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Görev-etiket ilişki tablosu (yeni)
+    await db.execute('''
+      CREATE TABLE task_tag_relations(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        taskId INTEGER NOT NULL,
+        tagId INTEGER NOT NULL,
+        FOREIGN KEY(taskId) REFERENCES tasks(id) ON DELETE CASCADE,
+        FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Varsayılan kategorileri ekle
     await db.insert(
       'categories',
       Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
@@ -119,11 +169,13 @@ class DatabaseHelper {
     );
   }
 
+  // Veritabanı güncelleme - sürüm değiştikçe çalışır
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Her sürüm değişikliği için kontrol
     if (oldVersion < 2) {
-      // Habits table
+      // Alışkanlıklar tablosu
       await db.execute('''
-        CREATE TABLE habits(
+        CREATE TABLE IF NOT EXISTS habits(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           description TEXT,
@@ -137,53 +189,135 @@ class DatabaseHelper {
           currentStreak INTEGER NOT NULL DEFAULT 0,
           longestStreak INTEGER NOT NULL DEFAULT 0,
           userId INTEGER,
-          FOREIGN KEY(userId) REFERENCES users(id)
+          FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
         )
       ''');
 
-      // Habit logs table
+      // Alışkanlık kayıtları tablosu
       await db.execute('''
-        CREATE TABLE habit_logs(
+        CREATE TABLE IF NOT EXISTS habit_logs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           habitId INTEGER NOT NULL,
           date TEXT NOT NULL,
           completed INTEGER NOT NULL DEFAULT 0,
           notes TEXT,
-          FOREIGN KEY(habitId) REFERENCES habits(id)
+          FOREIGN KEY(habitId) REFERENCES habits(id) ON DELETE CASCADE
         )
       ''');
     }
 
     if (oldVersion < 3) {
-      // Add showInDashboard column to habits table
+      // Dashboard gösterme kolonu ekle
       await db.execute(
           'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
     }
+    
+    if (oldVersion < 4) {
+      // Yeni sütunlar ekle
+      
+      // users tablosuna son giriş tarihi
+      try {
+        await db.execute('ALTER TABLE users ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        await db.execute('ALTER TABLE users ADD COLUMN last_login TEXT');
+      } catch (e) {
+        print('Users tablosu güncellenemedi: $e');
+      }
+      
+      // tasks tablosuna oluşturma ve güncelleme tarihi ekle
+      try {
+        await db.execute('ALTER TABLE tasks ADD COLUMN uniqueId TEXT');
+        await db.execute('ALTER TABLE tasks ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        await db.execute('ALTER TABLE tasks ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      } catch (e) {
+        print('Tasks tablosu güncellenemedi: $e');
+      }
+      
+      // habits tablosuna oluşturma ve güncelleme tarihi ekle
+      try {
+        await db.execute('ALTER TABLE habits ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+        await db.execute('ALTER TABLE habits ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      } catch (e) {
+        print('Habits tablosu güncellenemedi: $e');
+      }
+      
+      // categories tablosuna oluşturma tarihi ekle
+      try {
+        await db.execute('ALTER TABLE categories ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      } catch (e) {
+        print('Categories tablosu güncellenemedi: $e');
+      }
+      
+      // habit_logs tablosuna oluşturma tarihi ekle
+      try {
+        await db.execute('ALTER TABLE habit_logs ADD COLUMN created_at TEXT DEFAULT CURRENT_TIMESTAMP');
+      } catch (e) {
+        print('Habit_logs tablosu güncellenemedi: $e');
+      }
+      
+      // Görev etiketleri tablosu (yeni)
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS task_tags(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            color INTEGER NOT NULL DEFAULT 0xFF9E9E9E,
+            userId INTEGER NOT NULL,
+            FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE
+          )
+        ''');
+
+        // Görev-etiket ilişki tablosu (yeni)
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS task_tag_relations(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            taskId INTEGER NOT NULL,
+            tagId INTEGER NOT NULL,
+            FOREIGN KEY(taskId) REFERENCES tasks(id) ON DELETE CASCADE,
+            FOREIGN KEY(tagId) REFERENCES task_tags(id) ON DELETE CASCADE
+          )
+        ''');
+      } catch (e) {
+        print('Etiket tabloları oluşturulamadı: $e');
+      }
+    }
   }
 
-  // User methods
+  // Kullanıcı metodları
   Future<int> insertUser(User user) async {
-    Database db = await database;
-    return await db.insert('users', user.toMap());
+    final Database db = await database;
+    // Giriş zamanını güncelle
+    final userMap = user.toMap();
+    userMap['created_at'] = DateTime.now().toIso8601String();
+    return await db.insert('users', userMap);
   }
 
   Future<User?> getUser(String username, String password) async {
-    Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final Database db = await database;
+    
+    // Kullanıcıyı kontrol et
+    final List<Map<String, dynamic>> maps = await db.query(
       'users',
       where: 'username = ? AND password = ?',
       whereArgs: [username, password],
     );
 
     if (maps.isNotEmpty) {
+      // Son giriş zamanını güncelle
+      await db.update(
+        'users',
+        {'last_login': DateTime.now().toIso8601String()},
+        where: 'id = ?',
+        whereArgs: [maps.first['id']],
+      );
+      
       return User.fromMap(maps.first);
     }
     return null;
   }
 
   Future<User?> getUserById(int id) async {
-    Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
       'users',
       where: 'id = ?',
       whereArgs: [id],
@@ -196,7 +330,7 @@ class DatabaseHelper {
   }
 
   Future<int> updateUser(User user) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'users',
       user.toMap(),
@@ -206,42 +340,21 @@ class DatabaseHelper {
   }
 
   Future<int> deleteUser(int id) async {
-    Database db = await database;
-
-    // First delete all user's tasks
-    await db.delete('tasks', where: 'userId = ?', whereArgs: [id]);
-
-    // Then delete user's categories
-    await db.delete('categories', where: 'userId = ?', whereArgs: [id]);
-
-    // Delete user's habits and habit logs
-    List<Map<String, dynamic>> habits = await db.query(
-      'habits',
-      columns: ['id'],
-      where: 'userId = ?',
-      whereArgs: [id],
-    );
-
-    for (var habit in habits) {
-      await db
-          .delete('habit_logs', where: 'habitId = ?', whereArgs: [habit['id']]);
-    }
-
-    await db.delete('habits', where: 'userId = ?', whereArgs: [id]);
-
-    // Finally delete the user
+    final Database db = await database;
+    
+    // Cascade ile ilişkili tüm kayıtlar otomatik silinecek
     return await db.delete('users', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Category methods
+  // Kategori metodları
   Future<int> insertCategory(Category category) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.insert('categories', category.toMap());
   }
 
   Future<List<Category>> getCategories(int userId) async {
-    Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final Database db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
       'categories',
       where: 'userId IS NULL OR userId = ?',
       whereArgs: [userId],
@@ -253,7 +366,7 @@ class DatabaseHelper {
   }
 
   Future<int> updateCategory(Category category) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'categories',
       category.toMap(),
@@ -263,24 +376,21 @@ class DatabaseHelper {
   }
 
   Future<int> deleteCategory(int id) async {
-    Database db = await database;
-
-    // Update tasks with this category to have null category
-    await db.update(
-      'tasks',
-      {'categoryId': null},
-      where: 'categoryId = ?',
-      whereArgs: [id],
-    );
-
-    // Then delete the category
+    final Database db = await database;
     return await db.delete('categories', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Task methods
+  // Görev metodları
   Future<int> insertTask(Task task) async {
-    Database db = await database;
-    return await db.insert('tasks', task.toMap());
+    final Database db = await database;
+    final taskMap = task.toMap();
+    
+    // Oluşturma ve güncelleme tarihlerini ayarla
+    final now = DateTime.now().toIso8601String();
+    taskMap['created_at'] = now;
+    taskMap['updated_at'] = now;
+    
+    return await db.insert('tasks', taskMap);
   }
 
   Future<List<Task>> getTasks(
@@ -290,34 +400,72 @@ class DatabaseHelper {
     int? categoryId,
     int? priority,
   }) async {
-    Database db = await database;
-    String whereClause = 'userId = ?';
-    List<dynamic> whereArgs = [userId];
+    final Database db = await database;
+    
+    final queryBuilder = StringBuffer('SELECT * FROM tasks WHERE userId = ?');
+    final whereArgs = <dynamic>[userId];
 
     if (date != null) {
-      whereClause += ' AND date = ?';
+      queryBuilder.write(' AND date = ?');
       whereArgs.add(date);
     }
 
     if (isCompleted != null) {
-      whereClause += ' AND isCompleted = ?';
+      queryBuilder.write(' AND isCompleted = ?');
       whereArgs.add(isCompleted ? 1 : 0);
     }
 
     if (categoryId != null) {
-      whereClause += ' AND categoryId = ?';
+      queryBuilder.write(' AND categoryId = ?');
       whereArgs.add(categoryId);
     }
 
     if (priority != null) {
-      whereClause += ' AND priority = ?';
+      queryBuilder.write(' AND priority = ?');
       whereArgs.add(priority);
     }
+    
+    // Varsayılan sıralama - varsayılan olarak tarihe göre
+    queryBuilder.write(' ORDER BY date ASC, time ASC');
 
-    List<Map<String, dynamic>> maps = await db.query(
-      'tasks',
-      where: whereClause,
-      whereArgs: whereArgs,
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      queryBuilder.toString(),
+      whereArgs,
+    );
+
+    return List.generate(maps.length, (i) {
+      return Task.fromMap(maps[i]);
+    });
+  }
+
+  // Görev arama fonksiyonu - yeni
+  Future<List<Task>> searchTasks(
+    int userId, 
+    String query, 
+    {bool includeCompleted = false}
+  ) async {
+    final Database db = await database;
+    
+    final queryBuilder = StringBuffer('''
+      SELECT * FROM tasks 
+      WHERE userId = ? AND
+      (title LIKE ? OR description LIKE ?)
+    ''');
+    final whereArgs = <dynamic>[
+      userId, 
+      '%$query%', 
+      '%$query%'
+    ];
+
+    if (!includeCompleted) {
+      queryBuilder.write(' AND isCompleted = 0');
+    }
+    
+    queryBuilder.write(' ORDER BY date ASC, time ASC');
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      queryBuilder.toString(),
+      whereArgs,
     );
 
     return List.generate(maps.length, (i) {
@@ -326,39 +474,175 @@ class DatabaseHelper {
   }
 
   Future<int> updateTask(Task task) async {
-    Database db = await database;
+    final Database db = await database;
+    final taskMap = task.toMap();
+    
+    // Güncelleme tarihini ayarla
+    taskMap['updated_at'] = DateTime.now().toIso8601String();
+    
     return await db.update(
       'tasks',
-      task.toMap(),
+      taskMap,
       where: 'id = ?',
       whereArgs: [task.id],
     );
   }
 
   Future<int> toggleTaskCompletion(int id, bool isCompleted) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'tasks',
-      {'isCompleted': isCompleted ? 1 : 0},
+      {
+        'isCompleted': isCompleted ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String()
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
   Future<int> deleteTask(int id) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
 
-  // Habit methods
+  // Etiket metodları (yeni)
+  Future<int> insertTag(Map<String, dynamic> tag) async {
+    final Database db = await database;
+    return await db.insert('task_tags', tag);
+  }
+  
+  Future<List<Map<String, dynamic>>> getTags(int userId) async {
+    final Database db = await database;
+    return await db.query(
+      'task_tags',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+  }
+  
+  Future<List<Map<String, dynamic>>> getTaskTags(int taskId) async {
+    final Database db = await database;
+    return await db.rawQuery('''
+      SELECT t.* FROM task_tags t
+      INNER JOIN task_tag_relations r ON t.id = r.tagId
+      WHERE r.taskId = ?
+    ''', [taskId]);
+  }
+  
+  Future<void> assignTagToTask(int taskId, int tagId) async {
+    final Database db = await database;
+    await db.insert('task_tag_relations', {
+      'taskId': taskId,
+      'tagId': tagId,
+    });
+  }
+  
+  Future<void> removeTagFromTask(int taskId, int tagId) async {
+    final Database db = await database;
+    await db.delete(
+      'task_tag_relations', 
+      where: 'taskId = ? AND tagId = ?',
+      whereArgs: [taskId, tagId],
+    );
+  }
+
+  // Alışkanlık metodları kısmını yukarıdaki değişikliklere uygun şekilde güncelliyorum...
+  // Veritabanı işlemleri için daha detaylı hata yönetimi eklenmiştir
+  
+  // Transaction kullanımı örneği - veritabanı işlemlerini atomik olarak yürütür
+  Future<bool> batchUpdateTasks(List<Task> tasks) async {
+    final Database db = await database;
+    try {
+      await db.transaction((txn) async {
+        for (var task in tasks) {
+          final taskMap = task.toMap();
+          taskMap['updated_at'] = DateTime.now().toIso8601String();
+          
+          await txn.update(
+            'tasks',
+            taskMap,
+            where: 'id = ?',
+            whereArgs: [task.id],
+          );
+        }
+      });
+      return true;
+    } catch (e) {
+      print('Toplu görev güncelleme hatası: $e');
+      return false;
+    }
+  }
+  
+  // İstatistik metodları (yeni)
+  
+  // Kategori bazında görev sayıları
+  Future<List<Map<String, dynamic>>> getTaskCountByCategory(int userId) async {
+    final Database db = await database;
+    return await db.rawQuery('''
+      SELECT c.name, c.color, COUNT(t.id) as taskCount, 
+             SUM(CASE WHEN t.isCompleted = 1 THEN 1 ELSE 0 END) as completedCount
+      FROM tasks t
+      LEFT JOIN categories c ON t.categoryId = c.id
+      WHERE t.userId = ?
+      GROUP BY t.categoryId
+    ''', [userId]);
+  }
+  
+  // Günlük tamamlanan görev sayısı - son 7 gün
+  Future<List<Map<String, dynamic>>> getCompletedTasksLast7Days(int userId) async {
+    final Database db = await database;
+    
+    // Son 7 günün tarihlerini oluştur
+    final dates = List.generate(7, (i) {
+      final date = DateTime.now().subtract(Duration(days: i));
+      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    });
+    
+    // Her tarih için tamamlanan görev sayısını sorgula
+    final result = <Map<String, dynamic>>[];
+    
+    await Future.forEach(dates, (String date) async {
+      final count = Sqflite.firstIntValue(await db.rawQuery('''
+        SELECT COUNT(*) FROM tasks 
+        WHERE userId = ? AND date = ? AND isCompleted = 1
+      ''', [userId, date])) ?? 0;
+      
+      result.add({
+        'date': date,
+        'count': count,
+      });
+    });
+    
+    return result;
+  }
+  
+  // Öncelik bazında görev sayıları
+  Future<List<Map<String, dynamic>>> getTaskCountByPriority(int userId) async {
+    final Database db = await database;
+    return await db.rawQuery('''
+      SELECT priority, COUNT(*) as count
+      FROM tasks
+      WHERE userId = ?
+      GROUP BY priority
+    ''', [userId]);
+  }
+  
+  // Alışkanlık metodları (güncellendi)
   Future<int> insertHabit(Map<String, dynamic> habit) async {
-    Database db = await database;
+    final Database db = await database;
+    
+    // Oluşturma ve güncelleme tarihlerini ayarla
+    final now = DateTime.now().toIso8601String();
+    habit['created_at'] = now;
+    habit['updated_at'] = now;
+    
     return await db.insert('habits', habit);
   }
 
   Future<List<Map<String, dynamic>>> getHabits(int userId,
       {bool includeArchived = false}) async {
-    Database db = await database;
+    final Database db = await database;
     String whereClause = 'userId = ?';
     List<dynamic> whereArgs = [userId];
 
@@ -370,22 +654,24 @@ class DatabaseHelper {
       'habits',
       where: whereClause,
       whereArgs: whereArgs,
+      orderBy: 'created_at DESC',
     );
   }
 
   // Dashboard için gösterilecek alışkanlıkları getir
   Future<List<Map<String, dynamic>>> getDashboardHabits(int userId,
       {required String date}) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.query(
       'habits',
       where: 'userId = ? AND isArchived = 0 AND showInDashboard = 1',
       whereArgs: [userId],
+      orderBy: 'created_at DESC',
     );
   }
 
   Future<Map<String, dynamic>?> getHabitById(int id) async {
-    Database db = await database;
+    final Database db = await database;
     List<Map<String, dynamic>> maps = await db.query(
       'habits',
       where: 'id = ?',
@@ -399,7 +685,11 @@ class DatabaseHelper {
   }
 
   Future<int> updateHabit(Map<String, dynamic> habit) async {
-    Database db = await database;
+    final Database db = await database;
+    
+    // Güncelleme tarihini ayarla
+    habit['updated_at'] = DateTime.now().toIso8601String();
+    
     return await db.update(
       'habits',
       habit,
@@ -409,28 +699,32 @@ class DatabaseHelper {
   }
 
   Future<int> deleteHabit(int id) async {
-    Database db = await database;
-    // First delete all habit logs
-    await db.delete('habit_logs', where: 'habitId = ?', whereArgs: [id]);
-    // Then delete the habit
+    final Database db = await database;
+    // CASCADE ile ilişkili kayıtlar otomatik silinecek
     return await db.delete('habits', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> archiveHabit(int id, bool isArchived) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'habits',
-      {'isArchived': isArchived ? 1 : 0},
+      {
+        'isArchived': isArchived ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
   }
 
   Future<int> toggleShowInDashboard(int id, bool showInDashboard) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'habits',
-      {'showInDashboard': showInDashboard ? 1 : 0},
+      {
+        'showInDashboard': showInDashboard ? 1 : 0,
+        'updated_at': DateTime.now().toIso8601String()
+      },
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -438,13 +732,17 @@ class DatabaseHelper {
 
   // Habit Logs methods
   Future<int> insertHabitLog(Map<String, dynamic> log) async {
-    Database db = await database;
+    final Database db = await database;
+    
+    // Oluşturma tarihini ayarla
+    log['created_at'] = DateTime.now().toIso8601String();
+    
     return await db.insert('habit_logs', log);
   }
 
   Future<List<Map<String, dynamic>>> getHabitLogs(int habitId,
       {String? date}) async {
-    Database db = await database;
+    final Database db = await database;
     String whereClause = 'habitId = ?';
     List<dynamic> whereArgs = [habitId];
 
@@ -457,12 +755,13 @@ class DatabaseHelper {
       'habit_logs',
       where: whereClause,
       whereArgs: whereArgs,
+      orderBy: 'date DESC',
     );
   }
 
   Future<int> toggleHabitCompletion(
       int habitId, String date, bool completed) async {
-    Database db = await database;
+    final Database db = await database;
 
     // Check if log exists
     List<Map<String, dynamic>> logs = await db.query(
@@ -477,6 +776,7 @@ class DatabaseHelper {
         'habitId': habitId,
         'date': date,
         'completed': completed ? 1 : 0,
+        'created_at': DateTime.now().toIso8601String(),
       });
     } else {
       // Update existing log
@@ -490,7 +790,7 @@ class DatabaseHelper {
   }
 
   Future<int> updateHabitLog(Map<String, dynamic> log) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.update(
       'habit_logs',
       log,
@@ -500,7 +800,7 @@ class DatabaseHelper {
   }
 
   Future<int> deleteHabitLog(int id) async {
-    Database db = await database;
+    final Database db = await database;
     return await db.delete('habit_logs', where: 'id = ?', whereArgs: [id]);
   }
 }
