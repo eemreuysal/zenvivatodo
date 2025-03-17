@@ -1,22 +1,23 @@
 // Priority enum - Modern Dart 3.7 özellikleri kullanılarak güncellendi
 
 /// Görev önceliği enumeration
-enum Priority {
+/// Tüm projede tutarlı olması için TaskPriority ismi kullanılmıştır.
+enum TaskPriority {
   low(value: 0, label: 'Düşük'),
   medium(value: 1, label: 'Orta'),
   high(value: 2, label: 'Yüksek');
 
-  const Priority({required this.value, required this.label});
+  const TaskPriority({required this.value, required this.label});
   
   final int value;
   final String label;
   
   /// Öncelik değerinden enum değeri oluşturma
-  static Priority fromValue(int value) => switch (value) {
-    0 => Priority.low,
-    1 => Priority.medium,
-    2 => Priority.high,
-    _ => Priority.medium,
+  static TaskPriority fromValue(int value) => switch (value) {
+    0 => TaskPriority.low,
+    1 => TaskPriority.medium,
+    2 => TaskPriority.high,
+    _ => TaskPriority.medium,
   };
   
   /// String temsilini döndürme
@@ -25,18 +26,23 @@ enum Priority {
   
   /// Öncelik rengini almak için yardımcı metod (eski kodlarla uyumluluk için)
   String getColorName() => switch (this) {
-    Priority.low => 'green',
-    Priority.medium => 'orange',
-    Priority.high => 'red',
+    TaskPriority.low => 'green',
+    TaskPriority.medium => 'orange',
+    TaskPriority.high => 'red',
   };
 }
 
 /// Eski kodlar için uyumluluk sağlayan extension
-/// Not: Yeni kodlarda doğrudan Priority enum'ını kullanın
-extension PriorityExtension on Priority {
+/// Not: Yeni kodlarda doğrudan TaskPriority enum'ını kullanın
+extension PriorityExtension on TaskPriority {
   String get name => label;
   
+  // Değer alanına erişim için
   int get value => this.value;
   
-  static Priority fromValue(int value) => Priority.fromValue(value);
+  static TaskPriority fromValue(int value) => TaskPriority.fromValue(value);
 }
+
+/// Eski Priority enum'u yerine kullanmak için typedef
+/// Uyarı: Yeni kodlarda TaskPriority kullanılmalıdır
+typedef Priority = TaskPriority;
