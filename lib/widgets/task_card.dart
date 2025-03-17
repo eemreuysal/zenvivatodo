@@ -53,7 +53,7 @@ class TaskCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: task.isCompleted 
-            ? BorderSide(color: Color.fromARGB(128, Colors.green.r, Colors.green.g, Colors.green.b), width: 1.5) 
+            ? BorderSide(color: Color.from(alpha: 0.5, red: Colors.green.r, green: Colors.green.g, blue: Colors.green.b), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi - Flutter Animate paketi kullanılarak
@@ -117,7 +117,7 @@ class TaskCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: task.isCompleted
-                                  ? Color.fromARGB(153, colorScheme.onSurface.r, colorScheme.onSurface.g, colorScheme.onSurface.b) // 0.6 opacity
+                                  ? Color.from(alpha: 0.6, red: colorScheme.onSurface.r, green: colorScheme.onSurface.g, blue: colorScheme.onSurface.b)
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -167,7 +167,7 @@ class TaskCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Color.fromARGB(51, categoryColor.r, categoryColor.g, categoryColor.b), // 0.2 opacity
+                          color: Color.from(alpha: 0.2, red: categoryColor.r, green: categoryColor.g, blue: categoryColor.b),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
