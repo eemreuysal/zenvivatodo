@@ -10,7 +10,8 @@ class AuthService {
 
   // Basit şifre hashlemesi - SHA-256 kullanır
   String _hashPassword(String password) {
-    final bytes = utf8.encode(password + 'zenviva_salt'); // Sabit salt eklemek güvenliği artırır
+    // String birleştirme yerine string interpolasyon kullanma
+    final bytes = utf8.encode('$password zenviva_salt'); // Sabit salt eklemek güvenliği artırır
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
