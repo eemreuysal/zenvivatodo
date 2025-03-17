@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/habit_log.dart';
 import 'package:intl/intl.dart';
+
+import '../models/habit_log.dart';
 
 /// Alışkanlıkların tamamlanma durumunu gösteren ısı haritası takvimi
 class HabitHeatmap extends StatelessWidget {
-  final List<HabitLog> logs;
-  final Color color;
-  final int days;
-  final Function(String)? onDayTap;
-
+  // Constructor moved to top of class
   const HabitHeatmap({
     super.key,
     required this.logs,
@@ -16,6 +13,11 @@ class HabitHeatmap extends StatelessWidget {
     this.days = 30,
     this.onDayTap,
   });
+
+  final List<HabitLog> logs;
+  final Color color;
+  final int days;
+  final Function(String)? onDayTap;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +65,7 @@ class HabitHeatmap extends StatelessWidget {
                 crossAxisCount: 7,
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 4,
-                childAspectRatio: 1,
-              ),
+              ), // Removed redundant childAspectRatio=1
               itemCount: datesList.length,
               itemBuilder: (context, index) {
                 final date = datesList[index];
@@ -97,8 +98,7 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    final notCompletedColor =
-        baseColor.withAlpha(26); // withOpacity(0.1) yerine withAlpha(26)
+    final notCompletedColor = baseColor.withAlpha(26); // Already using withAlpha
     final todayBorderColor = Theme.of(context).primaryColor;
 
     return InkWell(
@@ -131,7 +131,7 @@ class HabitHeatmap extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withAlpha(26), // withOpacity(0.1) yerine withAlpha(26)
+            color: color.withAlpha(26), // Already using withAlpha
             borderRadius: BorderRadius.circular(2),
           ),
         ),
