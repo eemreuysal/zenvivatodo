@@ -7,11 +7,11 @@ class TimePickerWidget extends StatelessWidget {
   final bool isOptional;
 
   const TimePickerWidget({
-    Key? key,
+    super.key,
     this.selectedTime,
     required this.onTimeChanged,
     this.isOptional = true,
-  }) 
+  });
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -50,7 +50,7 @@ class TimePickerWidget extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
-                Colors.grey.withAlpha(76), // Changed from withOpacity(0.3)
+                Colors.grey.withAlpha(76),
           ),
           borderRadius: BorderRadius.circular(8),
           color: theme.inputDecorationTheme.fillColor,
