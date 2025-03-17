@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:rxdart/subjects.dart';
 
 /// Bu servis şu anda devre dışı bırakılmıştır.
 /// Bildirimler uygulamanın gelecek sürümünde tekrar eklenecektir.
@@ -8,7 +9,7 @@ class NotificationService {
   factory NotificationService() => _instance;
 
   // Bildirim paketi geçici olarak kaldırıldı
-  final BehaviorSubject<String?> onNotificationClick = BehaviorSubject();
+  final BehaviorSubject<String?> onNotificationClick = BehaviorSubject<String?>();
 
   NotificationService._internal();
 
