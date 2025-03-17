@@ -101,7 +101,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               : null,
           isCompleted: widget.task.isCompleted,
           categoryId: _selectedCategory?.id,
-          priority: _selectedPriority.value,
+          priority: _selectedPriority.value, // Burada .value kullanarak TaskPriority yerine int kullanıyoruz
           userId: widget.userId,
         );
 
@@ -128,7 +128,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             ),
           );
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
@@ -218,7 +218,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                         ),
                       );
                     }
-                  } catch (e) {
+                  } on Exception catch (e) {
                     if (!mounted) return;
 
                     ScaffoldMessenger.of(context).showSnackBar(
