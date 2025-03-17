@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 
 class TimePickerWidget extends StatelessWidget {
-  final TimeOfDay? selectedTime;
-  final Function(TimeOfDay?) onTimeChanged;
-  final bool isOptional;
-
+  // Constructor moved to top
   const TimePickerWidget({
     super.key,
     this.selectedTime,
     required this.onTimeChanged,
     this.isOptional = true,
   });
+
+  final TimeOfDay? selectedTime;
+  final Function(TimeOfDay?) onTimeChanged;
+  final bool isOptional;
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -25,7 +26,7 @@ class TimePickerWidget extends StatelessWidget {
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          child: child!,
+          child: child!, // Remove null check when fixed
         );
       },
     );
@@ -50,7 +51,7 @@ class TimePickerWidget extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
-                Colors.grey.withAlpha(76),
+                Colors.grey.withARGB(76, Colors.grey.red, Colors.grey.green, Colors.grey.blue),
           ),
           borderRadius: BorderRadius.circular(8),
           color: theme.inputDecorationTheme.fillColor,
