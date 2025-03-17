@@ -28,8 +28,8 @@ class NotificationService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS bildirim ayarları
-    const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings(
+    const IOSInitializationSettings iosSettings =
+        IOSInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -43,7 +43,7 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      onSelectNotification: onSelectNotification,
     );
 
     // Request permissions
@@ -71,8 +71,7 @@ class NotificationService {
     }
   }
 
-  void onDidReceiveNotificationResponse(NotificationResponse response) {
-    final String? payload = response.payload;
+  Future<void> onSelectNotification(String? payload) async {
     if (payload != null) {
       debugPrint('Notification payload: $payload');
       _handleNotificationPayload(payload);
@@ -136,7 +135,7 @@ class NotificationService {
       icon: '@mipmap/ic_launcher',
     );
 
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+    const IOSNotificationDetails iosDetails = IOSNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -154,7 +153,7 @@ class NotificationService {
         body,
         tzScheduledDate,
         details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         payload: payload,
@@ -215,25 +214,16 @@ class NotificationService {
 
   Future<void> requestPermissions() async {
     try {
-      if (Platform.isIOS || Platform.isMacOS) {
-        // iOS ve macOS için izinleri iste
+      if (Platform.isIOS) {
+        // iOS için izinleri iste
         final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
         
-        if (Platform.isIOS) {
-          await plugin.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-        } else {
-          await plugin.resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-        }
+        await plugin.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
       } else if (Platform.isAndroid) {
         // Android için bildirim ayarları
         debugPrint('Android bildirimleri hazırlanıyor');
