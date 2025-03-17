@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zenvivatodo/main.dart';
 
 void main() {
-  testWidgets('Başlangıç testi', (WidgetTester tester) async {
+  testWidgets('Başlangıç testi', (tester) async {
     // Uygulamayı çalıştır ve bir kare işlensin
     await tester.pumpWidget(const MyApp());
 
