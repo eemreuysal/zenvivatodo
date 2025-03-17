@@ -1,3 +1,4 @@
+// Dashboard ekranına erişilebilirlik iyileştirmeleri eklenecek
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -407,6 +408,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       themeProvider.isDarkMode
                           ? Icons.dark_mode
                           : Icons.light_mode,
+                      semanticLabel: themeProvider.isDarkMode
+                          ? 'Koyu tema aktif'
+                          : 'Açık tema aktif',
                     ),
                     title: Text(
                       themeProvider.isDarkMode
@@ -499,11 +503,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .where((habit) => _habitCompletionStatus[habit.id] ?? false)
         .toList();
 
+    final formattedDate = DateFormat('d MMMM yyyy', 'tr_TR').format(_selectedDate);
+
     return Scaffold(
       key: _scaffoldKey,
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: CircularProgressIndicator(
+                  semanticsLabel: 'Veriler yükleniyor',
+                ),
+              )
             : Column(
                 children: [
                   // Date and profile section
@@ -512,13 +522,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: AppColors.primaryColor,
                     child: Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.white24,
-                          child: Text(
-                            _userInitial,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                        Semantics(
+                          label: _currentUser != null
+                              ? '${_currentUser!.username} profili'
+                              : 'Kullanıcı profili',
+                          child: CircleAvatar(
+                            backgroundColor: Colors.white24,
+                            child: Text(
+                              _userInitial,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -545,14 +560,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const Spacer(),
                         IconButton(
+                          tooltip: 'Tarih seçin',
                           icon: const Icon(
                             Icons.calendar_today,
                             color: Colors.white,
+                            semanticLabel: 'Tarih seçin',
                           ),
                           onPressed: () => _selectDate(context),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.menu, color: Colors.white),
+                          tooltip: 'Menüyü aç',
+                          icon: const Icon(Icons.menu, color: Colors.white, 
+                              semanticLabel: 'Menüyü aç'),
                           onPressed: () => _showProfileMenu(context),
                         ),
                       ],
@@ -569,22 +588,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
+                          tooltip: 'Önceki gün',
                           onPressed: () => _changeDate(-1),
-                          icon: const Icon(Icons.chevron_left),
+                          icon: const Icon(Icons.chevron_left, 
+                              semanticLabel: 'Önceki gün'),
                         ),
-                        GestureDetector(
-                          onTap: () => _selectDate(context),
-                          child: Text(
-                            DateFormat('d MMMM yyyy', 'tr_TR')
-                                .format(_selectedDate),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                        Semantics(
+                          label: 'Seçili tarih: $formattedDate',
+                          child: GestureDetector(
+                            onTap: () => _selectDate(context),
+                            child: Text(
+                              formattedDate,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
                         IconButton(
+                          tooltip: 'Sonraki gün',
                           onPressed: () => _changeDate(1),
-                          icon: const Icon(Icons.chevron_right),
+                          icon: const Icon(Icons.chevron_right, 
+                              semanticLabel: 'Sonraki gün'),
                         ),
                       ],
                     ),
@@ -644,7 +669,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ],
                               ),
                               IconButton(
-                                icon: const Icon(Icons.sort),
+                                tooltip: 'Sıralama seçenekleri',
+                                icon: const Icon(Icons.sort, 
+                                    semanticLabel: 'Sıralama seçenekleri'),
                                 onPressed: () => _showSortMenu(context),
                               ),
                             ],
@@ -656,9 +683,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'Aktif görev bulunamadı',
-                                style: theme.textTheme.bodyLarge,
+                              child: Semantics(
+                                label: 'Aktif görev veya alışkanlık bulunamadı',
+                                child: Text(
+                                  'Aktif görev bulunamadı',
+                                  style: theme.textTheme.bodyLarge,
+                                ),
                               ),
                             ),
                           )
@@ -751,9 +781,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'Tamamlanmış görev bulunamadı',
-                                style: theme.textTheme.bodyLarge,
+                              child: Semantics(
+                                label: 'Tamamlanmış görev veya alışkanlık bulunamadı',
+                                child: Text(
+                                  'Tamamlanmış görev bulunamadı',
+                                  style: theme.textTheme.bodyLarge,
+                                ),
                               ),
                             ),
                           )
@@ -822,21 +855,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddTaskScreen(
-                userId: widget.userId,
-                categories: _categories,
-                initialDate: _selectedDate,
+      floatingActionButton: Semantics(
+        label: 'Yeni görev ekle',
+        button: true,
+        child: FloatingActionButton(
+          tooltip: 'Yeni görev ekle',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => AddTaskScreen(
+                  userId: widget.userId,
+                  categories: _categories,
+                  initialDate: _selectedDate,
+                ),
               ),
-            ),
-          ).then((_) => _loadData());
-        },
-        backgroundColor: AppColors.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
+            ).then((_) => _loadData());
+          },
+          backgroundColor: AppColors.primaryColor,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }
