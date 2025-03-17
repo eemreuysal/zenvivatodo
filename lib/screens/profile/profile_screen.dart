@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart'; // SqfliteDatabaseException sınıfı için
+import 'package:sqflite/sqflite.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
         });
       }
-    } on SqfliteDatabaseException catch (e) {
+    } on DatabaseException catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -151,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
         }
-      } on SqfliteDatabaseException catch (e) {
+      } on DatabaseException catch (e) {
         if (!mounted) return;
         setState(() {
           _isUpdating = false;
@@ -232,7 +232,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     );
                   }
-                } on SqfliteDatabaseException catch (e) {
+                } on DatabaseException catch (e) {
                   if (!mounted) return;
 
                   ScaffoldMessenger.of(context).showSnackBar(
