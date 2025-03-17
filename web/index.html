@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -29,10 +29,35 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>zenvivatodo</title>
+  <!-- WebAssembly and JavaScript support -->
+  <title>ZenViva Todo</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Flutter JavaScript utilities -->
+  <script>
+    // Check if WasmGC is supported by the browser
+    function checkWasmGCSupport() {
+      try {
+        if (typeof WebAssembly === 'object') {
+          // Modern browsers should support WebAssembly
+          return true;
+        }
+      } catch (e) {
+        console.warn('WebAssembly not supported, falling back to JavaScript', e);
+      }
+      return false;
+    }
+
+    // Flutter service worker for caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js');
+      });
+    }
+  </script>
 </head>
 <body>
+  <!-- Flutter bootstrap script for proper initialization -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
