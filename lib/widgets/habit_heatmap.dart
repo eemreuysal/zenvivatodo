@@ -65,7 +65,7 @@ class HabitHeatmap extends StatelessWidget {
                 crossAxisCount: 7,
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 4,
-              ), // Removed redundant childAspectRatio=1
+              ),
               itemCount: datesList.length,
               itemBuilder: (context, index) {
                 final date = datesList[index];
@@ -98,7 +98,7 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    final notCompletedColor = baseColor.withAlpha(26); // Already using withAlpha
+    final notCompletedColor = baseColor.withARGB(26, baseColor.red, baseColor.green, baseColor.blue);
     final todayBorderColor = Theme.of(context).primaryColor;
 
     return InkWell(
@@ -131,7 +131,7 @@ class HabitHeatmap extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withAlpha(26), // Already using withAlpha
+            color: color.withARGB(26, color.red, color.green, color.blue),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
