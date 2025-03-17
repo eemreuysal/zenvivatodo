@@ -3,14 +3,15 @@ import 'package:intl/intl.dart';
 import '../constants/app_colors.dart';
 
 class DatePickerWidget extends StatelessWidget {
-  final DateTime selectedDate;
-  final Function(DateTime) onDateChanged;
-
+  // Constructor moved to the top
   const DatePickerWidget({
     super.key,
     required this.selectedDate,
     required this.onDateChanged,
   });
+
+  final DateTime selectedDate;
+  final Function(DateTime) onDateChanged;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -27,7 +28,7 @@ class DatePickerWidget extends StatelessWidget {
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          child: child!,
+          child: child!, // Remove redundant null check
         );
       },
     );
