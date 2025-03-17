@@ -19,16 +19,8 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
-    
-    // Tüm alt projelere Java 11 zorunluluğu ekleyelim
-    plugins.withType<JavaPlugin> {
-        java {
-            toolchain {
-                languageVersion.set(JavaLanguageVersion.of(11))
-            }
-        }
-    }
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
