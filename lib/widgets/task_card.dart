@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../models/task.dart';
-import '../models/category.dart';
+
 import '../constants/app_colors.dart';
+import '../models/category.dart';
+import '../models/task.dart';
 
 // Modern material design ve Flutter 3.29 özelliklerini kullanan TaskCard
 class TaskCard extends StatelessWidget {
-  final Task task;
-  final Category? category;
-  final VoidCallback onToggleCompletion;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
+  // Constructor moved to top
   const TaskCard({
     super.key,
     required this.task,
@@ -20,6 +16,12 @@ class TaskCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
   });
+
+  final Task task;
+  final Category? category;
+  final VoidCallback onToggleCompletion;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class TaskCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: task.isCompleted 
-            ? BorderSide(color: Colors.green.withOpacity(0.5), width: 1.5) 
+            ? BorderSide(color: Colors.green.withAlpha(128), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi - Flutter Animate paketi kullanılarak
@@ -115,7 +117,7 @@ class TaskCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: task.isCompleted
-                                  ? colorScheme.onSurface.withOpacity(0.6)
+                                  ? colorScheme.onSurface.withAlpha(153) // 0.6 opacity
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -165,7 +167,7 @@ class TaskCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: categoryColor.withOpacity(0.2),
+                          color: categoryColor.withAlpha(51), // 0.2 opacity
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -245,14 +247,15 @@ class TaskCard extends StatelessWidget {
 
 // Hero animasyonlu görev detay kartı - Geçiş animasyonları için
 class TaskHeroCard extends StatelessWidget {
-  final Task task;
-  final Category? category;
-
+  // Constructor moved to top
   const TaskHeroCard({
     super.key,
     required this.task,
     this.category,
   });
+  
+  final Task task;
+  final Category? category;
 
   @override
   Widget build(BuildContext context) {
