@@ -36,7 +36,8 @@ class Task {
   final bool isCompleted;
   final int? categoryId;
   
-  @JsonKey(ignore: true) // JSON serileştirilirken TaskPriority ihmal edilecek
+  // JSON serileştirilirken TaskPriority ihmal edilecek
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final TaskPriority priority;
   
   @JsonKey(name: 'priority') // JSON'da bu alanın adı 'priority' olacak
@@ -45,7 +46,7 @@ class Task {
   final int userId;
   final String? uniqueId;
 
-  // Enhanced constructor with super parameters (Dart 3.0+)
+  // Normal constructor
   Task({
     this.id,
     required this.title,
