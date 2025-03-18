@@ -29,7 +29,7 @@ class ConnectivityService {
   // Connectivity instance
   final Connectivity _connectivity = Connectivity();
   
-  // Connection stream controller
+  // Connection stream controller - ConnectivityResult tipinde tek bir sonuç değil, bir liste dönüyor
   final StreamController<ConnectivityResult> _connectionStatusController =
       StreamController<ConnectivityResult>.broadcast();
   
@@ -54,7 +54,7 @@ class ConnectivityService {
     }
   }
   
-  // Bağlantı durumunu güncelle
+  // Bağlantı durumunu güncelle - tek bir ConnectivityResult parametresi alır
   void _updateConnectionStatus(ConnectivityResult result) {
     _logger.info('Connectivity changed: $result');
     _lastResult = result;
@@ -64,6 +64,7 @@ class ConnectivityService {
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
     final result = await _connectivity.checkConnectivity();
+    // Sonuç artık liste değil, tek bir ConnectivityResult
     _updateConnectionStatus(result);
     return result != ConnectivityResult.none;
   }
