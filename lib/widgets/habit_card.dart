@@ -31,7 +31,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isCompleted 
-            ? BorderSide(color: habitColor.withValues(opacity: 0.5), width: 1.5) 
+            ? BorderSide(color: habitColor.withAlpha(128), width: 1.5) // 0.5 opacity = 128 alpha
             : BorderSide.none,
       ),
       // Animasyon eklendi
@@ -96,7 +96,7 @@ class HabitCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isCompleted
-                                  ? colorScheme.onSurface.withValues(opacity: 0.6)
+                                  ? colorScheme.onSurface.withAlpha(153) // 0.6 opacity = 153 alpha (255 * 0.6 = 153)
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -145,7 +145,7 @@ class HabitCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: habitColor.withValues(opacity: 0.2),
+                        color: habitColor.withAlpha(51), // 0.2 opacity = 51 alpha (255 * 0.2 = 51)
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -177,8 +177,8 @@ class HabitCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.orange.withValues(opacity: 0.2)
-                            : Colors.orange.withValues(opacity: 0.1),
+                            ? Colors.orange.withAlpha(51) // 0.2 opacity = 51 alpha (255 * 0.2 = 51)
+                            : Colors.orange.withAlpha(26), // 0.1 opacity = 26 alpha (255 * 0.1 = 26)
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
