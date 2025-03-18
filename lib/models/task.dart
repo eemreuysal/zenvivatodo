@@ -24,11 +24,70 @@ enum TaskPriority {
   };
 }
 
-// JSON Serializable için sınıfı işaretle
-@JsonSerializable(explicitToJson: true)
+// Daha temiz bir yaklaşım için TaskDTO ile JSON serileştirme
+@JsonSerializable()
+class TaskDTO {
+  TaskDTO({
+    this.id,
+    required this.title,
+    required this.description,
+    required this.date,
+    this.time,
+    this.isCompleted = false,
+    this.categoryId,
+    required this.priority,
+    required this.userId,
+    this.uniqueId,
+  });
+
+  factory TaskDTO.fromJson(Map<String, dynamic> json) => _$TaskDTOFromJson(json);
+  Map<String, dynamic> toJson() => _$TaskDTOToJson(this);
+  
+  factory TaskDTO.fromTask(Task task) {
+    return TaskDTO(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      date: task.date,
+      time: task.time,
+      isCompleted: task.isCompleted,
+      categoryId: task.categoryId,
+      priority: task.priorityValue,
+      userId: task.userId,
+      uniqueId: task.uniqueId,
+    );
+  }
+  
+  final int? id;
+  final String title;
+  final String description;
+  final String date;
+  final String? time;
+  final bool isCompleted;
+  final int? categoryId;
+  final int priority;
+  final int userId;
+  final String? uniqueId;
+  
+  Task toTask() {
+    return Task(
+      id: id,
+      title: title,
+      description: description,
+      date: date,
+      time: time,
+      isCompleted: isCompleted,
+      categoryId: categoryId,
+      priority: priority,
+      userId: userId,
+      uniqueId: uniqueId,
+    );
+  }
+}
+
+// Ana Task sınıfı - JSON serileştirme için TaskDTO kullanır
 class Task {
-  // Constructorları sınıfın başına taşıyoruz (lint kuralı: sort_constructors_first)
-  // Normal constructor
+  // Constructor - int olarak priority alır, TaskPriority'ye dönüştürür
   Task({
     this.id,
     required this.title,
@@ -71,11 +130,15 @@ class Task {
   })  : priority = TaskPriority.fromValue(priority),
         uniqueId = const Uuid().v4();
 
-  // Map'ten nesne oluşturma için fromJson factory (json_serializable tarafından oluşturulur)
-  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+  // JSON'dan Task oluşturmak için factory
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return TaskDTO.fromJson(json).toTask();
+  }
   
-  // JSON'a dönüştürme metodu (json_serializable tarafından oluşturulur)
-  Map<String, dynamic> toJson() => _$TaskToJson(this);
+  // Task'ı JSON'a çevirmek için metot
+  Map<String, dynamic> toJson() {
+    return TaskDTO.fromTask(this).toJson();
+  }
 
   // Map'ten nesne oluşturma - SQLite veritabanı ile uyumluluk için
   factory Task.fromMap(Map<String, dynamic> map) {
@@ -101,17 +164,12 @@ class Task {
   final String? time;
   final bool isCompleted;
   final int? categoryId;
-  
-  // JSON serileştirme için priority enum değerini yönetme
-  @JsonKey(ignore: true)
   final TaskPriority priority;
-  
-  // JSON dönüşümleri için int özelliği
-  @JsonKey(name: 'priority')
-  int get priorityValue => priority.value;
-  
   final int userId;
   final String? uniqueId;
+  
+  // Öncelik değerini int olarak döndür
+  int get priorityValue => priority.value;
 
   // Immutability için kopya oluşturma (kopyalama ile yeni nesne)
   Task copyWith({
