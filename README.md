@@ -13,16 +13,25 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 - **Açık/Koyu Tema**: Tercih edilen tema seçeneği
 - **Alışkanlık Takibi**: Düzenli alışkanlıkları oluşturma ve takip etme
 - **Güvenli Kimlik Doğrulama**: Gelişmiş şifre hashleme ile kullanıcı güvenliği
+- **Çevrimiçi/Çevrimdışı Mod**: İnternet bağlantısı olmadığında bile çalışır
+- **Veri Senkronizasyonu**: Çevrimdışı yapılan değişiklikler internet bağlantısı sağlandığında otomatik senkronize olur
+- **Motivasyon Alıntıları**: İlham verici günlük alıntılar
+- **Aktivite Önerileri**: Farklı kategorilerde aktivite önerileri
 
 ## Kurulum
 
 1. Flutter SDK'yı yükleyin (https://flutter.dev/docs/get-started/install)
 2. Projeyi klonlayın: `git clone https://github.com/eemreuysal/zenvivatodo.git`
 3. Bağımlılıkları yükleyin: `flutter pub get`
-4. Uygulamayı çalıştırın: `flutter run`
+4. Gerekli kodu oluşturun: `flutter pub run build_runner build --delete-conflicting-outputs`
+5. Uygulamayı çalıştırın: `flutter run`
 
 ## Son Güncellemeler (Mart 2025)
 
+- **Çevrimiçi/Çevrimdışı Senkronizasyon**: API servisleri ve çevrimiçi veri senkronizasyonu eklendi
+- **İlham Verici İçerik**: Günlük motivasyon alıntıları ve aktivite önerileri eklendi
+- **Bağlantı Yönetimi**: İnternet bağlantısı durumu ve çevrimiçi/çevrimdışı mod seçeneği eklendi
+- **JSON Serializable Entegrasyonu**: API iletişimi için model sınıfları Json serialization desteği ile güncellendi
 - **Güvenlik İyileştirmeleri**: Şifre hashleme algoritmalarında daha güçlü bir hashleme yöntemi kullanılmaya başlandı
 - **Veritabanı Optimizasyonu**: Performans iyileştirmeleri ve indekslemeler eklendi
 - **Hata Yönetimi**: Bildirim servisi ve veritabanı işlemlerinde daha iyi hata yönetimi
@@ -36,6 +45,9 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 - Modern Dart kodlama uygulamaları (null safety, super parameters)
 - ProGuard entegrasyonu ile optimize edilmiş APK boyutu
 - Veritabanı indekslemesi ile yüksek performans
+- JSON serializable ile model sınıfları
+- Dio HTTP istemcisi ile API iletişimi
+- Çevrimiçi/çevrimdışı senkronizasyon
 
 ## Kullanılan Teknolojiler
 
@@ -44,6 +56,18 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 - **Provider**: Durum yönetimi
 - **Shared Preferences**: Kullanıcı tercihleri depolama
 - **Flutter Local Notifications**: Görev bildirimleri için
+- **Dio**: API istekleri
+- **JSON Serializable**: JSON veri dönüşümü
+- **Connectivity Plus**: İnternet bağlantısı kontrolü
+
+## Çevrimiçi/Çevrimdışı Mod
+
+Uygulama hem çevrimiçi hem de çevrimdışı modda çalışabilir:
+
+1. **Çevrimiçi Mod**: İnternet bağlantısı varken verileri API ile senkronize eder
+2. **Çevrimdışı Mod**: İnternet bağlantısı olmadığında yerel veritabanını kullanır
+3. **Arka Plan Senkronizasyonu**: Bağlantı tekrar sağlandığında otomatik olarak verileri senkronize eder
+4. **Manuel Çevrimiçi/Çevrimdışı Geçiş**: Kullanıcı tercih ettiği modu seçebilir
 
 ## Bildirim Sistemi
 
@@ -74,6 +98,21 @@ Performans optimizasyonu için kritik alanlarda indeksler tanımlanmıştır.
 - Lint kuralları sıkı tutularak kod kalitesi yüksek tutulmuştur
 - Proje tüm modern Android sürümlerinde çalışacak şekilde yapılandırılmıştır
 - Veritabanı sorguları optimize edilmiş ve SQL enjeksiyon saldırılarına karşı korunmalıdır
+- JSON serialization için build_runner kullanılmıştır
+
+### Build Runner Kullanımı
+
+JSON serializable ile oluşturulan model sınıfları için gerekli kodu oluşturmak için:
+
+```
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+veya sürekli izleme modu için:
+
+```
+flutter pub run build_runner watch --delete-conflicting-outputs
+```
 
 ## İletişim
 
