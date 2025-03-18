@@ -54,7 +54,7 @@ class ConnectivityService {
     }
   }
   
-  // Connectivity sonucunu işle
+  // Connectivity sonucunu işle ve Stream'e ilet
   void _updateConnectionStatus(ConnectivityResult result) {
     _logger.info('Connectivity changed: $result');
     _lastResult = result;
@@ -63,11 +63,16 @@ class ConnectivityService {
   
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
-    final result = await _connectivity.checkConnectivity();
-    
-    // ConnectivityResult değerini kullan
-    _updateConnectionStatus(result);
-    return result != ConnectivityResult.none;
+    try {
+      final result = await _connectivity.checkConnectivity();
+      
+      // ConnectivityResult değerini kullan
+      _updateConnectionStatus(result);
+      return result != ConnectivityResult.none;
+    } on Exception catch (e) {
+      _logger.warning('Connectivity check error: $e');
+      return false;
+    }
   }
   
   // Bağlantı durumu snackbar'ı göster
@@ -132,5 +137,45 @@ class ConnectivityWidget extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+/// Bağlantı durumu sağlayıcısı
+/// Bu sınıf main.dart'a taşınması gerekmektedir,
+/// ancak uyumlu olabilmesi için burada da tanımlanıyor
+class ConnectivityProvider with ChangeNotifier {
+  ConnectivityProvider({
+    required bool hasConnection,
+    required bool isOnlineMode,
+  })  : _hasConnection = hasConnection,
+        _isOnlineMode = isOnlineMode {
+    // Bağlantı değişikliklerini dinle
+    ConnectivityService().connectionStream.listen(_updateConnectionStatus);
+  }
+
+  bool _hasConnection;
+  bool _isOnlineMode;
+
+  bool get hasConnection => _hasConnection;
+  bool get isOnlineMode => _isOnlineMode;
+  
+  // Çevrimiçi işlem yapılabilir mi?
+  bool get canPerformOnlineOperations => _hasConnection && _isOnlineMode;
+
+  // Bağlantı durumunu güncelle
+  void _updateConnectionStatus(ConnectivityResult result) {
+    final previousStatus = _hasConnection;
+    _hasConnection = result != ConnectivityResult.none;
+    
+    // Durum değiştiyse bildiri yap
+    if (previousStatus != _hasConnection) {
+      notifyListeners();
+    }
+  }
+  
+  // Çevrimiçi modu değiştir
+  Future<void> toggleOnlineMode() async {
+    _isOnlineMode = !_isOnlineMode;
+    notifyListeners();
   }
 }
