@@ -9,6 +9,18 @@ import 'package:logging/logging.dart';
 /// bağlantı değişikliklerini Stream üzerinden yayınlar ve gerekli
 /// bildirimleri gösterir.
 class ConnectivityService {
+  // Singleton pattern
+  factory ConnectivityService() => _instance;
+  
+  // Constructor'ları düzgün şekilde yerleştirme
+  ConnectivityService._internal() {
+    // Başlangıç durumunu al
+    _initConnectivity();
+    
+    // Bağlantı değişikliklerini dinle
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+  
   static final ConnectivityService _instance = ConnectivityService._internal();
   
   // Logger tanımla
@@ -30,18 +42,6 @@ class ConnectivityService {
   
   // Bağlantı var mı?
   bool get hasConnection => _lastResult != ConnectivityResult.none;
-  
-  // Singleton pattern
-  factory ConnectivityService() => _instance;
-  
-  // Constructor'ları düzgün şekilde yerleştirme
-  ConnectivityService._internal() {
-    // Başlangıç durumunu al
-    _initConnectivity();
-    
-    // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
   
   // Başlangıç durumunu kontrol et
   Future<void> _initConnectivity() async {
