@@ -52,9 +52,9 @@ class TimePickerWidget extends StatelessWidget {
           border: Border.all(
             color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Color.fromRGBO(
-                  Colors.grey.r, 
-                  Colors.grey.g, 
-                  Colors.grey.b, 
+                  Colors.grey.red.toInt(), 
+                  Colors.grey.green.toInt(), 
+                  Colors.grey.blue.toInt(), 
                   0.3,
                 ),
           ),
