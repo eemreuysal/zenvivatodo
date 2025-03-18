@@ -2,6 +2,7 @@ class AppTexts {
   // App name
   static const String appName = 'Zenviva';
   static const String appSlogan = 'Sağlıklı ve Düzenli Bir Yaşam';
+  static const String welcome = 'Merhaba,'; // Eklendi: Karşılama metni
 
   // Auth screens
   static const String login = 'Giriş';
