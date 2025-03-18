@@ -233,7 +233,7 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       // Dashboard gösterme kolonu ekle
       await db.execute(
-          'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0',);
+          'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
     }
     
     if (oldVersion < 4) {
@@ -513,8 +513,7 @@ class DatabaseHelper {
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
-    {bool includeCompleted = false,},
-  ) async {
+    {bool includeCompleted = false,}) async {
     final Database db = await database;
     
     // SQL enjeksiyon riskini azaltmak için parametre kullanımı
@@ -645,7 +644,7 @@ class DatabaseHelper {
       LEFT JOIN categories c ON t.categoryId = c.id
       WHERE t.userId = ?
       GROUP BY t.categoryId
-    ''', [userId],);
+    ''', [userId]);
   }
   
   // Günlük tamamlanan görev sayısı - son 7 gün - performans iyileştirmesi
@@ -690,7 +689,7 @@ class DatabaseHelper {
       FROM tasks
       WHERE userId = ?
       GROUP BY priority
-    ''', [userId],);
+    ''', [userId]);
   }
   
   // Alışkanlık metodları
