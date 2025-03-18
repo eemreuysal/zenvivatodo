@@ -1,36 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
-import '../../models/task.dart';
+import '../../main.dart';
 import '../../models/category.dart';
-import '../../models/user.dart';
 import '../../models/habit.dart';
-import '../../services/task_service.dart';
-import '../../services/category_service.dart';
+import '../../models/task.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
+import '../../services/category_service.dart';
 import '../../services/habit_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/task_service.dart';
+import '../../widgets/habit_card.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
-import '../../widgets/habit_card.dart';
-import '../tasks/add_task_screen.dart';
-import '../tasks/edit_task_screen.dart';
-import '../tasks/active_tasks_screen.dart';
-import '../tasks/completed_tasks_screen.dart';
 import '../categories/categories_screen.dart';
-import '../profile/profile_screen.dart';
-import '../habits/habits_screen.dart';
 import '../habits/habit_details_screen.dart';
-import '../../main.dart';
+import '../habits/habits_screen.dart';
+import '../profile/profile_screen.dart';
+import '../tasks/active_tasks_screen.dart';
+import '../tasks/add_task_screen.dart';
+import '../tasks/completed_tasks_screen.dart';
+import '../tasks/edit_task_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final int userId;
 
   const DashboardScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -185,7 +186,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (child == null) return Container();
           return Theme(
             data: Theme.of(context).copyWith(
-              useMaterial3: true,
               colorScheme: Theme.of(context).colorScheme,
             ),
             child: child,
@@ -771,7 +771,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   'Bugün, ${DateFormat('d MMMM', 'tr_TR').format(_selectedDate)}',
                                   style: TextStyle(
                                     color: colorScheme.onPrimary.withOpacity(0.8), 
-                                    fontSize: 14
+                                    fontSize: 14,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -826,7 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               IconButton(
                                 tooltip: 'Menüyü aç',
                                 icon: Icon(Icons.menu, color: colorScheme.onPrimary, 
-                                    semanticLabel: 'Menüyü aç'),
+                                    semanticLabel: 'Menüyü aç',),
                                 onPressed: () => _showProfileMenu(context),
                               ),
                             ],
@@ -850,7 +850,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             tooltip: 'Önceki gün',
                             onPressed: () => _changeDate(-1),
                             icon: const Icon(Icons.chevron_left, 
-                                semanticLabel: 'Önceki gün'),
+                                semanticLabel: 'Önceki gün',),
                           ),
                           Semantics(
                             label: 'Seçili tarih: $formattedDate',
@@ -868,7 +868,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             tooltip: 'Sonraki gün',
                             onPressed: () => _changeDate(1),
                             icon: const Icon(Icons.chevron_right, 
-                                semanticLabel: 'Sonraki gün'),
+                                semanticLabel: 'Sonraki gün',),
                           ),
                         ],
                       ),
@@ -933,7 +933,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               IconButton(
                                 tooltip: 'Sıralama seçenekleri',
                                 icon: const Icon(Icons.sort, 
-                                    semanticLabel: 'Sıralama seçenekleri'),
+                                    semanticLabel: 'Sıralama seçenekleri',),
                                 onPressed: () => _showSortMenu(context),
                               ),
                             ],
@@ -959,9 +959,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         else
                           // Aktif içerikleri animasyonla göster
                           Animate(
-                            effects: [
-                              const FadeEffect(duration: Duration(milliseconds: 300)),
-                              const SlideEffect(
+                            effects: const [
+                              FadeEffect(duration: Duration(milliseconds: 300)),
+                              SlideEffect(
                                 begin: Offset(0, 0.1),
                                 end: Offset.zero,
                                 duration: Duration(milliseconds: 300),
@@ -974,7 +974,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   final category = task.categoryId != null
                                       ? _categories.firstWhere(
                                           (c) => c.id == task.categoryId,
-                                          orElse: () => Category(
+                                          orElse: () => const Category(
                                             name: 'Kategori Yok',
                                             color: 0xFF9E9E9E,
                                           ),
@@ -1069,9 +1069,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           else
                             // Tamamlanmış içerikleri animasyonla göster
                             Animate(
-                              effects: [
-                                const FadeEffect(duration: Duration(milliseconds: 300)),
-                                const SlideEffect(
+                              effects: const [
+                                FadeEffect(duration: Duration(milliseconds: 300)),
+                                SlideEffect(
                                   begin: Offset(0, 0.1),
                                   end: Offset.zero,
                                   duration: Duration(milliseconds: 300),
@@ -1084,7 +1084,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     final category = task.categoryId != null
                                         ? _categories.firstWhere(
                                             (c) => c.id == task.categoryId,
-                                            orElse: () => Category(
+                                            orElse: () => const Category(
                                               name: 'Kategori Yok',
                                               color: 0xFF9E9E9E,
                                             ),

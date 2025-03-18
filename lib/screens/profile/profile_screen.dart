@@ -12,10 +12,10 @@ import '../../widgets/custom_textfield.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final int userId;
 
   // Constructor en başta
   const ProfileScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();

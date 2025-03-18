@@ -8,14 +8,14 @@ import '../../widgets/habit_heatmap.dart';
 import 'add_habit_screen.dart';
 
 class HabitDetailsScreen extends StatefulWidget {
-  final Habit habit;
-  final int userId;
 
   const HabitDetailsScreen({
     super.key,
     required this.habit,
     required this.userId,
   });
+  final Habit habit;
+  final int userId;
 
   @override
   State<HabitDetailsScreen> createState() => _HabitDetailsScreenState();
@@ -429,7 +429,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                   HabitHeatmap(
                     logs: _recentLogs,
                     color: habitColor,
-                    days: 30,
                     onDayTap: (date) async {
                       final dateObj = DateTime.parse(date);
                       final today = DateTime.now();

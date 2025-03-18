@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 
 /// Görev kategorisi sınıfı
 class Category {
-  final int? id;
-  final String name;
-  final int color;
-  final int? userId;
-  final String? createdAt;
 
   // Enhanced constructor (Dart 3.0+)
   const Category({
@@ -26,6 +21,22 @@ class Category {
     this.userId,
     this.createdAt,
   }) : color = colorObj.value;
+
+  // Map'ten nesne oluşturma
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      id: map['id'],
+      name: map['name'],
+      color: map['color'],
+      userId: map['userId'],
+      createdAt: map['created_at'],
+    );
+  }
+  final int? id;
+  final String name;
+  final int color;
+  final int? userId;
+  final String? createdAt;
 
   // Kopyalama yöntemi (immutability için)
   Category copyWith({
@@ -53,17 +64,6 @@ class Category {
       'userId': userId,
       'created_at': createdAt,
     };
-  }
-
-  // Map'ten nesne oluşturma
-  factory Category.fromMap(Map<String, dynamic> map) {
-    return Category(
-      id: map['id'],
-      name: map['name'],
-      color: map['color'],
-      userId: map['userId'],
-      createdAt: map['created_at'],
-    );
   }
 
   // String temsilini oluşturma

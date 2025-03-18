@@ -7,9 +7,9 @@ import '../../services/task_service.dart';
 import '../../widgets/custom_button.dart';
 
 class CategoriesScreen extends StatefulWidget {
-  final int userId;
 
   const CategoriesScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
@@ -195,7 +195,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             shape: BoxShape.circle,
                             border: selectedColor == color
                                 ? Border.all(
-                                    color: Colors.black,
                                     width: 2,
                                   )
                                 : null,
@@ -324,7 +323,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             shape: BoxShape.circle,
                             border: selectedColor.toARGB32() == color.toARGB32()
                                 ? Border.all(
-                                    color: Colors.black,
                                     width: 2,
                                   )
                                 : null,
@@ -373,7 +371,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                  'Kategori güncellenirken bir hata oluştu.'),
+                                  'Kategori güncellenirken bir hata oluştu.',),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -384,7 +382,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                'Kategori güncellenirken bir hata oluştu: $e'),
+                                'Kategori güncellenirken bir hata oluştu: $e',),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -478,7 +476,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     IconButton(
                                       icon: const Icon(Icons.delete_outline),
                                       onPressed: () => _showDeleteConfirmation(
-                                          context, category),
+                                          context, category,),
                                     ),
                                   ],
                                 ),

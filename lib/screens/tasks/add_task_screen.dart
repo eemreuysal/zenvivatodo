@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
-import '../../models/task.dart';
 import '../../models/category.dart';
 import '../../models/priority.dart';
-import '../../services/task_service.dart';
+import '../../models/task.dart';
 import '../../services/category_service.dart';
+import '../../services/task_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 import '../../widgets/date_picker.dart';
 import '../../widgets/time_picker.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  final int userId;
-  final List<Category> categories;
-  final DateTime? initialDate;
 
   const AddTaskScreen({
     super.key,
@@ -23,6 +21,9 @@ class AddTaskScreen extends StatefulWidget {
     required this.categories,
     this.initialDate,
   });
+  final int userId;
+  final List<Category> categories;
+  final DateTime? initialDate;
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
@@ -299,7 +300,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       _selectedTime = time;
                     });
                   },
-                  isOptional: true,
                 ),
                 const SizedBox(height: 16),
 
@@ -434,7 +434,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         decoration: BoxDecoration(
           color: isSelected ? color : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color, width: 1),
+          border: Border.all(color: color),
         ),
         child: Center(
           child: Text(

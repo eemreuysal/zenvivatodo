@@ -24,7 +24,6 @@ class DatePickerWidget extends StatelessWidget {
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary: AppColors.primaryColor,
-              onPrimary: Colors.white,
               onSurface: Theme.of(context).colorScheme.onSurface,
             ),
           ),

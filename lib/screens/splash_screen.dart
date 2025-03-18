@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import '../constants/app_texts.dart';
+
+import 'package:flutter/material.dart';
+
 import '../constants/app_colors.dart';
+import '../constants/app_texts.dart';
 import 'auth/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -27,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Navigate to login screen directly for now
     // Dart 3.7+ wildcard değişken kullanımı
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()));
+        MaterialPageRoute(builder: (_) => const LoginScreen()),);
   }
 
   @override

@@ -139,9 +139,9 @@ class HabitHeatmap extends StatelessWidget {
           decoration: BoxDecoration(
             // Double -> int dönüşümü ile Color.fromRGBO kullanımı düzeltildi
             color: Color.fromRGBO(
-              (128).toInt(), 
-              (128).toInt(), 
-              (255).toInt(), 
+              128.toInt(), 
+              128.toInt(), 
+              255.toInt(), 
               0.1,
             ),
             borderRadius: BorderRadius.circular(2),

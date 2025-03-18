@@ -28,22 +28,6 @@ enum HabitFrequency {
 
 /// Alışkanlık modeli
 class Habit {
-  final int? id;
-  final String title;
-  final String description;
-  final HabitFrequency frequency;
-  final String? frequencyDays; // "1,3,5,7" (Pazartesi, Çarşamba, Cuma, Pazar)
-  final String startDate;
-  final int targetDays;
-  final int colorCode;
-  final String? reminderTime;
-  final bool isArchived;
-  final int currentStreak;
-  final int longestStreak;
-  final bool showInDashboard;
-  final int userId;
-  final String? createdAt;
-  final String? updatedAt;
 
   // Enhanced constructor (Dart 3.0+)
   const Habit({
@@ -141,6 +125,44 @@ class Habit {
     );
   }
 
+  // Map'ten nesne oluşturma
+  factory Habit.fromMap(Map<String, dynamic> map) {
+    return Habit.withStringFrequency(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'] ?? '',
+      frequencyStr: map['frequency'],
+      frequencyDays: map['frequencyDays'],
+      startDate: map['startDate'],
+      targetDays: map['targetDays'],
+      colorCode: map['colorCode'],
+      reminderTime: map['reminderTime'],
+      isArchived: map['isArchived'] == 1,
+      showInDashboard: map['showInDashboard'] == 1,
+      currentStreak: map['currentStreak'] ?? 0,
+      longestStreak: map['longestStreak'] ?? 0,
+      userId: map['userId'],
+      createdAt: map['created_at'],
+      updatedAt: map['updated_at'],
+    );
+  }
+  final int? id;
+  final String title;
+  final String description;
+  final HabitFrequency frequency;
+  final String? frequencyDays; // "1,3,5,7" (Pazartesi, Çarşamba, Cuma, Pazar)
+  final String startDate;
+  final int targetDays;
+  final int colorCode;
+  final String? reminderTime;
+  final bool isArchived;
+  final int currentStreak;
+  final int longestStreak;
+  final bool showInDashboard;
+  final int userId;
+  final String? createdAt;
+  final String? updatedAt;
+
   // Kopyalama yöntemi (immutability için)
   Habit copyWith({
     int? id,
@@ -237,28 +259,6 @@ class Habit {
       'created_at': createdAt,
       'updated_at': updatedAt,
     };
-  }
-
-  // Map'ten nesne oluşturma
-  factory Habit.fromMap(Map<String, dynamic> map) {
-    return Habit.withStringFrequency(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'] ?? '',
-      frequencyStr: map['frequency'],
-      frequencyDays: map['frequencyDays'],
-      startDate: map['startDate'],
-      targetDays: map['targetDays'],
-      colorCode: map['colorCode'],
-      reminderTime: map['reminderTime'],
-      isArchived: map['isArchived'] == 1,
-      showInDashboard: map['showInDashboard'] == 1,
-      currentStreak: map['currentStreak'] ?? 0,
-      longestStreak: map['longestStreak'] ?? 0,
-      userId: map['userId'],
-      createdAt: map['created_at'],
-      updatedAt: map['updated_at'],
-    );
   }
 
   // String temsilini oluşturma

@@ -3,11 +3,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../models/task.dart';
 import '../main.dart'; // NavigatorKey için
+import '../models/task.dart';
 
 /// Uygulama içi bildirimlerin yönetiminden sorumlu servis
 class NotificationService {
+  
+  // Constructorlar sınıf üyelerinden önce (lint kuralı: sort_constructors_first)
+  // Singleton yapısı
+  NotificationService._internal();
+  factory NotificationService() => _instance;
   // Sınıf değişkenleri
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
@@ -20,12 +25,7 @@ class NotificationService {
   // Kanal grup tanımı (Android 8+ için önerilir)
   static const String _groupId = 'zenviva_todo_group';
   static const String _groupName = 'ZenViva Todo Bildirimleri';
-  
-  // Constructorlar sınıf üyelerinden önce (lint kuralı: sort_constructors_first)
-  // Singleton yapısı
-  NotificationService._internal();
   static final NotificationService _instance = NotificationService._internal();
-  factory NotificationService() => _instance;
 
   /// Bildirim servisini başlatır ve gerekli izinleri alır
   Future<bool> init() async {
@@ -40,9 +40,6 @@ class NotificationService {
 
       // iOS bildirim ayarları - daha fazla izin isteme özelliği
       final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
         onDidReceiveLocalNotification: (id, title, body, payload) async {
           // iOS 10 öncesi için gerekli (modern iOS'ta kullanılmıyor)
           debugPrint('Eski iOS bildirimi alındı: $id, $title, $body, $payload');
@@ -110,7 +107,6 @@ class NotificationService {
       
       // İlgili platform özelliklerini kontrol et
       if (darwinPlugin != null && 
-          darwinPlugin is dynamic && 
           darwinPlugin.requestPermissions != null) {
         await darwinPlugin.requestPermissions(
           alert: true,
@@ -257,7 +253,7 @@ class NotificationService {
       ],
     );
     
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -336,7 +332,7 @@ class NotificationService {
         if (!initialized) return false;
       }
       
-      final androidDetails = AndroidNotificationDetails(
+      const androidDetails = AndroidNotificationDetails(
         _channelId,
         _channelName,
         channelDescription: _channelDesc,
@@ -346,13 +342,13 @@ class NotificationService {
         groupKey: _groupId,
       );
       
-      final iosDetails = const DarwinNotificationDetails(
+      const iosDetails = DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
       );
       
-      final notificationDetails = NotificationDetails(
+      const notificationDetails = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );

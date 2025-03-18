@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../constants/app_texts.dart';
-import '../constants/app_colors.dart';
 import '../models/category.dart';
 import '../models/task.dart';
 
 class TaskFilter extends StatelessWidget {
-  final List<Category> categories;
-  final int? selectedCategoryId;
-  final int? selectedPriority;
-  final Function(int?) onCategoryChanged;
-  final Function(int?) onPriorityChanged;
 
   const TaskFilter({
     super.key,
@@ -20,6 +15,11 @@ class TaskFilter extends StatelessWidget {
     required this.onCategoryChanged,
     required this.onPriorityChanged,
   });
+  final List<Category> categories;
+  final int? selectedCategoryId;
+  final int? selectedPriority;
+  final Function(int?) onCategoryChanged;
+  final Function(int?) onPriorityChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +103,7 @@ class TaskFilter extends StatelessWidget {
                         onSelected: (_) => onCategoryChanged(category.id),
                         showCheckmark: false,
                         avatar: isSelected 
-                            ? Icon(Icons.check, size: 16, color: Colors.white)
+                            ? const Icon(Icons.check, size: 16, color: Colors.white)
                             : null,
                         labelStyle: TextStyle(
                           color: isSelected
@@ -204,7 +204,7 @@ class TaskFilter extends StatelessWidget {
         onSelected: (_) => onPriorityChanged(priority.value),
         showCheckmark: false,
         avatar: isSelected 
-            ? Icon(Icons.check, size: 16, color: Colors.white)
+            ? const Icon(Icons.check, size: 16, color: Colors.white)
             : null,
         labelStyle: TextStyle(
           color: isSelected

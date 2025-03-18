@@ -16,10 +16,10 @@ import '../models/user.dart';
 /// Veritabanı işlemlerini yöneten yardımcı sınıf
 /// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
+  factory DatabaseHelper() => _instance;
   // Constructor'lar sınıfın en üstünde
   DatabaseHelper._internal();  
   static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
 
   // Sınıf değişkenleri
   static Database? _database;
@@ -178,19 +178,18 @@ class DatabaseHelper {
     // Varsayılan kategorileri ekle
     await db.insert(
       'categories',
-      const models.Category(name: 'İş', color: 0xFF1565C0, userId: null).toMap(),
+      const models.Category(name: 'İş', color: 0xFF1565C0).toMap(),
     );
     await db.insert(
       'categories',
       const models.Category(
         name: 'Kişisel Gelişim',
         color: 0xFF673AB7,
-        userId: null,
       ).toMap(),
     );
     await db.insert(
       'categories',
-      const models.Category(name: 'Sağlık', color: 0xFF4CAF50, userId: null).toMap(),
+      const models.Category(name: 'Sağlık', color: 0xFF4CAF50).toMap(),
     );
   }
 
@@ -234,7 +233,7 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       // Dashboard gösterme kolonu ekle
       await db.execute(
-          'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0');
+          'ALTER TABLE habits ADD COLUMN showInDashboard INTEGER NOT NULL DEFAULT 0',);
     }
     
     if (oldVersion < 4) {
@@ -514,7 +513,7 @@ class DatabaseHelper {
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
-    {bool includeCompleted = false},
+    {bool includeCompleted = false,},
   ) async {
     final Database db = await database;
     
@@ -526,7 +525,7 @@ class DatabaseHelper {
         userId, 
         '%$query%', 
         '%$query%',
-        includeCompleted ? 1 : 0,
+        if (includeCompleted) 1 else 0,
       ],
       orderBy: 'date ASC, time ASC',
     );
@@ -646,7 +645,7 @@ class DatabaseHelper {
       LEFT JOIN categories c ON t.categoryId = c.id
       WHERE t.userId = ?
       GROUP BY t.categoryId
-    ''', [userId]);
+    ''', [userId],);
   }
   
   // Günlük tamamlanan görev sayısı - son 7 gün - performans iyileştirmesi
@@ -691,7 +690,7 @@ class DatabaseHelper {
       FROM tasks
       WHERE userId = ?
       GROUP BY priority
-    ''', [userId]);
+    ''', [userId],);
   }
   
   // Alışkanlık metodları
@@ -714,7 +713,7 @@ class DatabaseHelper {
     return await db.query(
       'habits',
       where: 'userId = ? AND isArchived = ?',
-      whereArgs: [userId, includeArchived ? 1 : 0],
+      whereArgs: [userId, if (includeArchived) 1 else 0],
       orderBy: 'created_at DESC',
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
+
 import '../models/habit.dart';
 import '../models/habit_log.dart';
 import 'database_helper.dart';
@@ -8,13 +8,13 @@ import 'notification_service.dart';
 
 /// Alışkanlık yönetimi hizmetleri
 class HabitService {
+  factory HabitService() => _instance;
+  HabitService._internal();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final NotificationService _notificationService = NotificationService();
   
   // Singleton pattern
   static final HabitService _instance = HabitService._internal();
-  factory HabitService() => _instance;
-  HabitService._internal();
 
   /// Alışkanlık oluşturma
   /// 
@@ -41,7 +41,7 @@ class HabitService {
 
   /// Tüm alışkanlıkları getirme
   Future<List<Habit>> getHabits(int userId,
-      {bool includeArchived = false}) async {
+      {bool includeArchived = false,}) async {
     try {
       final maps =
           await _dbHelper.getHabits(userId, includeArchived: includeArchived);
@@ -56,7 +56,7 @@ class HabitService {
 
   /// Dashboard için gösterilecek alışkanlıkları getirme
   Future<List<Habit>> getDashboardHabits(int userId,
-      {required String date}) async {
+      {required String date,}) async {
     try {
       final maps = await _dbHelper.getDashboardHabits(userId, date: date);
       return maps.map((map) => Habit.fromMap(map)).toList();
@@ -205,7 +205,7 @@ class HabitService {
 
   /// Bir alışkanlığı belirli bir tarih için tamamla/tamamlamayı geri al
   Future<bool> toggleHabitCompletion(
-      int habitId, String date, bool completed) async {
+      int habitId, String date, bool completed,) async {
     try {
       final result =
           await _dbHelper.toggleHabitCompletion(habitId, date, completed);
@@ -234,7 +234,7 @@ class HabitService {
 
   /// Son belirli gün sayısına ait alışkanlık kayıtlarını getir
   Future<List<HabitLog>> getRecentHabitLogs(int habitId,
-      {int days = 30}) async {
+      {int days = 30,}) async {
     try {
       final now = DateTime.now();
       final allLogs = await getHabitLogs(habitId);
@@ -527,7 +527,7 @@ class HabitService {
       results['last7days'] = await calculateCompletionRate(habitId, days: 7);
       
       // Son 30 gün
-      results['last30days'] = await calculateCompletionRate(habitId, days: 30);
+      results['last30days'] = await calculateCompletionRate(habitId);
       
       // Son 90 gün
       results['last90days'] = await calculateCompletionRate(habitId, days: 90);

@@ -6,15 +6,15 @@ import 'database_helper.dart';
 
 /// Kullanıcı kimlik doğrulama ve yönetimi hizmetleri
 class AuthService {
+  
+  // Constructor'lar (başa taşındı)
+  factory AuthService() => _instance;
+  AuthService._internal();
   // Sınıf değişkenleri
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   
   // Singleton pattern
   static final AuthService _instance = AuthService._internal();
-  
-  // Constructor'lar (başa taşındı)
-  factory AuthService() => _instance;
-  AuthService._internal();
 
   /// Kullanıcı kaydı
   /// 

@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Try to login with entered credentials
         final user = await _authService.login(
-            _usernameController.text.trim(), _passwordController.text.trim());
+            _usernameController.text.trim(), _passwordController.text.trim(),);
 
         if (!mounted) return;
 
@@ -173,9 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                       const SizedBox(height: 32),
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : CustomButton(
+                      if (_isLoading) const CircularProgressIndicator() else CustomButton(
                               text: AppTexts.loginButtonText,
                               onPressed: _login,
                             ),

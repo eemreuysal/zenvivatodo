@@ -1,16 +1,11 @@
 // User modeli - Modern Dart 3.7 özellikleri ve güvenli şifreleme kullanılarak güncellendi
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
+
 /// Uygulama kullanıcısı sınıfı
 class User {
-  final int? id;
-  final String username;
-  final String email;
-  final String password; // Artık "salt:hash" formatında saklanıyor
-  final String? createdAt;
-  final String? lastLogin;
 
   // Enhanced constructor (Dart 3.0+)
   const User({
@@ -39,6 +34,24 @@ class User {
       createdAt: DateTime.now().toIso8601String(),
     );
   }
+
+  // Map'ten nesne oluşturma
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'],
+      username: map['username'],
+      email: map['email'],
+      password: map['password'],
+      createdAt: map['created_at'],
+      lastLogin: map['last_login'],
+    );
+  }
+  final int? id;
+  final String username;
+  final String email;
+  final String password; // Artık "salt:hash" formatında saklanıyor
+  final String? createdAt;
+  final String? lastLogin;
   
   // Daha güvenli şifre hashleme yöntemi
   static String _secureHash(String password) {
@@ -55,7 +68,7 @@ class User {
     }
     
     // salt:hash formatında döndür
-    return "$salt:$hash";
+    return '$salt:$hash';
   }
 
   // Şifre doğrulama yöntemi - yeni formata uygun
@@ -119,18 +132,6 @@ class User {
       'created_at': createdAt,
       'last_login': lastLogin,
     };
-  }
-
-  // Map'ten nesne oluşturma
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'],
-      username: map['username'],
-      email: map['email'],
-      password: map['password'],
-      createdAt: map['created_at'],
-      lastLogin: map['last_login'],
-    );
   }
 
   // String temsilini oluşturma

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'constants/app_theme.dart';
+
 import 'constants/app_texts.dart';
+import 'constants/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'services/notification_service.dart';
 
@@ -17,7 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Türkçe tarih formatlamasını başlat
-  await initializeDateFormatting('tr_TR', null);
+  await initializeDateFormatting('tr_TR');
   
   // Bildirim servisini başlat
   final notificationService = NotificationService();
@@ -38,10 +39,10 @@ void main() async {
 }
 
 class ThemeProvider with ChangeNotifier {
-  bool _isDarkMode;
 
   // Wildcard değişken kullanımı (Dart 3.7 özelliği)
   ThemeProvider({required bool isDarkMode}) : _isDarkMode = isDarkMode;
+  bool _isDarkMode;
 
   bool get isDarkMode => _isDarkMode;
 

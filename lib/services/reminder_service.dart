@@ -7,12 +7,12 @@ import 'notification_service.dart';
 /// Bu servis şu anda kısmen devre dışı bırakılmıştır.
 /// Bildirimleri kullanmak yerine yerel diyalog gösterimini kullanıyor.
 class ReminderService {
-  // Singleton pattern
-  static final ReminderService _instance = ReminderService._internal();
   
   // Constructorlar diğer üyelerden önce
   factory ReminderService() => _instance;
   ReminderService._internal();
+  // Singleton pattern
+  static final ReminderService _instance = ReminderService._internal();
 
   // Stream that sends task IDs when they are due (5 minutes before the task time)
   final BehaviorSubject<Task> onTaskReminder = BehaviorSubject<Task>();

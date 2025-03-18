@@ -172,9 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ],
                       const SizedBox(height: 32),
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : CustomButton(
+                      if (_isLoading) const CircularProgressIndicator() else CustomButton(
                               text: AppTexts.registerButtonText,
                               onPressed: _register,
                             ),

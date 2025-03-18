@@ -1,21 +1,23 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
-import '../../models/task.dart';
 import '../../models/category.dart';
-import '../../services/task_service.dart';
+import '../../models/task.dart';
 import '../../services/category_service.dart';
 import '../../services/reminder_service.dart';
+import '../../services/task_service.dart';
+import '../../widgets/reminder_dialog.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/task_filter.dart';
-import '../../widgets/reminder_dialog.dart';
 import 'edit_task_screen.dart';
 
 class ActiveTasksScreen extends StatefulWidget {
-  final int userId;
 
   const ActiveTasksScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<ActiveTasksScreen> createState() => _ActiveTasksScreenState();

@@ -21,17 +21,7 @@ enum TaskPriority {
 }
 
 // Task modeli - final kullanımı, okunabilirlik artırıldı, and constructor sadeleştirildi
-class Task {
-  final int? id;
-  final String title;
-  final String description;
-  final String date;
-  final String? time;
-  final bool isCompleted;
-  final int? categoryId;
-  final TaskPriority priority;
-  final int userId;
-  final String? uniqueId; // Benzersiz tanımlayıcı - opsiyonel
+class Task { // Benzersiz tanımlayıcı - opsiyonel
 
   // Enhanced constructor with super parameters (Dart 3.0+)
   Task({
@@ -76,6 +66,32 @@ class Task {
   })  : priority = TaskPriority.fromValue(priority),
         uniqueId = const Uuid().v4();
 
+  // Map'ten nesne oluşturma
+  factory Task.fromMap(Map<String, dynamic> map) {
+    return Task(
+      id: map['id'],
+      title: map['title'],
+      description: map['description'],
+      date: map['date'],
+      time: map['time'],
+      isCompleted: map['isCompleted'] == 1,
+      categoryId: map['categoryId'],
+      priority: map['priority'],
+      userId: map['userId'],
+      uniqueId: map['uniqueId'],
+    );
+  }
+  final int? id;
+  final String title;
+  final String description;
+  final String date;
+  final String? time;
+  final bool isCompleted;
+  final int? categoryId;
+  final TaskPriority priority;
+  final int userId;
+  final String? uniqueId;
+
   // Immutability için kopya oluşturma (kopyalama ile yeni nesne)
   Task copyWith({
     int? id,
@@ -117,22 +133,6 @@ class Task {
       'userId': userId,
       'uniqueId': uniqueId,
     };
-  }
-
-  // Map'ten nesne oluşturma
-  factory Task.fromMap(Map<String, dynamic> map) {
-    return Task(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
-      date: map['date'],
-      time: map['time'],
-      isCompleted: map['isCompleted'] == 1,
-      categoryId: map['categoryId'],
-      priority: map['priority'],
-      userId: map['userId'],
-      uniqueId: map['uniqueId'],
-    );
   }
 
   // String temsilini oluşturma

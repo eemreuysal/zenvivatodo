@@ -2,12 +2,6 @@
 
 /// Alışkanlık takip kaydı sınıfı
 class HabitLog {
-  final int? id;
-  final int habitId;
-  final String date;
-  final bool completed;
-  final String? notes;
-  final String? createdAt;
 
   // Enhanced constructor (Dart 3.0+)
   const HabitLog({
@@ -59,6 +53,24 @@ class HabitLog {
     );
   }
 
+  // Map'ten nesne oluşturma
+  factory HabitLog.fromMap(Map<String, dynamic> map) {
+    return HabitLog(
+      id: map['id'],
+      habitId: map['habitId'],
+      date: map['date'],
+      completed: map['completed'] == 1,
+      notes: map['notes'],
+      createdAt: map['created_at'],
+    );
+  }
+  final int? id;
+  final int habitId;
+  final String date;
+  final bool completed;
+  final String? notes;
+  final String? createdAt;
+
   // Kopyalama yöntemi (immutability için)
   HabitLog copyWith({
     int? id,
@@ -102,18 +114,6 @@ class HabitLog {
       'notes': notes,
       'created_at': createdAt,
     };
-  }
-
-  // Map'ten nesne oluşturma
-  factory HabitLog.fromMap(Map<String, dynamic> map) {
-    return HabitLog(
-      id: map['id'],
-      habitId: map['habitId'],
-      date: map['date'],
-      completed: map['completed'] == 1,
-      notes: map['notes'],
-      createdAt: map['created_at'],
-    );
   }
 
   // String temsilini oluşturma

@@ -8,9 +8,9 @@ import 'add_habit_screen.dart';
 import 'habit_details_screen.dart';
 
 class HabitsScreen extends StatefulWidget {
-  final int userId;
 
   const HabitsScreen({super.key, required this.userId});
+  final int userId;
 
   @override
   State<HabitsScreen> createState() => _HabitsScreenState();
@@ -53,7 +53,7 @@ class _HabitsScreenState extends State<HabitsScreen>
 
       // Bugün tamamlanmış alışkanlıkları kontrol et
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      Map<int, bool> todayCompletedMap = {};
+      final Map<int, bool> todayCompletedMap = {};
 
       for (var habit in todayHabits) {
         if (habit.id != null) {
@@ -149,7 +149,6 @@ class _HabitsScreenState extends State<HabitsScreen>
         SnackBar(
           content: Text(message),
           backgroundColor: AppColors.successColor,
-          duration: const Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
         ),
       );

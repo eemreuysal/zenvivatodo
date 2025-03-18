@@ -7,13 +7,13 @@ import 'notification_service.dart';
 
 /// Görev yönetimi hizmetleri
 class TaskService {
+  factory TaskService() => _instance;
+  TaskService._internal();
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   final NotificationService _notificationService = NotificationService();
   
   // Singleton pattern
   static final TaskService _instance = TaskService._internal();
-  factory TaskService() => _instance;
-  TaskService._internal();
 
   /// Yeni görev ekleme
   /// 
@@ -25,7 +25,7 @@ class TaskService {
       final uniqueId = const Uuid().v4();
       final taskWithId = task.copyWith(uniqueId: uniqueId);
       
-      int taskId = await _databaseHelper.insertTask(taskWithId);
+      final int taskId = await _databaseHelper.insertTask(taskWithId);
       
       if (taskId > 0) {
         // Göreve ID ekleyerek kopyala (bildirimleri planlamak için)
@@ -101,7 +101,7 @@ class TaskService {
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
-    {bool includeCompleted = false}
+    {bool includeCompleted = false,}
   ) async {
     try {
       if (query.trim().isEmpty) {
@@ -125,16 +125,16 @@ class TaskService {
   Future<bool> updateTask(Task task) async {
     try {
       // Mevcut görevi al (bildirim kontrolü için)
-      List<Task> existingTasks = await _databaseHelper.getTasks(
+      final List<Task> existingTasks = await _databaseHelper.getTasks(
         task.userId,
         date: task.date,
       );
       
       final existingTask = existingTasks.firstWhereOrNull(
-        (t) => t.id == task.id
+        (t) => t.id == task.id,
       );
       
-      int result = await _databaseHelper.updateTask(task);
+      final int result = await _databaseHelper.updateTask(task);
       
       if (result > 0) {
         // Bildirim güncelleme işlemi
@@ -169,7 +169,7 @@ class TaskService {
   /// Görev tamamlama durumunu değiştirme
   Future<bool> toggleTaskCompletion(int taskId, bool isCompleted) async {
     try {
-      int result = await _databaseHelper.toggleTaskCompletion(
+      final int result = await _databaseHelper.toggleTaskCompletion(
         taskId,
         isCompleted,
       );
@@ -203,7 +203,7 @@ class TaskService {
       // Önce bildirimi iptal et
       await _notificationService.cancelTaskReminder(taskId);
       
-      int result = await _databaseHelper.deleteTask(taskId);
+      final int result = await _databaseHelper.deleteTask(taskId);
       return result > 0;
     } catch (e) {
       debugPrint('Error deleting task: $e');

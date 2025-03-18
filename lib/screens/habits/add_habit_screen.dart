@@ -6,9 +6,7 @@ import '../../constants/habit_constants.dart';
 import '../../models/habit.dart';
 import '../../services/habit_service.dart';
 
-class AddHabitScreen extends StatefulWidget {
-  final int userId;
-  final Habit? habit; // Düzenleme durumu için
+class AddHabitScreen extends StatefulWidget { // Düzenleme durumu için
 
   // Constructor en üstte olmalı
   const AddHabitScreen({
@@ -16,6 +14,8 @@ class AddHabitScreen extends StatefulWidget {
     required this.userId,
     this.habit,
   });
+  final int userId;
+  final Habit? habit;
 
   @override
   State<AddHabitScreen> createState() => _AddHabitScreenState();
@@ -307,7 +307,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           if (isSelected)
                             BoxShadow(
                               color: Colors.black.withAlpha(
-                                  77), // withOpacity yerine withAlpha
+                                  77,), // withOpacity yerine withAlpha
                               blurRadius: 4,
                               spreadRadius: 2,
                             ),
