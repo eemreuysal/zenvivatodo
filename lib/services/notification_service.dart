@@ -29,7 +29,7 @@ class NotificationService {
   // Kanal grup tanımı (Android 8+ için önerilir)
   static const String _groupId = 'zenviva_todo_group';
   static const String _groupName = 'ZenViva Todo Bildirimleri';
-  static final NotificationService _instance = NotificationService._internal();
+  static const NotificationService _instance = NotificationService._internal();
 
   /// Bildirim servisini başlatır ve gerekli izinleri alır
   Future<bool> init() async {
@@ -43,7 +43,7 @@ class NotificationService {
       const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
       // iOS bildirim ayarları - daha güncel iOS sürümleri için
-      final DarwinInitializationSettings iosSettings = const DarwinInitializationSettings(
+      const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
         // onDidReceiveLocalNotification kaldırıldı - artık kullanılmıyor
         requestAlertPermission: false, // _requestPermissions'da isteyeceğiz
         requestBadgePermission: false,
@@ -51,7 +51,7 @@ class NotificationService {
       );
 
       // Tüm platform ayarlarını birleştir
-      final InitializationSettings initSettings = InitializationSettings(
+      const InitializationSettings initSettings = InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
       );
