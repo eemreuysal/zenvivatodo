@@ -9,16 +9,16 @@ import 'package:logging/logging.dart';
 /// bağlantı değişikliklerini Stream üzerinden yayınlar ve gerekli
 /// bildirimleri gösterir.
 class ConnectivityService {
+  // Constructor'ları düzgün şekilde yerleştirme
   // Singleton pattern
   factory ConnectivityService() => _instance;
   
-  // Constructor'ları düzgün şekilde yerleştirme
   ConnectivityService._internal() {
     // Başlangıç durumunu al
     _initConnectivity();
     
     // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -29,7 +29,7 @@ class ConnectivityService {
   // Connectivity instance
   final Connectivity _connectivity = Connectivity();
   
-  // Connection stream controller - ConnectivityResult tipinde tek bir sonuç değil, bir liste dönüyor
+  // Connection stream controller - ConnectivityResult tipinde streami yayınlar
   final StreamController<ConnectivityResult> _connectionStatusController =
       StreamController<ConnectivityResult>.broadcast();
   
@@ -54,6 +54,23 @@ class ConnectivityService {
     }
   }
   
+  // Connectivity API'deki değişiklik: onConnectivityChanged artık bir List<ConnectivityResult> döndürüyor
+  void _handleConnectivityChange(List<ConnectivityResult> results) {
+    if (results.isEmpty) {
+      _updateConnectionStatus(ConnectivityResult.none);
+    } else {
+      // Liste boş değilse, mobil veya WiFi varsa bağlantı var demektir
+      final hasMobileOrWifi = results.contains(ConnectivityResult.mobile) || 
+                             results.contains(ConnectivityResult.wifi) ||
+                             results.contains(ConnectivityResult.ethernet);
+                             
+      // Bağlantı durumunu güncelle
+      _updateConnectionStatus(hasMobileOrWifi ? 
+        (results.contains(ConnectivityResult.wifi) ? ConnectivityResult.wifi : ConnectivityResult.mobile) :
+        ConnectivityResult.none);
+    }
+  }
+  
   // Bağlantı durumunu güncelle - tek bir ConnectivityResult parametresi alır
   void _updateConnectionStatus(ConnectivityResult result) {
     _logger.info('Connectivity changed: $result');
@@ -63,10 +80,25 @@ class ConnectivityService {
   
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
-    final result = await _connectivity.checkConnectivity();
-    // Sonuç artık liste değil, tek bir ConnectivityResult
-    _updateConnectionStatus(result);
-    return result != ConnectivityResult.none;
+    final results = await _connectivity.checkConnectivity();
+    
+    // Sonuç artık bir liste, ilk sonucu kullan veya bağlantı yoksa none döndür
+    if (results.isNotEmpty) {
+      final hasMobileOrWifi = results.contains(ConnectivityResult.mobile) || 
+                             results.contains(ConnectivityResult.wifi) ||
+                             results.contains(ConnectivityResult.ethernet);
+                             
+      // Bağlantı durumunu güncelle
+      final result = hasMobileOrWifi ? 
+          (results.contains(ConnectivityResult.wifi) ? ConnectivityResult.wifi : ConnectivityResult.mobile) :
+          ConnectivityResult.none;
+          
+      _updateConnectionStatus(result);
+      return result != ConnectivityResult.none;
+    } else {
+      _updateConnectionStatus(ConnectivityResult.none);
+      return false;
+    }
   }
   
   // Bağlantı durumu snackbar'ı göster
