@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:shared_preferences/shared_preferences.dart'; // Kullanılmayan import kaldırıldı
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../services/auth_service.dart';
-import '../../services/task_service.dart';
 import '../../services/habit_service.dart';
-// import '../../services/connectivity_service.dart'; // Kullanılmayan import kaldırıldı
-// import '../../services/inspiration_service.dart'; // Kullanılmayan import kaldırıldı
+import '../../services/task_service.dart';
 import '../../widgets/connection_status_bar.dart';
 import '../../widgets/inspiration_card.dart';
+import '../categories/categories_screen.dart';
 import '../habits/habits_screen.dart';
 import '../profile/profile_screen.dart';
-import '../categories/categories_screen.dart';
 import '../tasks/active_tasks_screen.dart';
 import '../tasks/completed_tasks_screen.dart';
 
-// ConnectivityProvider'ı artık ConnectivityService dosyasından veya main.dart'tan import etmek gerekiyor
+// ConnectivityProvider için import
 import '../../services/connectivity_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -203,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Bugün görevler
         _buildSectionHeader('Bugünkü Görevler', Icons.today),
-        FutureBuilder<List<dynamic>>(
+        FutureBuilder(
           future: _taskService.getTodayTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -219,7 +216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }
             
-            final tasks = snapshot.data as List<dynamic>? ?? [];
+            final tasks = snapshot.data ?? [];
             
             if (tasks.isEmpty) {
               return const Padding(
@@ -274,7 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Yaklaşan görevler
         _buildSectionHeader('Yaklaşan Görevler', Icons.event),
-        FutureBuilder<List<dynamic>>(
+        FutureBuilder(
           future: _taskService.getUpcomingTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -290,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }
             
-            final tasks = snapshot.data as List<dynamic>? ?? [];
+            final tasks = snapshot.data ?? [];
             
             if (tasks.isEmpty) {
               return const Padding(
@@ -334,7 +331,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Alışkanlıklar
         _buildSectionHeader('Alışkanlıklar', Icons.repeat),
         FutureBuilder(
-          future: _habitService.getDashboardHabits(userId: widget.userId, date: DateTime.now().toString()),
+          future: _habitService.getDashboardHabits(
+            userId: widget.userId, 
+            date: DateTime.now().toString(),
+          ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -349,7 +349,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             }
             
-            final habits = snapshot.data as List<dynamic>? ?? [];
+            final habits = snapshot.data ?? [];
             
             if (habits.isEmpty) {
               return const Padding(
