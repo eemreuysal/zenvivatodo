@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../main.dart'; // ConnectivityProvider sınıfı için
-import '../services/connectivity_service.dart';
+// ConnectivityService için import
+import '../services/connectivity_service.dart' hide ConnectivityProvider;
+
+// ConnectivityProvider sınıfı için import ve as kullanımı
+import '../main.dart' as main_lib; 
 
 /// Bağlantı durumunu gösteren widget
 ///
@@ -24,11 +26,11 @@ class ConnectionStatusBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConnectivityProvider>(
+    return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, child) {
         final colorScheme = Theme.of(context).colorScheme;
         
-        final bgColor = connectivity.hasConnection
+        final bgColor = connectivity?.hasConnection ?? false
             ? onlineColor ?? Colors.green.shade600
             : offlineColor ?? Colors.red.shade600;
         
@@ -45,7 +47,7 @@ class ConnectionStatusBar extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      connectivity.hasConnection
+                      connectivity?.hasConnection ?? false
                           ? Icons.wifi
                           : Icons.wifi_off,
                       color: textColor,
@@ -53,7 +55,7 @@ class ConnectionStatusBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      connectivity.hasConnection
+                      connectivity?.hasConnection ?? false
                           ? 'İnternet bağlantısı mevcut'
                           : 'İnternet bağlantısı yok',
                       style: const TextStyle(
@@ -68,7 +70,7 @@ class ConnectionStatusBar extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        connectivity.isOnlineMode
+                        connectivity?.isOnlineMode ?? true
                             ? 'Çevrimiçi'
                             : 'Çevrimdışı',
                         style: const TextStyle(
@@ -77,8 +79,8 @@ class ConnectionStatusBar extends StatelessWidget {
                         ),
                       ),
                       Switch(
-                        value: connectivity.isOnlineMode,
-                        onChanged: (_) => connectivity.toggleOnlineMode(),
+                        value: connectivity?.isOnlineMode ?? true,
+                        onChanged: (_) => connectivity?.toggleOnlineMode(),
                         activeColor: colorScheme.primary,
                         inactiveThumbColor: colorScheme.secondary,
                       ),
@@ -122,7 +124,7 @@ class ConnectionAwareScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConnectivityProvider>(
+    return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, _) {
         return Scaffold(
           appBar: AppBar(
@@ -168,9 +170,9 @@ class OnlineOperationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConnectivityProvider>(
+    return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, _) {
-        if (connectivity.canPerformOnlineOperations) {
+        if (connectivity?.canPerformOnlineOperations ?? false) {
           return child;
         }
         
@@ -187,7 +189,7 @@ class OnlineOperationWrapper extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  connectivity.hasConnection
+                  connectivity?.hasConnection ?? false
                       ? Icons.cloud_off
                       : Icons.wifi_off,
                   size: 64,
@@ -196,7 +198,7 @@ class OnlineOperationWrapper extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  connectivity.hasConnection
+                  connectivity?.hasConnection ?? false
                       ? 'Çevrimdışı Mod Aktif'
                       : 'İnternet Bağlantısı Yok',
                   style: Theme.of(context).textTheme.headlineSmall,
@@ -209,7 +211,7 @@ class OnlineOperationWrapper extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                if (!connectivity.hasConnection)
+                if (!(connectivity?.hasConnection ?? false))
                   ElevatedButton.icon(
                     onPressed: () async {
                       await ConnectivityService().checkConnection();
@@ -217,9 +219,9 @@ class OnlineOperationWrapper extends StatelessWidget {
                     icon: const Icon(Icons.refresh),
                     label: const Text('Bağlantıyı Kontrol Et'),
                   )
-                else if (!connectivity.isOnlineMode)
+                else if (!(connectivity?.isOnlineMode ?? true))
                   ElevatedButton.icon(
-                    onPressed: () => connectivity.toggleOnlineMode(),
+                    onPressed: () => connectivity?.toggleOnlineMode(),
                     icon: const Icon(Icons.cloud),
                     label: const Text('Çevrimiçi Moda Geç'),
                   ),
