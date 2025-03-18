@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:dio/dio.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'connectivity_service.dart';
-import 'package:logging/logging.dart';
 
 /// Motivasyon alıntıları ve aktivite önerileri getiren servis
 ///
@@ -77,7 +77,7 @@ class InspirationService {
   
   // JSON parse etme yardımcı metodu
   List<dynamic> _parseCachedJson(String json) {
-    // Format: [{\"key\":\"value\"}, {\"key\":\"value\"}]
+    // Format: [{\\\"key\\\":\\\"value\\\"}, {\\\"key\\\":\\\"value\\\"}]
     if (json.startsWith('[') && json.endsWith(']')) {
       return customJsonDecode(json);
     }
