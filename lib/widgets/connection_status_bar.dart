@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/connectivity_service.dart';
+import '../main.dart'; // ConnectivityProvider sınıfı için
 
 /// Bağlantı durumunu gösteren widget
 ///
 /// Bu widget, internet bağlantısının durumunu ve çevrimiçi/çevrimdışı
 /// mod seçeneğini gösteren bir durum çubuğu sağlar.
 class ConnectionStatusBar extends StatelessWidget {
-  final Color? onlineColor;
-  final Color? offlineColor;
-  final bool showOnlineSwitch;
-  
+  // Constructor sınıfın en üstünde tanımlanmalı
   const ConnectionStatusBar({
     super.key,
     this.onlineColor,
     this.offlineColor,
     this.showOnlineSwitch = true,
   });
+  
+  final Color? onlineColor;
+  final Color? offlineColor;
+  final bool showOnlineSwitch;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class ConnectionStatusBar extends StatelessWidget {
             ? onlineColor ?? Colors.green.shade600
             : offlineColor ?? Colors.red.shade600;
         
-        final textColor = Colors.white;
+        const textColor = Colors.white;
         
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
@@ -52,7 +54,7 @@ class ConnectionStatusBar extends StatelessWidget {
                       connectivity.hasConnection
                           ? 'İnternet bağlantısı mevcut'
                           : 'İnternet bağlantısı yok',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: textColor,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -67,17 +69,16 @@ class ConnectionStatusBar extends StatelessWidget {
                         connectivity.isOnlineMode
                             ? 'Çevrimiçi'
                             : 'Çevrimdışı',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: textColor,
                           fontSize: 12,
                         ),
                       ),
                       Switch(
                         value: connectivity.isOnlineMode,
-                        onChanged: (value) => connectivity.toggleOnlineMode(),
+                        onChanged: (_) => connectivity.toggleOnlineMode(),
                         activeColor: colorScheme.primary,
                         inactiveThumbColor: colorScheme.secondary,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                     ],
                   ),
@@ -95,15 +96,7 @@ class ConnectionStatusBar extends StatelessWidget {
 /// Bu widget, ConnectionStatusBar'ı en üstte gösterir ve internet
 /// bağlantısı durumuna göre farklı içerikler sunar.
 class ConnectionAwareScaffold extends StatelessWidget {
-  final String title;
-  final Widget body;
-  final Widget? bottomNavigationBar;
-  final List<Widget>? actions;
-  final FloatingActionButton? floatingActionButton;
-  final Widget? drawer;
-  final bool? resizeToAvoidBottomInset;
-  final bool showConnectionStatusBar;
-  
+  // Constructor sınıfın en üstünde tanımlanmalı
   const ConnectionAwareScaffold({
     super.key,
     required this.title,
@@ -115,6 +108,15 @@ class ConnectionAwareScaffold extends StatelessWidget {
     this.resizeToAvoidBottomInset,
     this.showConnectionStatusBar = true,
   });
+  
+  final String title;
+  final Widget body;
+  final Widget? bottomNavigationBar;
+  final List<Widget>? actions;
+  final FloatingActionButton? floatingActionButton;
+  final Widget? drawer;
+  final bool? resizeToAvoidBottomInset;
+  final bool showConnectionStatusBar;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +131,7 @@ class ConnectionAwareScaffold extends StatelessWidget {
             children: [
               // Bağlantı durumu çubuğu
               if (showConnectionStatusBar)
-                ConnectionStatusBar(
+                const ConnectionStatusBar(
                   showOnlineSwitch: true,
                 ),
               
@@ -152,16 +154,17 @@ class ConnectionAwareScaffold extends StatelessWidget {
 /// Bu widget, internet bağlantısı olmadığında veya çevrimdışı modda
 /// kullanıcıya uygun bir mesaj gösterir.
 class OnlineOperationWrapper extends StatelessWidget {
-  final Widget child;
-  final Widget? offlineWidget;
-  final String offlineMessage;
-  
+  // Constructor sınıfın en üstünde tanımlanmalı
   const OnlineOperationWrapper({
     super.key,
     required this.child,
     this.offlineWidget,
     this.offlineMessage = 'Bu özellik internet bağlantısı gerektirir',
   });
+  
+  final Widget child;
+  final Widget? offlineWidget;
+  final String offlineMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +191,8 @@ class OnlineOperationWrapper extends StatelessWidget {
                       ? Icons.cloud_off
                       : Icons.wifi_off,
                   size: 64,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+                  // withOpacity yerine withValue kullanımı
+                  color: Theme.of(context).colorScheme.primary.withValues(opacity: 0.6),
                 ),
                 const SizedBox(height: 16),
                 Text(
