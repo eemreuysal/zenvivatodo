@@ -7,6 +7,14 @@ import '../services/inspiration_service.dart';
 /// Bu widget, kullanıcıya API'dan alınan rastgele motivasyon
 /// alıntıları ve aktivite önerileri gösterir.
 class InspirationCard extends StatefulWidget {
+  // Constructor'ı sınıfın başına taşıdık - sort_constructors_first
+  const InspirationCard({
+    super.key,
+    required this.type,
+    this.onRefresh,
+    this.visible = true,
+  });
+
   /// Kart tipi ('quote' veya 'activity')
   final String type;
   
@@ -15,13 +23,6 @@ class InspirationCard extends StatefulWidget {
   
   /// Görünürlük kontrolü için
   final bool visible;
-  
-  const InspirationCard({
-    super.key,
-    required this.type,
-    this.onRefresh,
-    this.visible = true,
-  });
 
   @override
   State<InspirationCard> createState() => _InspirationCardState();
@@ -69,7 +70,7 @@ class _InspirationCardState extends State<InspirationCard> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -81,9 +82,7 @@ class _InspirationCardState extends State<InspirationCard> {
   // İçeriği yenile
   void _refresh() {
     _loadData();
-    if (widget.onRefresh != null) {
-      widget.onRefresh!();
-    }
+    widget.onRefresh?.call();
   }
   
   @override
@@ -122,13 +121,13 @@ class _InspirationCardState extends State<InspirationCard> {
         .scale(
           duration: 300.ms, 
           begin: const Offset(1.0, 1.0), 
-          end: const Offset(1.03, 1.03)
+          end: const Offset(1.03, 1.03),
         )
         .then(delay: 300.ms)
         .scale(
           duration: 300.ms, 
           begin: const Offset(1.03, 1.03), 
-          end: const Offset(1.0, 1.0)
+          end: const Offset(1.0, 1.0),
         ),
     );
   }
@@ -179,7 +178,8 @@ class _InspirationCardState extends State<InspirationCard> {
                 onPressed: _refresh,
                 tooltip: 'Yenile',
                 iconSize: 20,
-                color: colorScheme.onSecondaryContainer.withOpacity(0.7),
+                // withOpacity yerine withValues kullanıldı
+                color: colorScheme.onSecondaryContainer.withValues(alpha: 0.7),
               ),
             ],
           ),
@@ -198,7 +198,8 @@ class _InspirationCardState extends State<InspirationCard> {
               '- $author',
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: colorScheme.onSecondaryContainer.withOpacity(0.8),
+                // withOpacity yerine withValues kullanıldı
+                color: colorScheme.onSecondaryContainer.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -226,7 +227,8 @@ class _InspirationCardState extends State<InspirationCard> {
                 onPressed: _refresh,
                 tooltip: 'Yenile',
                 iconSize: 20,
-                color: colorScheme.onTertiaryContainer.withOpacity(0.7),
+                // withOpacity yerine withValues kullanıldı
+                color: colorScheme.onTertiaryContainer.withValues(alpha: 0.7),
               ),
             ],
           ),
@@ -249,7 +251,8 @@ class _InspirationCardState extends State<InspirationCard> {
                     color: colorScheme.onTertiaryContainer,
                   ),
                 ),
-                backgroundColor: colorScheme.tertiary.withOpacity(0.3),
+                // withOpacity yerine withValues kullanıldı
+                backgroundColor: colorScheme.tertiary.withValues(alpha: 0.3),
                 padding: EdgeInsets.zero,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
