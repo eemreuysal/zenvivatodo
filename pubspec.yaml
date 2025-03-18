@@ -41,11 +41,21 @@ dependencies:
   # Security
   crypto: ^3.0.3
   
+  # API ve Network
+  dio: ^5.4.0                       # API istekleri için
+  json_annotation: ^4.9.0           # JSON serialization için
+  connectivity_plus: ^5.0.2         # İnternet bağlantı durumu için
+  
+  # Geliştirilen State management
+  # flutter_riverpod: ^2.4.9        # (Opsiyonel, provider yerine kullanılabilir)
+  
   # Diğer bağımlılıklar
   collection: ^1.17.2
   uuid: ^3.0.7
   flutter_animate: ^4.2.0
   google_fonts: ^5.1.0
+  package_info_plus: ^5.0.1         # Uygulama versiyon bilgisi için
+  url_launcher: ^6.2.4              # URL açmak için
   
   # Web için JS interoperabilite
   web: ^0.3.0
@@ -54,6 +64,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.3
+  json_serializable: ^6.7.0         # JSON serialization için
+  build_runner: ^2.4.8              # Code generation için
 
 flutter:
   uses-material-design: true
@@ -62,9 +74,9 @@ flutter:
   generate: true
 
   # Assets
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
+  assets:
+    - assets/images/
+    - assets/icons/
 
 # Dart formatter ayarları
 analyzer:
