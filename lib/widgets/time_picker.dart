@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import '../utils/color_extensions.dart';
 
 class TimePickerWidget extends StatelessWidget {
   // Constructor moved to top
@@ -52,9 +53,9 @@ class TimePickerWidget extends StatelessWidget {
           border: Border.all(
             color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Color.fromRGBO(
-                  Colors.grey.r, 
-                  Colors.grey.g, 
-                  Colors.grey.b, 
+                  Colors.grey.r.toInt(), 
+                  Colors.grey.g.toInt(), 
+                  Colors.grey.b.toInt(), 
                   0.3,
                 ),
           ),
