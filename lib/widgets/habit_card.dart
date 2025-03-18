@@ -31,7 +31,7 @@ class HabitCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: isCompleted 
-            ? BorderSide(color: Color.fromRGBO(habitColor.red, habitColor.green, habitColor.blue, 0.5), width: 1.5) 
+            ? BorderSide(color: habitColor.withValues(opacity: 0.5), width: 1.5) 
             : BorderSide.none,
       ),
       // Animasyon eklendi
@@ -96,7 +96,7 @@ class HabitCard extends StatelessWidget {
                                   ? TextDecoration.lineThrough
                                   : null,
                               color: isCompleted
-                                  ? Color.fromRGBO(colorScheme.onSurface.red, colorScheme.onSurface.green, colorScheme.onSurface.blue, 0.6)
+                                  ? colorScheme.onSurface.withValues(opacity: 0.6)
                                   : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -145,7 +145,7 @@ class HabitCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Color.fromRGBO(habitColor.red, habitColor.green, habitColor.blue, 0.2),
+                        color: habitColor.withValues(opacity: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -177,8 +177,8 @@ class HabitCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.dark
-                            ? Color.fromRGBO(Colors.orange.red, Colors.orange.green, Colors.orange.blue, 0.2)
-                            : Color.fromRGBO(Colors.orange.red, Colors.orange.green, Colors.orange.blue, 0.1),
+                            ? Colors.orange.withValues(opacity: 0.2)
+                            : Colors.orange.withValues(opacity: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
