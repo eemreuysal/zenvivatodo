@@ -1,13 +1,23 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'connectivity_service.dart';
+import 'package:logging/logging.dart';
 
 /// Motivasyon alıntıları ve aktivite önerileri getiren servis
 ///
 /// Bu servis, API'lardan alıntılar ve aktivite önerileri getirir.
 /// İnternet bağlantısı yoksa, yerel olarak saklanan verileri kullanır.
 class InspirationService {
+  // Constructorlar sınıfın başında
+  InspirationService._internal() {
+    _loadCachedData();
+  }
+  
+  // Singleton pattern
+  factory InspirationService() => _instance;
+  
   static final InspirationService _instance = InspirationService._internal();
   
   final Dio _dio = Dio(BaseOptions(
@@ -17,19 +27,13 @@ class InspirationService {
   ));
   
   final ConnectivityService _connectivityService = ConnectivityService();
+  final _logger = Logger('InspirationService');
   
   // Yerel olarak saklanan önceden alınmış alıntılar
   List<Map<String, String>> _cachedQuotes = [];
   
   // Yerel olarak saklanan önceden alınmış aktiviteler
   List<Map<String, dynamic>> _cachedActivities = [];
-  
-  // Singleton pattern
-  factory InspirationService() => _instance;
-  
-  InspirationService._internal() {
-    _loadCachedData();
-  }
   
   // Önbelleğe alınmış verileri yükle
   Future<void> _loadCachedData() async {
@@ -46,8 +50,8 @@ class InspirationService {
                   'author': item['author'] as String,
                 })
             .toList();
-      } catch (e) {
-        print('Alıntılar yüklenirken hata: $e');
+      } on Exception catch (e) {
+        _logger.warning('Alıntılar yüklenirken hata: $e');
         _setDefaultQuotes();
       }
     } else {
@@ -62,8 +66,8 @@ class InspirationService {
         _cachedActivities = decoded
             .map((item) => Map<String, dynamic>.from(item))
             .toList();
-      } catch (e) {
-        print('Aktiviteler yüklenirken hata: $e');
+      } on Exception catch (e) {
+        _logger.warning('Aktiviteler yüklenirken hata: $e');
         _setDefaultActivities();
       }
     } else {
@@ -73,7 +77,7 @@ class InspirationService {
   
   // JSON parse etme yardımcı metodu
   List<dynamic> _parseCachedJson(String json) {
-    // Format: [{"key":"value"}, {"key":"value"}]
+    // Format: [{\"key\":\"value\"}, {\"key\":\"value\"}]
     if (json.startsWith('[') && json.endsWith(']')) {
       return customJsonDecode(json);
     }
@@ -83,10 +87,10 @@ class InspirationService {
   // Basit JSON parser (bağımlılık azaltmak için)
   List<dynamic> customJsonDecode(String json) {
     try {
-      // Dio veya dart:convert içeren JSON decoder kullan
-      return dio.decoder.convert(json);
-    } catch (e) {
-      print('JSON parse error: $e');
+      // jsonDecode kullan (dio.decoder kaldırıldı)
+      return jsonDecode(json) as List<dynamic>;
+    } on Exception catch (e) {
+      _logger.warning('JSON parse error: $e');
       return [];
     }
   }
@@ -172,8 +176,8 @@ class InspirationService {
           
           return quote;
         }
-      } catch (e) {
-        print('Alıntı alınırken hata: $e');
+      } on Exception catch (e) {
+        _logger.warning('Alıntı alınırken hata: $e');
       }
     }
     
@@ -213,8 +217,8 @@ class InspirationService {
           
           return activity;
         }
-      } catch (e) {
-        print('Aktivite alınırken hata: $e');
+      } on Exception catch (e) {
+        _logger.warning('Aktivite alınırken hata: $e');
       }
     }
     
@@ -249,19 +253,15 @@ class InspirationService {
   // Önbelleğe alınmış alıntıları kaydet
   Future<void> _saveCachedQuotes() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('cached_quotes', dio.transformer.transformRequest(
-      RequestOptions(path: ''),
-      _cachedQuotes,
-    ));
+    // JSON encode kullanarak direk dönüştür
+    await prefs.setString('cached_quotes', jsonEncode(_cachedQuotes));
   }
   
   // Önbelleğe alınmış aktiviteleri kaydet
   Future<void> _saveCachedActivities() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('cached_activities', dio.transformer.transformRequest(
-      RequestOptions(path: ''),
-      _cachedActivities,
-    ));
+    // JSON encode kullanarak direk dönüştür
+    await prefs.setString('cached_activities', jsonEncode(_cachedActivities));
   }
   
   // Aktivite tipini çevir
