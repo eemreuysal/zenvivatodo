@@ -39,7 +39,7 @@ class TaskService {
         return true;
       }
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error adding task: $e');
       return false;
     }
@@ -49,7 +49,7 @@ class TaskService {
   Future<List<Task>> getTasksByDate(int userId, String date) async {
     try {
       return await _databaseHelper.getTasks(userId, date: date);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting tasks by date: $e');
       return [];
     }
@@ -59,7 +59,7 @@ class TaskService {
   Future<List<Task>> getActiveTasks(int userId) async {
     try {
       return await _databaseHelper.getTasks(userId, isCompleted: false);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting active tasks: $e');
       return [];
     }
@@ -69,7 +69,7 @@ class TaskService {
   Future<List<Task>> getCompletedTasks(int userId) async {
     try {
       return await _databaseHelper.getTasks(userId, isCompleted: true);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting completed tasks: $e');
       return [];
     }
@@ -91,7 +91,7 @@ class TaskService {
         categoryId: categoryId,
         priority: priority,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting filtered tasks: $e');
       return [];
     }
@@ -115,7 +115,7 @@ class TaskService {
         query, 
         includeCompleted: includeCompleted,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error searching tasks: $e');
       return [];
     }
@@ -160,7 +160,7 @@ class TaskService {
         return true;
       }
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error updating task: $e');
       return false;
     }
@@ -191,7 +191,7 @@ class TaskService {
         return true;
       }
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error toggling task completion: $e');
       return false;
     }
@@ -205,7 +205,7 @@ class TaskService {
       
       final int result = await _databaseHelper.deleteTask(taskId);
       return result > 0;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error deleting task: $e');
       return false;
     }
@@ -226,7 +226,7 @@ class TaskService {
       }
       
       return result;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error batch updating tasks: $e');
       return false;
     }
@@ -236,7 +236,7 @@ class TaskService {
   Future<List<Map<String, dynamic>>> getTaskStatsByCategory(int userId) async {
     try {
       return await _databaseHelper.getTaskCountByCategory(userId);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting task stats by category: $e');
       return [];
     }
@@ -246,7 +246,7 @@ class TaskService {
   Future<List<Map<String, dynamic>>> getCompletedTasksLast7Days(int userId) async {
     try {
       return await _databaseHelper.getCompletedTasksLast7Days(userId);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting completed tasks stats: $e');
       return [];
     }
@@ -256,7 +256,7 @@ class TaskService {
   Future<List<Map<String, dynamic>>> getTaskStatsByPriority(int userId) async {
     try {
       return await _databaseHelper.getTaskCountByPriority(userId);
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting task stats by priority: $e');
       return [];
     }
@@ -273,7 +273,7 @@ class TaskService {
         userId,
         date: today,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting today tasks: $e');
       return [];
     }
@@ -285,7 +285,7 @@ class TaskService {
       // Tüm tamamlanmamış görevleri al
       final List<Task> allActiveTasks = await _databaseHelper.getTasks(
         userId, 
-        isCompleted: false
+        isCompleted: false,
       );
       
       // Bugünün tarihini al
@@ -299,7 +299,7 @@ class TaskService {
       }).toList()
       // Tarihe göre sırala
       ..sort((a, b) => a.date.compareTo(b.date));
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Error getting upcoming tasks: $e');
       return [];
     }
