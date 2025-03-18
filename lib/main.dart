@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'constants/app_texts.dart';
 import 'constants/app_theme.dart';
@@ -33,10 +34,12 @@ void main() async {
   final connectivityService = ConnectivityService();
   await connectivityService.checkConnection();
 
-  // API servisini başlat
+  // API servisini başlat - bu servisi kullanacaksanız kaldırmayın
+  // ignore: unused_local_variable
   final apiService = ApiService();
   
-  // Inspiration servisini başlat
+  // Inspiration servisini başlat - bu servisi kullanacaksanız kaldırmayın
+  // ignore: unused_local_variable
   final inspirationService = InspirationService();
   
   // Tema tercihini al
@@ -106,9 +109,9 @@ class ConnectivityProvider with ChangeNotifier {
   bool get canPerformOnlineOperations => _hasConnection && _isOnlineMode;
 
   // Bağlantı durumunu güncelle
-  void _updateConnectionStatus(dynamic result) {
+  void _updateConnectionStatus(ConnectivityResult result) {
     final previousStatus = _hasConnection;
-    _hasConnection = result != null && result != ConnectivityResult.none;
+    _hasConnection = result != ConnectivityResult.none;
     
     // Durum değiştiyse bildiri yap
     if (previousStatus != _hasConnection) {
