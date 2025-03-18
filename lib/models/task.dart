@@ -25,28 +25,9 @@ enum TaskPriority {
 }
 
 // JSON Serializable için sınıfı işaretle
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Task {
-  // Benzersiz tanımlayıcı - opsiyonel
-  final int? id;
-  final String title;
-  final String description;
-  final String date;
-  final String? time;
-  final bool isCompleted;
-  final int? categoryId;
-  
-  // priority alanı için JSON serialization ayarları
-  @JsonKey(includeToJson: false)
-  final TaskPriority priority;
-  
-  // JSON serialization için priority değeri
-  @JsonKey(name: 'priority')
-  int get priorityValue => priority.value;
-  
-  final int userId;
-  final String? uniqueId;
-
+  // Constructorları sınıfın başına taşıyoruz (lint kuralı: sort_constructors_first)
   // Normal constructor
   Task({
     this.id,
@@ -111,6 +92,26 @@ class Task {
       uniqueId: map['uniqueId'],
     );
   }
+
+  // Benzersiz tanımlayıcı - opsiyonel
+  final int? id;
+  final String title;
+  final String description;
+  final String date;
+  final String? time;
+  final bool isCompleted;
+  final int? categoryId;
+  
+  // JSON serileştirme için priority enum değerini yönetme
+  @JsonKey(ignore: true)
+  final TaskPriority priority;
+  
+  // JSON dönüşümleri için int özelliği
+  @JsonKey(name: 'priority')
+  int get priorityValue => priority.value;
+  
+  final int userId;
+  final String? uniqueId;
 
   // Immutability için kopya oluşturma (kopyalama ile yeni nesne)
   Task copyWith({
