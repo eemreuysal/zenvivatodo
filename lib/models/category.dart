@@ -1,9 +1,13 @@
-// Kategori modeli - Modern Dart 3.7 özellikleri kullanılarak güncellendi
+// Kategori modeli - Modern Dart 3.7 özellikleri ve JSON serializable desteği ile güncellendi
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+// Bu dosya ile ilişkili .g.dart dosyasını dahil et
+part 'category.g.dart';
 
 /// Görev kategorisi sınıfı
+@JsonSerializable()
 class Category {
-
   // Enhanced constructor (Dart 3.0+)
   const Category({
     this.id,
@@ -22,7 +26,7 @@ class Category {
     this.createdAt,
   }) : color = colorObj.value;
 
-  // Map'ten nesne oluşturma
+  // Map'ten nesne oluşturma - SQLite uyumluluğu için
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(
       id: map['id'],
@@ -32,10 +36,16 @@ class Category {
       createdAt: map['created_at'],
     );
   }
+  
+  // JSON'dan nesne oluşturma
+  factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
+  
   final int? id;
   final String name;
   final int color;
   final int? userId;
+  
+  @JsonKey(name: 'created_at')
   final String? createdAt;
 
   // Kopyalama yöntemi (immutability için)
@@ -55,7 +65,7 @@ class Category {
     );
   }
 
-  // Veritabanı için Map'e dönüştürme
+  // Veritabanı için Map'e dönüştürme - SQLite uyumluluğu için
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -65,6 +75,9 @@ class Category {
       'created_at': createdAt,
     };
   }
+  
+  // JSON'a dönüştürme metodu
+  Map<String, dynamic> toJson() => _$CategoryToJson(this);
 
   // String temsilini oluşturma
   @override
