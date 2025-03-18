@@ -61,7 +61,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -91,7 +91,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
     }
@@ -172,7 +172,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
@@ -523,10 +523,11 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   }
 
   String _getFrequencyText(Habit habit) {
+    // HabitFrequency enum değerleri ile doğru şekilde karşılaştırma yapıyoruz
     switch (habit.frequency) {
-      case 'daily':
+      case HabitFrequency.daily:
         return 'Her gün';
-      case 'weekly':
+      case HabitFrequency.weekly:
         if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
           final days = habit.frequencyDays!
               .split(',')
@@ -535,9 +536,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
           return 'Haftada: $days';
         }
         return 'Haftada bir';
-      case 'monthly':
+      case HabitFrequency.monthly:
         return 'Ayda bir (Ayın ${DateTime.parse(habit.startDate).day}. günü)';
-      default:
+      case HabitFrequency.custom:
         return 'Özel';
     }
   }
