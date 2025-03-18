@@ -24,7 +24,7 @@ class Category {
     required Color colorObj,
     this.userId,
     this.createdAt,
-  }) : color = colorObj.value;
+  }) : color = colorObj.toArgb32();
 
   // Map'ten nesne oluşturma - SQLite uyumluluğu için
   factory Category.fromMap(Map<String, dynamic> map) {
