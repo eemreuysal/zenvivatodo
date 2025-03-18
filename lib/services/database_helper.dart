@@ -16,14 +16,14 @@ import '../models/user.dart';
 /// Veritabanı işlemlerini yöneten yardımcı sınıf
 /// Singleton pattern kullanılarak veritabanı işlemlerini yönetir
 class DatabaseHelper {
-  // Sınıf değişkenleri
-  static Database? _database;
-  static const int _databaseVersion = 4;
-
   // Constructor'lar sınıfın en üstünde
   DatabaseHelper._internal();  
   static final DatabaseHelper _instance = DatabaseHelper._internal();
   factory DatabaseHelper() => _instance;
+
+  // Sınıf değişkenleri
+  static Database? _database;
+  static const int _databaseVersion = 4;
 
   // Veritabanı bağlantısını al veya oluştur
   Future<Database> get database async {
@@ -473,8 +473,8 @@ class DatabaseHelper {
   }) async {
     final Database db = await database;
     
-    List<String> whereConditions = ['userId = ?'];
-    List<dynamic> whereArgs = [userId];
+    final List<String> whereConditions = ['userId = ?'];
+    final List<dynamic> whereArgs = [userId];
     
     if (date != null) {
       whereConditions.add('date = ?');
@@ -673,7 +673,6 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
-      // if-else koşullu ifade yerine firstWhere kullanımı tercih edildi
       final found = results.firstWhere(
         (r) => r['date'] == date, 
         orElse: () => {'date': date, 'count': 0},
