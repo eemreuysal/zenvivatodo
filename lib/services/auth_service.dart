@@ -200,6 +200,19 @@ class AuthService {
     }
   }
   
+  /// Kullanıcı bilgilerini ID'ye göre getir
+  Future<User?> getUserById(int userId) async {
+    try {
+      return await _databaseHelper.getUserById(userId);
+    } on DatabaseException catch (e) {
+      debugPrint('Veritabanı hatası - kullanıcı getirilirken: $e');
+      return null;
+    } on Exception catch (e) {
+      debugPrint('Error getting user by ID: $e');
+      return null;
+    }
+  }
+  
   /// Test kullanıcısı oluştur
   /// Bu yöntem geliştirme/test için kullanılır
   Future<User?> createTestUser() async {
