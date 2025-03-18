@@ -1,5 +1,9 @@
-// Habit modeli - Modern Dart 3.7 özellikleri kullanılarak güncellendi
+// Habit modeli - Modern Dart 3.7 özellikleri ve JSON serializable kullanılarak güncellendi
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+// Bu dosya ile ilişkili .g.dart dosyasını dahil et
+part 'habit.g.dart';
 
 /// Alışkanlık sıklığı için enum (Dart 3.7 pattern matching desteği ile)
 enum HabitFrequency {
@@ -27,8 +31,8 @@ enum HabitFrequency {
 }
 
 /// Alışkanlık modeli
+@JsonSerializable()
 class Habit {
-
   // Enhanced constructor (Dart 3.0+)
   const Habit({
     this.id,
@@ -125,7 +129,7 @@ class Habit {
     );
   }
 
-  // Map'ten nesne oluşturma
+  // Map'ten nesne oluşturma (SQLite uyumluluğu için)
   factory Habit.fromMap(Map<String, dynamic> map) {
     return Habit.withStringFrequency(
       id: map['id'],
@@ -146,10 +150,20 @@ class Habit {
       updatedAt: map['updated_at'],
     );
   }
+
+  // JSON'dan nesne oluşturma
+  factory Habit.fromJson(Map<String, dynamic> json) => _$HabitFromJson(json);
+  
   final int? id;
   final String title;
   final String description;
+  
+  @JsonKey(
+    toJson: _frequencyToJson,
+    fromJson: _frequencyFromJson,
+  )
   final HabitFrequency frequency;
+  
   final String? frequencyDays; // "1,3,5,7" (Pazartesi, Çarşamba, Cuma, Pazar)
   final String startDate;
   final int targetDays;
@@ -160,7 +174,11 @@ class Habit {
   final int longestStreak;
   final bool showInDashboard;
   final int userId;
+  
+  @JsonKey(name: 'created_at')
   final String? createdAt;
+  
+  @JsonKey(name: 'updated_at')
   final String? updatedAt;
 
   // Kopyalama yöntemi (immutability için)
@@ -239,7 +257,7 @@ class Habit {
     );
   }
 
-  // Veritabanı için Map'e dönüştürme
+  // Veritabanı için Map'e dönüştürme (SQLite uyumluluğu için)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -260,6 +278,15 @@ class Habit {
       'updated_at': updatedAt,
     };
   }
+  
+  // JSON'a dönüştürme metodu
+  Map<String, dynamic> toJson() => _$HabitToJson(this);
+  
+  // JSON'a HabitFrequency'i dönüştürme
+  static String _frequencyToJson(HabitFrequency frequency) => frequency.value;
+  
+  // JSON'dan HabitFrequency oluşturma
+  static HabitFrequency _frequencyFromJson(String value) => HabitFrequency.fromValue(value);
 
   // String temsilini oluşturma
   @override
