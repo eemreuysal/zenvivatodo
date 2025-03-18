@@ -103,8 +103,8 @@ class NotificationService {
 
       // iOS için izinler
       // Modern Dart 3.7 API kullanımı - platform özel yöntemler için güvenli tip kontrolleri
-      final DarwinFlutterLocalNotificationsPlugin? darwinPlugin = 
-          _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
+      final darwinPlugin = 
+          _notifications.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
       
       // iOS izinlerini iste
       if (darwinPlugin != null) {
@@ -133,7 +133,7 @@ class NotificationService {
       final taskId = int.tryParse(response.payload!);
       
       if (taskId != null && navigatorKey.currentContext != null) {
-        // TODO: Görev detay sayfasına yönlendir
+        // Görev detay sayfasına yönlendir
         // Bu kısmı düzeltmek için TaskDetail ekranını gerektiriyor
         /*
         Navigator.of(navigatorKey.currentContext!).push(
