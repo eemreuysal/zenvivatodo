@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 
 /// İnternet bağlantısı durumunu takip eden servis sınıfı
 ///
@@ -9,6 +10,9 @@ import 'package:flutter/material.dart';
 /// bildirimleri gösterir.
 class ConnectivityService {
   static final ConnectivityService _instance = ConnectivityService._internal();
+  
+  // Logger tanımla
+  final _logger = Logger('ConnectivityService');
   
   // Connectivity instance
   final Connectivity _connectivity = Connectivity();
@@ -30,6 +34,7 @@ class ConnectivityService {
   // Singleton pattern
   factory ConnectivityService() => _instance;
   
+  // Constructor'ları düzgün şekilde yerleştirme
   ConnectivityService._internal() {
     // Başlangıç durumunu al
     _initConnectivity();
@@ -43,15 +48,15 @@ class ConnectivityService {
     try {
       final result = await _connectivity.checkConnectivity();
       _updateConnectionStatus(result);
-    } catch (e) {
-      print('Connectivity check error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Connectivity check error: $e');
       _updateConnectionStatus(ConnectivityResult.none);
     }
   }
   
   // Bağlantı durumunu güncelle
   void _updateConnectionStatus(ConnectivityResult result) {
-    print('Connectivity changed: $result');
+    _logger.info('Connectivity changed: $result');
     _lastResult = result;
     _connectionStatusController.add(result);
   }
@@ -102,14 +107,15 @@ class ConnectivityService {
 /// Bu widget, internet bağlantısını takip eder ve bağlantı durumuna
 /// göre farklı UI'lar gösterir.
 class ConnectivityWidget extends StatelessWidget {
-  final Widget connected;
-  final Widget disconnected;
-  
+  // Constructor'ı sınıfın başına taşıdık - sort_constructors_first
   const ConnectivityWidget({
     super.key,
     required this.connected,
     required this.disconnected,
   });
+  
+  final Widget connected;
+  final Widget disconnected;
   
   @override
   Widget build(BuildContext context) {
