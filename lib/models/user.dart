@@ -1,12 +1,16 @@
-// User modeli - Modern Dart 3.7 özellikleri ve güvenli şifreleme kullanılarak güncellendi
+// User modeli - Modern Dart 3.7 özellikleri, güvenli şifreleme ve JSON serializable desteği kullanılarak güncellendi
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+// Bu dosya ile ilişkili .g.dart dosyasını dahil et
+part 'user.g.dart';
 
 /// Uygulama kullanıcısı sınıfı
+@JsonSerializable()
 class User {
-
   // Enhanced constructor (Dart 3.0+)
   const User({
     this.id,
@@ -35,7 +39,7 @@ class User {
     );
   }
 
-  // Map'ten nesne oluşturma
+  // Map'ten nesne oluşturma - SQLite uyumluluğu için
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map['id'],
@@ -46,11 +50,21 @@ class User {
       lastLogin: map['last_login'],
     );
   }
+  
+  // JSON'dan nesne oluşturma
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  
   final int? id;
   final String username;
   final String email;
+  
+  @JsonKey(includeToJson: false)  // JSON'a dönüştürürken şifreyi dahil etme
   final String password; // Artık "salt:hash" formatında saklanıyor
+  
+  @JsonKey(name: 'created_at')
   final String? createdAt;
+  
+  @JsonKey(name: 'last_login')
   final String? lastLogin;
   
   // Daha güvenli şifre hashleme yöntemi
@@ -122,7 +136,7 @@ class User {
     return copyWith(lastLogin: DateTime.now().toIso8601String());
   }
 
-  // Veritabanı için Map'e dönüştürme
+  // Veritabanı için Map'e dönüştürme - SQLite uyumluluğu için
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -133,6 +147,9 @@ class User {
       'last_login': lastLogin,
     };
   }
+  
+  // JSON'a dönüştürme metodu
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 
   // String temsilini oluşturma
   @override
