@@ -85,6 +85,11 @@ class Task {
     );
   }
 
+  // JSON'dan nesne oluşturma - API ile uyumluluk için
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return TaskDTO.fromJson(json).toTask();
+  }
+
   // Benzersiz tanımlayıcı - opsiyonel
   final int? id;
   final String title;
@@ -141,6 +146,11 @@ class Task {
       'userId': userId,
       'uniqueId': uniqueId,
     };
+  }
+
+  // JSON'a dönüştürme - API ile uyumluluk için
+  Map<String, dynamic> toJson() {
+    return TaskDTO.fromTask(this).toJson();
   }
 
   // String temsilini oluşturma
@@ -240,34 +250,3 @@ class TaskDTO {
     );
   }
 }
-
-// Json serileştirme / json_serializable için, manual kodlar
-// Sadece geçici olarak eklenmiştir, build_runner çalıştırıldığında bu kodlar
-// task.g.dart dosyasına taşınacak ve burada silinecektir.
-// Bunların yerine dart run build_runner build --delete-conflicting-outputs
-// komutunu çalıştırmanız önerilir.
-TaskDTO _$TaskDTOFromJson(Map<String, dynamic> json) => TaskDTO(
-      id: json['id'] as int?,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      date: json['date'] as String,
-      time: json['time'] as String?,
-      isCompleted: json['isCompleted'] as bool? ?? false,
-      categoryId: json['categoryId'] as int?,
-      priority: json['priority'] as int,
-      userId: json['userId'] as int,
-      uniqueId: json['uniqueId'] as String?,
-    );
-
-Map<String, dynamic> _$TaskDTOToJson(TaskDTO instance) => <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'description': instance.description,
-      'date': instance.date,
-      'time': instance.time,
-      'isCompleted': instance.isCompleted,
-      'categoryId': instance.categoryId,
-      'priority': instance.priority,
-      'userId': instance.userId,
-      'uniqueId': instance.uniqueId,
-    };
