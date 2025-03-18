@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Try to login with entered credentials
         final user = await _authService.login(
-            _usernameController.text.trim(), _passwordController.text.trim(),);
+            _usernameController.text.trim(), _passwordController.text.trim());
 
         if (!mounted) return;
 
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading = false;
           });
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (!mounted) return;
 
         // Show error if exception occurs
