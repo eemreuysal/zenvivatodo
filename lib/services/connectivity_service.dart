@@ -17,8 +17,8 @@ class ConnectivityService {
     // Başlangıç durumunu al
     _initConnectivity();
     
-    // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatusFromList);
+    // Bağlantı değişikliklerini dinle - connectivity_plus 3.0.0 ve üzeri versiyonlarda tek bir ConnectivityResult döndürür, liste değil
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -47,31 +47,14 @@ class ConnectivityService {
   Future<void> _initConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _updateConnectionStatusFromList(result);
+      _updateConnectionStatus(result);
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
       _updateConnectionStatus(ConnectivityResult.none);
     }
   }
   
-  // Liste olarak gelen connectivity sonuçlarını işle
-  void _updateConnectionStatusFromList(List<ConnectivityResult> results) {
-    if (results.isEmpty) {
-      _updateConnectionStatus(ConnectivityResult.none);
-    } else {
-      // Liste boş değilse, mobil veya WiFi varsa bağlantı var demektir
-      final hasMobileOrWifi = results.contains(ConnectivityResult.mobile) || 
-                             results.contains(ConnectivityResult.wifi) ||
-                             results.contains(ConnectivityResult.ethernet);
-                             
-      // Bağlantı durumunu güncelle
-      _updateConnectionStatus(hasMobileOrWifi ? 
-        (results.contains(ConnectivityResult.wifi) ? ConnectivityResult.wifi : ConnectivityResult.mobile) :
-        ConnectivityResult.none);
-    }
-  }
-  
-  // Bağlantı durumunu güncelle - tek bir ConnectivityResult parametresi alır
+  // Connectivity sonucunu işle - connectivity_plus 3.0.0+ için ConnectivityResult parametresi alınmalı, liste değil
   void _updateConnectionStatus(ConnectivityResult result) {
     _logger.info('Connectivity changed: $result');
     _lastResult = result;
@@ -80,25 +63,11 @@ class ConnectivityService {
   
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
-    final results = await _connectivity.checkConnectivity();
+    final result = await _connectivity.checkConnectivity();
     
-    // Sonuç artık bir liste, ilk sonucu kullan veya bağlantı yoksa none döndür
-    if (results.isNotEmpty) {
-      final hasMobileOrWifi = results.contains(ConnectivityResult.mobile) || 
-                             results.contains(ConnectivityResult.wifi) ||
-                             results.contains(ConnectivityResult.ethernet);
-                             
-      // Bağlantı durumunu güncelle
-      final result = hasMobileOrWifi ? 
-          (results.contains(ConnectivityResult.wifi) ? ConnectivityResult.wifi : ConnectivityResult.mobile) :
-          ConnectivityResult.none;
-          
-      _updateConnectionStatus(result);
-      return result != ConnectivityResult.none;
-    } else {
-      _updateConnectionStatus(ConnectivityResult.none);
-      return false;
-    }
+    // ConnectivityResult değerini kullan (liste değil)
+    _updateConnectionStatus(result);
+    return result != ConnectivityResult.none;
   }
   
   // Bağlantı durumu snackbar'ı göster
