@@ -261,4 +261,47 @@ class TaskService {
       return [];
     }
   }
+
+  /// Bugünkü görevleri getir (Eklendi)
+  Future<List<Task>> getTodayTasks(int userId) async {
+    try {
+      // Bugünün tarihini al
+      final DateTime now = DateTime.now();
+      final String today = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      
+      return await _databaseHelper.getTasks(
+        userId,
+        date: today,
+      );
+    } catch (e) {
+      debugPrint('Error getting today tasks: $e');
+      return [];
+    }
+  }
+
+  /// Yaklaşan görevleri getir (Eklendi)
+  Future<List<Task>> getUpcomingTasks(int userId) async {
+    try {
+      // Tüm tamamlanmamış görevleri al
+      final List<Task> allActiveTasks = await _databaseHelper.getTasks(
+        userId, 
+        isCompleted: false
+      );
+      
+      // Bugünün tarihini al
+      final DateTime now = DateTime.now();
+      final String today = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      
+      // Bugün dışındaki gelecek görevleri filtrele
+      return allActiveTasks.where((task) {
+        if (task.date.isEmpty) return false;
+        return task.date.compareTo(today) > 0;
+      }).toList()
+      // Tarihe göre sırala
+      ..sort((a, b) => a.date.compareTo(b.date));
+    } catch (e) {
+      debugPrint('Error getting upcoming tasks: $e');
+      return [];
+    }
+  }
 }
