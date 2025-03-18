@@ -17,7 +17,7 @@ class ConnectivityService {
     // Başlangıç durumunu al
     _initConnectivity();
     
-    // Bağlantı değişikliklerini dinle - connectivity_plus 3.0.0 ve üzeri versiyonlarda tek bir ConnectivityResult döndürür, liste değil
+    // Bağlantı değişikliklerini dinle
     _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
   
@@ -29,7 +29,7 @@ class ConnectivityService {
   // Connectivity instance
   final Connectivity _connectivity = Connectivity();
   
-  // Connection stream controller - ConnectivityResult tipinde streami yayınlar
+  // Connection stream controller
   final StreamController<ConnectivityResult> _connectionStatusController =
       StreamController<ConnectivityResult>.broadcast();
   
@@ -54,7 +54,7 @@ class ConnectivityService {
     }
   }
   
-  // Connectivity sonucunu işle - connectivity_plus 3.0.0+ için ConnectivityResult parametresi alınmalı, liste değil
+  // Connectivity sonucunu işle
   void _updateConnectionStatus(ConnectivityResult result) {
     _logger.info('Connectivity changed: $result');
     _lastResult = result;
@@ -65,7 +65,7 @@ class ConnectivityService {
   Future<bool> checkConnection() async {
     final result = await _connectivity.checkConnectivity();
     
-    // ConnectivityResult değerini kullan (liste değil)
+    // ConnectivityResult değerini kullan
     _updateConnectionStatus(result);
     return result != ConnectivityResult.none;
   }
