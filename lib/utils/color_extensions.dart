@@ -11,10 +11,10 @@ extension ColorExtensions on Color {
   
   /// Bileşen değerlerini kullanarak renk oluşturur
   Color withRGBValues({int? red, int? green, int? blue, double? opacity}) {
-    final int r = red ?? this.red;
-    final int g = green ?? this.green;
-    final int b = blue ?? this.blue;
-    final int a = opacity != null ? (opacity * 255).round() : alpha;
+    final int r = red ?? this.r;
+    final int g = green ?? this.g;
+    final int b = blue ?? this.b;
+    final int a = opacity != null ? (opacity * 255).round() : this.a;
     
     return Color.fromARGB(a, r, g, b);
   }
