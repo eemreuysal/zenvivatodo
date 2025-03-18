@@ -18,7 +18,7 @@ class ConnectivityService {
     _initConnectivity();
     
     // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatusFromList);
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -47,15 +47,15 @@ class ConnectivityService {
   Future<void> _initConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      _updateConnectionStatus(result);
+      _updateConnectionStatusFromList(result);
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
       _updateConnectionStatus(ConnectivityResult.none);
     }
   }
   
-  // Connectivity API'deki değişiklik: onConnectivityChanged artık bir List<ConnectivityResult> döndürüyor
-  void _handleConnectivityChange(List<ConnectivityResult> results) {
+  // Liste olarak gelen connectivity sonuçlarını işle
+  void _updateConnectionStatusFromList(List<ConnectivityResult> results) {
     if (results.isEmpty) {
       _updateConnectionStatus(ConnectivityResult.none);
     } else {
