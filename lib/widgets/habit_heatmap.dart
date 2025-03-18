@@ -98,12 +98,12 @@ class HabitHeatmap extends StatelessWidget {
   ) {
     final baseColor = color;
     final completedColor = baseColor;
-    // Double -> int dönüşümü ile Color.fromARGB kullanımı düzeltildi
-    final notCompletedColor = Color.fromARGB(
-      26, 
-      baseColor.red, 
-      baseColor.green, 
-      baseColor.blue,
+    // Double -> int dönüşümü ile Color.fromRGBO kullanımı düzeltildi
+    final notCompletedColor = Color.fromRGBO(
+      (255 * (1 - 0.9)).toInt(), 
+      (255 * 0.1).toInt(), 
+      (255 * 0.1).toInt(), 
+      0.1,
     );
     final todayBorderColor = Theme.of(context).primaryColor;
 
@@ -137,12 +137,12 @@ class HabitHeatmap extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            // Double -> int dönüşümü ile Color.fromARGB kullanımı düzeltildi
-            color: Color.fromARGB(
-              26, 
-              color.red, 
-              color.green, 
-              color.blue,
+            // Double -> int dönüşümü ile Color.fromRGBO kullanımı düzeltildi
+            color: Color.fromRGBO(
+              (128).toInt(), 
+              (128).toInt(), 
+              (255).toInt(), 
+              0.1,
             ),
             borderRadius: BorderRadius.circular(2),
           ),
