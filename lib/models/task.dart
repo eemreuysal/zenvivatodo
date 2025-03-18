@@ -27,6 +27,7 @@ enum TaskPriority {
 // Daha temiz bir yaklaşım için TaskDTO ile JSON serileştirme
 @JsonSerializable()
 class TaskDTO {
+  // Constructor'ları yukarıya taşıdık - sort_constructors_first
   TaskDTO({
     this.id,
     required this.title,
@@ -41,7 +42,6 @@ class TaskDTO {
   });
 
   factory TaskDTO.fromJson(Map<String, dynamic> json) => _$TaskDTOFromJson(json);
-  Map<String, dynamic> toJson() => _$TaskDTOToJson(this);
   
   factory TaskDTO.fromTask(Task task) {
     return TaskDTO(
@@ -68,6 +68,8 @@ class TaskDTO {
   final int priority;
   final int userId;
   final String? uniqueId;
+  
+  Map<String, dynamic> toJson() => _$TaskDTOToJson(this);
   
   Task toTask() {
     return Task(
@@ -166,6 +168,7 @@ class Task {
   final int? categoryId;
   final TaskPriority priority;
   final int userId;
+  @JsonKey(includeFromJson: false, includeToJson: false) // ignore yerine includeFromJson ve includeToJson kullanımı
   final String? uniqueId;
   
   // Öncelik değerini int olarak döndür
