@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/habit.dart';
 import '../models/habit_log.dart';
 import 'database_helper.dart';
-import 'notification_service.dart';
+// import 'notification_service.dart'; // Kullanılmayan import kaldırıldı
 
 /// Alışkanlık yönetimi hizmetleri
 class HabitService {
@@ -55,8 +55,9 @@ class HabitService {
   }
 
   /// Dashboard için gösterilecek alışkanlıkları getirme
-  Future<List<Habit>> getDashboardHabits(int userId,
-      {required String date,}) async {
+  /// [userId] - kullanıcı kimliği
+  /// [date] - gösterilecek tarih
+  Future<List<Habit>> getDashboardHabits({required int userId, required String date}) async {
     try {
       final maps = await _dbHelper.getDashboardHabits(userId, date: date);
       return maps.map((map) => Habit.fromMap(map)).toList();
