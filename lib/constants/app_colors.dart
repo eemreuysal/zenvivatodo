@@ -45,7 +45,7 @@ class AppColors {
   static const Color infoColor = Color(0xFF2196F3);
   
   // Material 3 Light Theme Color Scheme
-  static ColorScheme get lightColorScheme => ColorScheme(
+  static ColorScheme get lightColorScheme => const ColorScheme(
     brightness: Brightness.light,
     primary: primaryColor,
     onPrimary: Colors.white,
@@ -63,16 +63,16 @@ class AppColors {
     onError: Colors.white,
     errorContainer: Color(0xFFFFDAD9),
     onErrorContainer: Color(0xFF410002),
-    background: lightBackground,
-    onBackground: lightTextColor,
-    surface: lightCardColor,
+    // background yerine surface kullanılmalı
+    surface: lightBackground,
     onSurface: lightTextColor,
-    surfaceVariant: Color(0xFFE7E0EC),
+    surfaceContainerHighest: Color(0xFFE7E0EC), // surfaceVariant yerine
     onSurfaceVariant: lightSecondaryTextColor,
     outline: Color(0xFFBDBDBD),
     outlineVariant: Color(0xFFCAC4D0),
-    shadow: Colors.black.withOpacity(0.2),
-    scrim: Colors.black.withOpacity(0.5),
+    // shadow doğrudan renk olarak belirtilmeli, withOpacity yerine
+    shadow: Color(0x33000000), // %20 transparan siyah
+    scrim: Color(0x80000000), // %50 transparan siyah
     inverseSurface: Color(0xFF313033),
     onInverseSurface: Color(0xFFF4EFF4),
     inversePrimary: primaryLightColor,
@@ -80,7 +80,7 @@ class AppColors {
   );
   
   // Material 3 Dark Theme Color Scheme
-  static ColorScheme get darkColorScheme => ColorScheme(
+  static ColorScheme get darkColorScheme => const ColorScheme(
     brightness: Brightness.dark,
     primary: primaryLightColor,
     onPrimary: Color(0xFF381E73),
@@ -98,11 +98,10 @@ class AppColors {
     onError: Color(0xFF690005),
     errorContainer: errorColor,
     onErrorContainer: Colors.white,
-    background: darkBackground,
-    onBackground: darkTextColor,
-    surface: darkCardColor,
+    // background yerine surface kullanılmalı
+    surface: darkBackground,
     onSurface: darkTextColor,
-    surfaceVariant: Color(0xFF49454F),
+    surfaceContainerHighest: Color(0xFF49454F), // surfaceVariant yerine
     onSurfaceVariant: darkSecondaryTextColor,
     outline: Color(0xFF938F99),
     outlineVariant: Color(0xFF444249),
