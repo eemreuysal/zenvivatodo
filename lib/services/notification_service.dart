@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -115,7 +116,7 @@ class NotificationService {
         );
       }
     } on PlatformException catch (e) {
-      // UnsupportedError yerine daha spesifik bir hata türü olan PlatformException kullanıldı
+      // Platform-specifik hatalar için uygun şekilde işleyin
       debugPrint('Platform izin desteği yok: $e');
     } on Exception catch (e) {
       debugPrint('Bildirim izinleri alınamadı: $e');
