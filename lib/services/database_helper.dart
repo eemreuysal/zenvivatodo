@@ -513,7 +513,7 @@ class DatabaseHelper {
   Future<List<Task>> searchTasks(
     int userId, 
     String query, 
-    {bool includeCompleted = false,}) async {
+    {bool includeCompleted = false}) async {
     final Database db = await database;
     
     // SQL enjeksiyon riskini azaltmak için parametre kullanımı
@@ -524,7 +524,7 @@ class DatabaseHelper {
         userId, 
         '%$query%', 
         '%$query%',
-        if (includeCompleted) 1 else 0,
+        (includeCompleted ? 1 : 0),
       ],
       orderBy: 'date ASC, time ASC',
     );
