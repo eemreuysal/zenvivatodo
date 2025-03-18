@@ -11,7 +11,7 @@ class HabitService {
   factory HabitService() => _instance;
   HabitService._internal();
   final DatabaseHelper _dbHelper = DatabaseHelper();
-  final NotificationService _notificationService = NotificationService();
+  // Kullanılmayan _notificationService alanını kaldıralım
   
   // Singleton pattern
   static final HabitService _instance = HabitService._internal();
@@ -33,7 +33,7 @@ class HabitService {
         return true;
       }
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık oluşturma hatası: $e');
       return false;
     }
@@ -48,7 +48,7 @@ class HabitService {
       
       // Yeni model sınıfı ile uyumlu hale getirme
       return maps.map((map) => Habit.fromMap(map)).toList();
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlıkları getirme hatası: $e');
       return [];
     }
@@ -60,7 +60,7 @@ class HabitService {
     try {
       final maps = await _dbHelper.getDashboardHabits(userId, date: date);
       return maps.map((map) => Habit.fromMap(map)).toList();
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Dashboard alışkanlıklarını getirme hatası: $e');
       return [];
     }
@@ -74,7 +74,7 @@ class HabitService {
         return Habit.fromMap(map);
       }
       return null;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık getirme hatası: $e');
       return null;
     }
@@ -128,12 +128,9 @@ class HabitService {
               return selectedDays.contains(weekday);
             }
             return false;
-            
-          default:
-            return false;
         }
       }).toList();
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Bugünkü alışkanlıkları getirme hatası: $e');
       return [];
     }
@@ -142,15 +139,13 @@ class HabitService {
   /// Alışkanlık güncelleme
   Future<bool> updateHabit(Habit habit) async {
     try {
-      // Mevcut alışkanlığı kontrol et (hatırlatıcıların güncellemesi için)
-      final existingHabit = await getHabitById(habit.id!);
-      
+      // Mevcut alışkanlık üzerinde işlem yapmıyoruz, değişkeni kaldıralım
       final rowsAffected = await _dbHelper.updateHabit(habit.toMap());
       
       // Bildirimlerle ilgili güncelleme işlemleri (ileri aşama)
       
       return rowsAffected > 0;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık güncelleme hatası: $e');
       return false;
     }
@@ -163,7 +158,7 @@ class HabitService {
       
       final rowsAffected = await _dbHelper.deleteHabit(id);
       return rowsAffected > 0;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık silme hatası: $e');
       return false;
     }
@@ -180,7 +175,7 @@ class HabitService {
       
       final rowsAffected = await _dbHelper.updateHabit(updatedHabit.toMap());
       return rowsAffected > 0;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık arşivleme hatası: $e');
       return false;
     }
@@ -197,7 +192,7 @@ class HabitService {
       
       final rowsAffected = await _dbHelper.updateHabit(updatedHabit.toMap());
       return rowsAffected > 0;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Dashboard gösterme ayarı hatası: $e');
       return false;
     }
@@ -215,7 +210,7 @@ class HabitService {
         return true;
       }
       return false;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık tamamlama hatası: $e');
       return false;
     }
@@ -226,7 +221,7 @@ class HabitService {
     try {
       final maps = await _dbHelper.getHabitLogs(habitId, date: date);
       return maps.map((map) => HabitLog.fromMap(map)).toList();
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık kayıtlarını getirme hatası: $e');
       return [];
     }
@@ -248,7 +243,7 @@ class HabitService {
           return false;
         }
       }).toList();
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Son alışkanlık kayıtlarını getirme hatası: $e');
       return [];
     }
@@ -268,7 +263,7 @@ class HabitService {
       DateTime startDate;
       try {
         startDate = DateTime.parse(habitObj.startDate);
-      } catch (e) {
+      } on FormatException catch (e) {
         debugPrint('Geçersiz başlangıç tarihi: ${habitObj.startDate}');
         return;
       }
@@ -339,7 +334,7 @@ class HabitService {
         
         await _dbHelper.updateHabit(updatedHabit.toMap());
       }
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Zincir güncelleme hatası: $e');
     }
   }
@@ -351,7 +346,7 @@ class HabitService {
     DateTime habitStartDate;
     try {
       habitStartDate = DateTime.parse(habit.startDate);
-    } catch (e) {
+    } on FormatException catch (e) {
       debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}');
       return false;
     }
@@ -405,7 +400,7 @@ class HabitService {
       DateTime startDate;
       try {
         startDate = DateTime.parse(habit.startDate);
-      } catch (e) {
+      } on FormatException catch (e) {
         debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}');
         return 0.0;
       }
@@ -447,7 +442,7 @@ class HabitService {
 
       if (totalRequiredDays == 0) return 0.0;
       return completedDays / totalRequiredDays;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Tamamlanma oranı hesaplama hatası: $e');
       return 0.0;
     }
@@ -465,7 +460,7 @@ class HabitService {
       try {
         // Tarihin geçerli formatta olduğunu doğrula
         DateFormat('yyyy-MM-dd').parse(date);
-      } catch (e) {
+      } on FormatException catch (e) {
         debugPrint('Geçersiz tarih formatı: $date');
         return false;
       }
@@ -473,7 +468,7 @@ class HabitService {
       // Log kayıtlarını doğrudan HabitLog modeli olarak al
       final logs = await getHabitLogs(habitId, date: date);
       return logs.isNotEmpty && logs.first.completed;
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık tamamlanma kontrolü hatası: $e');
       return false;
     }
@@ -502,7 +497,7 @@ class HabitService {
         final result = await _dbHelper.updateHabitLog(updatedLog.toMap());
         return result > 0;
       }
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('Alışkanlık not ekleme hatası: $e');
       return false;
     }
@@ -513,7 +508,7 @@ class HabitService {
     try {
       final dateTime = DateTime.parse(date);
       return DateFormat('d MMMM yyyy', 'tr_TR').format(dateTime);
-    } catch (e) {
+    } on FormatException catch (e) {
       return date;
     }
   }
@@ -541,13 +536,13 @@ class HabitService {
           final totalDays = now.difference(startDate).inDays;
           
           results['allTime'] = await calculateCompletionRate(habitId, days: totalDays);
-        } catch (e) {
+        } on FormatException catch (e) {
           results['allTime'] = 0.0;
         }
       } else {
         results['allTime'] = 0.0;
       }
-    } catch (e) {
+    } on Exception catch (e) {
       debugPrint('İstatistik hesaplama hatası: $e');
     }
     
