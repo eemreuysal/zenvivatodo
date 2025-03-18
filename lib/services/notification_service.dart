@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:logging/logging.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:logging/logging.dart';
 
 import '../main.dart'; // NavigatorKey için
 import '../models/task.dart';
@@ -48,7 +48,7 @@ class NotificationService {
         requestAlertPermission: false, // _requestPermissions'da isteyeceğiz
         requestBadgePermission: false,
         requestSoundPermission: false,
-        requestCriticalPermission: false,
+        // Redundant default değeri kaldırıldı
       );
 
       // Tüm platform ayarlarını birleştir
@@ -83,8 +83,9 @@ class NotificationService {
           _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
           
       if (androidPlugin != null) {
-        // Android için izin alma - API değişti, ancak hala bu adla var
-        final permissionGranted = await androidPlugin.requestPermission();
+        // Android için izin alma - API değişti, AndroidFlutterLocalNotificationsPlugin için
+        // requestPermissions metodu kullanılmalı
+        final permissionGranted = await androidPlugin.requestPermissions();
         _logger.info('Android bildirim izni: $permissionGranted');
         
         // Bildirim kanalı oluştur
