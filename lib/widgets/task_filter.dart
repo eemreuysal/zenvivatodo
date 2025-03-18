@@ -6,7 +6,6 @@ import '../models/category.dart';
 import '../models/task.dart';
 
 class TaskFilter extends StatelessWidget {
-
   const TaskFilter({
     super.key,
     required this.categories,
@@ -25,7 +24,7 @@ class TaskFilter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // Animasyon etkisi için widget'ı sarmala
     return Animate(
       effects: [
@@ -50,7 +49,7 @@ class TaskFilter extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Kategoriler filtresi
             SizedBox(
               height: 40,
@@ -65,16 +64,15 @@ class TaskFilter extends StatelessWidget {
                       selected: selectedCategoryId == null,
                       onSelected: (_) => onCategoryChanged(null),
                       showCheckmark: false,
-                      avatar: selectedCategoryId == null 
+                      avatar: selectedCategoryId == null
                           ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
                           : null,
                       labelStyle: TextStyle(
                         color: selectedCategoryId == null
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSurface,
-                        fontWeight: selectedCategoryId == null 
-                            ? FontWeight.bold 
-                            : FontWeight.normal,
+                        fontWeight:
+                            selectedCategoryId == null ? FontWeight.bold : FontWeight.normal,
                       ),
                       backgroundColor: colorScheme.surface,
                       selectedColor: colorScheme.primaryContainer,
@@ -89,12 +87,12 @@ class TaskFilter extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     ),
                   ),
-                  
+
                   // Diğer kategoriler
                   ...categories.map((category) {
                     final categoryColor = Color(category.color);
                     final isSelected = selectedCategoryId == category.id;
-                    
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: FilterChip(
@@ -102,23 +100,17 @@ class TaskFilter extends StatelessWidget {
                         selected: isSelected,
                         onSelected: (_) => onCategoryChanged(category.id),
                         showCheckmark: false,
-                        avatar: isSelected 
+                        avatar: isSelected
                             ? const Icon(Icons.check, size: 16, color: Colors.white)
                             : null,
                         labelStyle: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : colorScheme.onSurface,
-                          fontWeight: isSelected 
-                              ? FontWeight.bold 
-                              : FontWeight.normal,
+                          color: isSelected ? Colors.white : colorScheme.onSurface,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                         backgroundColor: colorScheme.surface,
                         selectedColor: categoryColor,
                         side: BorderSide(
-                          color: isSelected
-                              ? Colors.transparent
-                              : categoryColor.withOpacity(0.3),
+                          color: isSelected ? Colors.transparent : categoryColor.withOpacity(0.3),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -130,9 +122,9 @@ class TaskFilter extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Öncelik filtresi
             SizedBox(
               height: 40,
@@ -147,16 +139,14 @@ class TaskFilter extends StatelessWidget {
                       selected: selectedPriority == null,
                       onSelected: (_) => onPriorityChanged(null),
                       showCheckmark: false,
-                      avatar: selectedPriority == null 
+                      avatar: selectedPriority == null
                           ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
                           : null,
                       labelStyle: TextStyle(
                         color: selectedPriority == null
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSurface,
-                        fontWeight: selectedPriority == null 
-                            ? FontWeight.bold 
-                            : FontWeight.normal,
+                        fontWeight: selectedPriority == null ? FontWeight.bold : FontWeight.normal,
                       ),
                       backgroundColor: colorScheme.surface,
                       selectedColor: colorScheme.primaryContainer,
@@ -171,7 +161,7 @@ class TaskFilter extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     ),
                   ),
-                  
+
                   // Öncelikler
                   _buildPriorityChip(TaskPriority.high, context),
                   _buildPriorityChip(TaskPriority.medium, context),
@@ -188,7 +178,7 @@ class TaskFilter extends StatelessWidget {
   Widget _buildPriorityChip(TaskPriority priority, BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSelected = selectedPriority == priority.value;
-    
+
     // Öncelik rengi
     final priorityColor = switch (priority) {
       TaskPriority.high => Colors.red,
@@ -203,23 +193,15 @@ class TaskFilter extends StatelessWidget {
         selected: isSelected,
         onSelected: (_) => onPriorityChanged(priority.value),
         showCheckmark: false,
-        avatar: isSelected 
-            ? const Icon(Icons.check, size: 16, color: Colors.white)
-            : null,
+        avatar: isSelected ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
         labelStyle: TextStyle(
-          color: isSelected
-              ? Colors.white
-              : colorScheme.onSurface,
-          fontWeight: isSelected 
-              ? FontWeight.bold 
-              : FontWeight.normal,
+          color: isSelected ? Colors.white : colorScheme.onSurface,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
         backgroundColor: colorScheme.surface,
         selectedColor: priorityColor,
         side: BorderSide(
-          color: isSelected
-              ? Colors.transparent
-              : priorityColor.withOpacity(0.3),
+          color: isSelected ? Colors.transparent : priorityColor.withOpacity(0.3),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
