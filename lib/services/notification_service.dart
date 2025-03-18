@@ -43,12 +43,11 @@ class NotificationService {
       const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
       // iOS bildirim ayarları - daha güncel iOS sürümleri için
-      final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+      final DarwinInitializationSettings iosSettings = const DarwinInitializationSettings(
         // onDidReceiveLocalNotification kaldırıldı - artık kullanılmıyor
         requestAlertPermission: false, // _requestPermissions'da isteyeceğiz
         requestBadgePermission: false,
         requestSoundPermission: false,
-        // Redundant default değeri kaldırıldı
       );
 
       // Tüm platform ayarlarını birleştir
@@ -84,8 +83,8 @@ class NotificationService {
           
       if (androidPlugin != null) {
         // Android için izin alma - API değişti, AndroidFlutterLocalNotificationsPlugin için
-        // requestPermissions metodu kullanılmalı
-        final permissionGranted = await androidPlugin.requestPermissions();
+        // requestNotificationsPermission kullanır (requestPermissions değil)
+        final permissionGranted = await androidPlugin.requestNotificationsPermission();
         _logger.info('Android bildirim izni: $permissionGranted');
         
         // Bildirim kanalı oluştur
