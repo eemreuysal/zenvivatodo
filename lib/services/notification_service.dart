@@ -101,13 +101,12 @@ class NotificationService {
       }
 
       // iOS için izinler
-      // DarwinFlutterLocalNotificationsPlugin tipini kullanmak için güvenli tip dönüşümü
-      final dynamic darwinPlugin = 
-          _notifications.resolvePlatformSpecificImplementation<Object>();
+      // Modern Dart 3.7 API kullanımı - platform özel yöntemler için güvenli tip kontrolleri
+      final DarwinFlutterLocalNotificationsPlugin? darwinPlugin = 
+          _notifications.resolvePlatformSpecificImplementation<DarwinFlutterLocalNotificationsPlugin>();
       
-      // İlgili platform özelliklerini kontrol et
-      if (darwinPlugin != null && 
-          darwinPlugin.requestPermissions != null) {
+      // iOS izinlerini iste
+      if (darwinPlugin != null) {
         await darwinPlugin.requestPermissions(
           alert: true,
           badge: true,
@@ -115,7 +114,8 @@ class NotificationService {
           critical: true, // Kritik bildirimler için (Focus Mode durumunda bile bildirim gösterme)
         );
       }
-    } on UnsupportedError catch (e) {
+    } on PlatformException catch (e) {
+      // UnsupportedError yerine daha spesifik bir hata türü olan PlatformException kullanıldı
       debugPrint('Platform izin desteği yok: $e');
     } on Exception catch (e) {
       debugPrint('Bildirim izinleri alınamadı: $e');
