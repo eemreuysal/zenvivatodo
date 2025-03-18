@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+// İmport sıralaması düzeltildi - directives_ordering
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:logging/logging.dart';
 
-// İmport sıralaması düzeltildi - directives_ordering
 import '../models/habit.dart';
 import '../models/task.dart';
 import 'api_service.dart';
@@ -72,7 +73,7 @@ class SyncService {
     _syncTimer = null;
   }
   
-  // Bağlantı değişikliklerini dinle - sık görülen bir parametre tipi olduğundan ConnectivityResult olarak belirtiyoruz
+  // Bağlantı değişikliklerini dinle - ConnectivityResult parametre tipini belirtiyoruz
   void _handleConnectivityChange(ConnectivityResult result) {
     if (_connectivityService.hasConnection && _userId != null) {
       _logger.info('İnternet bağlantısı kuruldu, senkronizasyon başlatılıyor...');
@@ -92,7 +93,7 @@ class SyncService {
       } on FormatException catch (e) {
         _logger.warning('Bekleyen işlemler yüklenirken format hatası: $e');
         _pendingOperations = [];
-      } catch (e) {
+      } on Exception catch (e) {
         _logger.severe('Bekleyen işlemler yüklenirken beklenmeyen hata: $e');
         _pendingOperations = [];
       }
@@ -232,10 +233,8 @@ class SyncService {
           _logger.warning('Bilinmeyen görev işlemi: $action');
           return false;
       }
-    } on ArgumentError catch (e) {
-      _logger.warning('Görev işlemi argüman hatası: $e');
-      return false;
-    } on Exception catch (e) {
+    } catch (e) {
+      // ArgumentError'u özel olarak yakalamak yerine genel exception yakalıyoruz
       _logger.warning('Görev işlemi işlenirken hata: $e');
       return false;
     }
@@ -257,7 +256,7 @@ class SyncService {
       // Yerel görevleri getir
       final localTasks = await _dbHelper.getTasks(userId);
       
-      // Her iki yönde veri birleştirme ve çakışma çözümlemesi...
+      // Her iki yönde veri birleştirme ve çakışma çözümlemesi..
       // Burada basit bir örnek, daha karmaşık bir mantık gerekebilir
       
       // 1. Çevrimiçi görevleri lokale kaydet (uniqueId'ye göre eşleştir)
