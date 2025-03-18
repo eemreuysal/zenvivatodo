@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../constants/app_texts.dart';
 import '../models/category.dart';
 import '../models/task.dart';
+import '../utils/color_extensions.dart';
 
 class TaskFilter extends StatelessWidget {
   const TaskFilter({
@@ -79,7 +80,7 @@ class TaskFilter extends StatelessWidget {
                       side: BorderSide(
                         color: selectedCategoryId == null
                             ? Colors.transparent
-                            : colorScheme.outline.withOpacity(0.3),
+                            : colorScheme.outline.withAlphaValue(0.3),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -110,7 +111,7 @@ class TaskFilter extends StatelessWidget {
                         backgroundColor: colorScheme.surface,
                         selectedColor: categoryColor,
                         side: BorderSide(
-                          color: isSelected ? Colors.transparent : categoryColor.withOpacity(0.3),
+                          color: isSelected ? Colors.transparent : categoryColor.withAlphaValue(0.3),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -153,7 +154,7 @@ class TaskFilter extends StatelessWidget {
                       side: BorderSide(
                         color: selectedPriority == null
                             ? Colors.transparent
-                            : colorScheme.outline.withOpacity(0.3),
+                            : colorScheme.outline.withAlphaValue(0.3),
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -201,7 +202,7 @@ class TaskFilter extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         selectedColor: priorityColor,
         side: BorderSide(
-          color: isSelected ? Colors.transparent : priorityColor.withOpacity(0.3),
+          color: isSelected ? Colors.transparent : priorityColor.withAlphaValue(0.3),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
