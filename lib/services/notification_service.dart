@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:logging/logging.dart';
 
 import '../main.dart'; // NavigatorKey için
 import '../models/task.dart';
@@ -14,8 +15,10 @@ class NotificationService {
   // Singleton yapısı
   NotificationService._internal();
   factory NotificationService() => _instance;
+  
   // Sınıf değişkenleri
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final _logger = Logger('NotificationService');
   bool _isInitialized = false;
   
   // Bildirim kanalları için sabit değerler
@@ -39,12 +42,13 @@ class NotificationService {
       // Bildirim kanalları için Android ayarları
       const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-      // iOS bildirim ayarları - daha fazla izin isteme özelliği
+      // iOS bildirim ayarları - daha güncel iOS sürümleri için
       final DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
-        onDidReceiveLocalNotification: (id, title, body, payload) async {
-          // iOS 10 öncesi için gerekli (modern iOS'ta kullanılmıyor)
-          debugPrint('Eski iOS bildirimi alındı: $id, $title, $body, $payload');
-        },
+        // onDidReceiveLocalNotification kaldırıldı - artık kullanılmıyor
+        requestAlertPermission: false, // _requestPermissions'da isteyeceğiz
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+        requestCriticalPermission: false,
       );
 
       // Tüm platform ayarlarını birleştir
@@ -65,7 +69,7 @@ class NotificationService {
       _isInitialized = true;
       return true;
     } on Exception catch (e) {
-      debugPrint('Bildirim servisi başlatılamadı: $e');
+      _logger.severe('Bildirim servisi başlatılamadı: $e');
       _isInitialized = false;
       return false;
     }
@@ -79,7 +83,9 @@ class NotificationService {
           _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
           
       if (androidPlugin != null) {
-        await androidPlugin.requestPermission();
+        // Android için izin alma - API değişti, ancak hala bu adla var
+        final permissionGranted = await androidPlugin.requestPermission();
+        _logger.info('Android bildirim izni: $permissionGranted');
         
         // Bildirim kanalı oluştur
         await androidPlugin.createNotificationChannel(
@@ -117,9 +123,9 @@ class NotificationService {
       }
     } on PlatformException catch (e) {
       // Platform-specifik hatalar için uygun şekilde işleyin
-      debugPrint('Platform izin desteği yok: $e');
+      _logger.warning('Platform izin desteği yok: $e');
     } on Exception catch (e) {
-      debugPrint('Bildirim izinleri alınamadı: $e');
+      _logger.warning('Bildirim izinleri alınamadı: $e');
     }
   }
 
@@ -127,7 +133,7 @@ class NotificationService {
   void _onNotificationTap(NotificationResponse response) {
     // Payload içeriğine göre uygun ekrana yönlendirme
     if (response.payload != null) {
-      debugPrint('Bildirim tıklandı: ${response.payload}');
+      _logger.info('Bildirim tıklandı: ${response.payload}');
       
       // Bildirim payload'ından görev ID'sini ayıkla
       final taskId = int.tryParse(response.payload!);
@@ -158,7 +164,7 @@ class NotificationService {
     
     // Task geçerlilik kontrolü
     if (task.id == null || task.time == null || task.time!.isEmpty) {
-      debugPrint('Geçersiz görev veya saat bilgisi eksik');
+      _logger.warning('Geçersiz görev veya saat bilgisi eksik');
       return false;
     }
 
@@ -169,7 +175,7 @@ class NotificationService {
       
       // Hatalı format kontrolü
       if (dateComponents.length != 3 || timeComponents.length != 2) {
-        debugPrint('Tarih veya saat formatı hatalı');
+        _logger.warning('Tarih veya saat formatı hatalı');
         return false;
       }
       
@@ -187,7 +193,7 @@ class NotificationService {
       
       // Şu andan önceki bildirimler için kontrol
       if (reminderTime.isBefore(DateTime.now())) {
-        debugPrint('Bildirim zamanı geçmiş, bildirim oluşturulmadı');
+        _logger.info('Bildirim zamanı geçmiş, bildirim oluşturulmadı');
         return false;
       }
 
@@ -210,13 +216,13 @@ class NotificationService {
         useFullScreenIntent: true, // Tam ekran bildirim (önemli görevler için)
       );
       
-      debugPrint('Bildirim planlandı: ${task.id} - ${task.title} için ${reminderTime.toString()}');
+      _logger.info('Bildirim planlandı: ${task.id} - ${task.title} için ${reminderTime.toString()}');
       return true;
     } on FormatException catch (e) {
-      debugPrint('Tarih veya saat ayrıştırma hatası: $e');
+      _logger.warning('Tarih veya saat ayrıştırma hatası: $e');
       return false;
     } on Exception catch (e) {
-      debugPrint('Bildirim planlama hatası: $e');
+      _logger.warning('Bildirim planlama hatası: $e');
       return false;
     }
   }
@@ -274,8 +280,7 @@ class NotificationService {
       tz.TZDateTime.from(scheduledTime, tz.local),
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: 
-        UILocalNotificationDateInterpretation.absoluteTime,
+      // uiLocalNotificationDateInterpretation parametre artık gerekli değil
       payload: payload,
     );
   }
@@ -295,10 +300,10 @@ class NotificationService {
       // Tam zaman bildirimi de iptal et
       await _notifications.cancel(taskId + 100000);
       
-      debugPrint('Bildirim iptal edildi: $taskId');
+      _logger.info('Bildirim iptal edildi: $taskId');
       return true;
     } on Exception catch (e) {
-      debugPrint('Bildirim iptal edilirken hata: $e');
+      _logger.warning('Bildirim iptal edilirken hata: $e');
       return false;
     }
   }
@@ -312,10 +317,10 @@ class NotificationService {
       }
       
       await _notifications.cancelAll();
-      debugPrint('Tüm bildirimler iptal edildi');
+      _logger.info('Tüm bildirimler iptal edildi');
       return true;
     } on Exception catch (e) {
-      debugPrint('Tüm bildirimler iptal edilirken hata: $e');
+      _logger.warning('Tüm bildirimler iptal edilirken hata: $e');
       return false;
     }
   }
@@ -364,7 +369,7 @@ class NotificationService {
       
       return true;
     } on Exception catch (e) {
-      debugPrint('Anlık bildirim gösterilirken hata: $e');
+      _logger.warning('Anlık bildirim gösterilirken hata: $e');
       return false;
     }
   }
@@ -412,7 +417,7 @@ class NotificationService {
       
       return true;
     } on Exception catch (e) {
-      debugPrint('Bildirim izinleri kontrol edilirken hata: $e');
+      _logger.warning('Bildirim izinleri kontrol edilirken hata: $e');
       return false;
     }
   }
