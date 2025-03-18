@@ -117,7 +117,7 @@ class Habit {
       frequencyDays: frequencyDays,
       startDate: startDate,
       targetDays: targetDays,
-      colorCode: color.value,
+      colorCode: color.toArgb32(),
       reminderTime: reminderTime,
       isArchived: isArchived,
       currentStreak: currentStreak,
