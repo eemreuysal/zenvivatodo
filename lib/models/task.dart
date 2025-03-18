@@ -1,5 +1,9 @@
-// Task modeli - Modern Dart 3.7 özellikleri kullanılarak güncellendi
+// Task modeli - JSON serializable desteği eklendi
+import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+// Bu dosya ile ilişkili .g.dart dosyasını dahil et
+part 'task.g.dart';
 
 // Pattern Matching ve Records kullanılan örnek (Dart 3.7)
 enum TaskPriority {
@@ -20,8 +24,26 @@ enum TaskPriority {
   };
 }
 
-// Task modeli - final kullanımı, okunabilirlik artırıldı, and constructor sadeleştirildi
-class Task { // Benzersiz tanımlayıcı - opsiyonel
+// JSON Serializable için sınıfı işaretle
+@JsonSerializable()
+class Task {
+  // Benzersiz tanımlayıcı - opsiyonel
+  final int? id;
+  final String title;
+  final String description;
+  final String date;
+  final String? time;
+  final bool isCompleted;
+  final int? categoryId;
+  
+  @JsonKey(ignore: true) // JSON serileştirilirken TaskPriority ihmal edilecek
+  final TaskPriority priority;
+  
+  @JsonKey(name: 'priority') // JSON'da bu alanın adı 'priority' olacak
+  int get priorityValue => priority.value;
+  
+  final int userId;
+  final String? uniqueId;
 
   // Enhanced constructor with super parameters (Dart 3.0+)
   Task({
@@ -66,12 +88,18 @@ class Task { // Benzersiz tanımlayıcı - opsiyonel
   })  : priority = TaskPriority.fromValue(priority),
         uniqueId = const Uuid().v4();
 
-  // Map'ten nesne oluşturma
+  // Map'ten nesne oluşturma için fromJson factory (json_serializable tarafından oluşturulur)
+  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+  
+  // JSON'a dönüştürme metodu (json_serializable tarafından oluşturulur)
+  Map<String, dynamic> toJson() => _$TaskToJson(this);
+
+  // Map'ten nesne oluşturma - SQLite veritabanı ile uyumluluk için
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
       title: map['title'],
-      description: map['description'],
+      description: map['description'] ?? '',
       date: map['date'],
       time: map['time'],
       isCompleted: map['isCompleted'] == 1,
@@ -81,16 +109,6 @@ class Task { // Benzersiz tanımlayıcı - opsiyonel
       uniqueId: map['uniqueId'],
     );
   }
-  final int? id;
-  final String title;
-  final String description;
-  final String date;
-  final String? time;
-  final bool isCompleted;
-  final int? categoryId;
-  final TaskPriority priority;
-  final int userId;
-  final String? uniqueId;
 
   // Immutability için kopya oluşturma (kopyalama ile yeni nesne)
   Task copyWith({
@@ -110,16 +128,16 @@ class Task { // Benzersiz tanımlayıcı - opsiyonel
       title: title ?? this.title,
       description: description ?? this.description,
       date: date ?? this.date,
-      time: time ?? this.time, // if-null operatörü (??) kullanıldı
+      time: time ?? this.time,
       isCompleted: isCompleted ?? this.isCompleted,
-      categoryId: categoryId ?? this.categoryId, // if-null operatörü (??) kullanıldı
+      categoryId: categoryId ?? this.categoryId,
       priority: priority ?? this.priority.value,
       userId: userId ?? this.userId,
       uniqueId: uniqueId ?? this.uniqueId,
     );
   }
 
-  // Veritabanı için Map'e dönüştürme
+  // Veritabanı için Map'e dönüştürme - SQLite ile uyumluluk için
   Map<String, dynamic> toMap() {
     return {
       'id': id,
