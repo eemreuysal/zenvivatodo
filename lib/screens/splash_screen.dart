@@ -63,8 +63,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      // withOpacity yerine withValues kullanımı
-                      color: Colors.black.withValues(opacity: 0.2),
+                      // Opacity 0.2 için Alpha değeri 51'dir (255 * 0.2 = 51)
+                      color: Colors.black.withAlpha(51),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                     ),
@@ -102,7 +102,7 @@ class _SplashScreenState extends State<SplashScreen> {
               TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.0, end: 1.0),
                 duration: const Duration(seconds: 2),
-                builder: (_, value, __) {
+                builder: (_, value, _) { // Gereksiz çoklu alt çizgi kullanımı düzeltildi
                   return CircularProgressIndicator(
                     value: value, 
                     color: colorScheme.primary,
