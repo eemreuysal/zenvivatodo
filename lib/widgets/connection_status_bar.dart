@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/connectivity_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 import '../main.dart'; // ConnectivityProvider sınıfı için
+import '../services/connectivity_service.dart';
 
 /// Bağlantı durumunu gösteren widget
 ///
@@ -131,9 +133,7 @@ class ConnectionAwareScaffold extends StatelessWidget {
             children: [
               // Bağlantı durumu çubuğu
               if (showConnectionStatusBar)
-                const ConnectionStatusBar(
-                  showOnlineSwitch: true,
-                ),
+                const ConnectionStatusBar(),
               
               // Ana içerik
               Expanded(child: body),
@@ -191,8 +191,8 @@ class OnlineOperationWrapper extends StatelessWidget {
                       ? Icons.cloud_off
                       : Icons.wifi_off,
                   size: 64,
-                  // withOpacity yerine withValue kullanımı
-                  color: Theme.of(context).colorScheme.primary.withValues(opacity: 0.6),
+                  // withOpacity yerine withValues kullanımı
+                  color: Theme.of(context).colorScheme.primary.withAlpha(153), // 0.6 opaklık
                 ),
                 const SizedBox(height: 16),
                 Text(
