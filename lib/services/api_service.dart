@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
-import '../models/task.dart';
-import '../models/category.dart';
+import 'package:logging/logging.dart';
+
 import '../models/habit.dart';
+import '../models/task.dart';
 import '../models/user.dart';
 
 /// API istekleri yönetimi için servis sınıfı
@@ -9,12 +10,7 @@ import '../models/user.dart';
 /// REST API ile iletişim kurmak için [Dio] paketini kullanır.
 /// HTTP istekleri için, hata yönetimi, yanıt işleme ve veri dönüşümü sağlar.
 class ApiService {
-  static final ApiService _instance = ApiService._internal();
-  late final Dio _dio;
-  
-  // Base URL - gerçek API entegrasyonu için değiştirilmelidir
-  final String baseUrl = 'https://api.zenviva.example.com/api';
-  
+  // Constructor'ları sınıf üyelerinden önce yerleştir
   // Singleton pattern
   factory ApiService() => _instance;
   
@@ -34,6 +30,13 @@ class ApiService {
       error: true,
     ));
   }
+  
+  static final ApiService _instance = ApiService._internal();
+  late final Dio _dio;
+  final _logger = Logger('ApiService');
+  
+  // Base URL - gerçek API entegrasyonu için değiştirilmelidir
+  final String baseUrl = 'https://api.zenviva.example.com/api';
   
   // Auth token için setter
   set authToken(String token) {
@@ -67,8 +70,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'login');
       return null;
-    } catch (e) {
-      print('Login error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Login error: $e');
       return null;
     }
   }
@@ -90,8 +93,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'register');
       return null;
-    } catch (e) {
-      print('Register error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Register error: $e');
       return null;
     }
   }
@@ -114,8 +117,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'getTasks');
       return [];
-    } catch (e) {
-      print('Get tasks error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Get tasks error: $e');
       return [];
     }
   }
@@ -137,8 +140,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'getTasksByDate');
       return [];
-    } catch (e) {
-      print('Get tasks by date error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Get tasks by date error: $e');
       return [];
     }
   }
@@ -155,8 +158,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'createTask');
       return null;
-    } catch (e) {
-      print('Create task error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Create task error: $e');
       return null;
     }
   }
@@ -164,7 +167,7 @@ class ApiService {
   /// Görev güncelle
   Future<Task?> updateTask(Task task) async {
     if (task.id == null) {
-      print('Cannot update task without id');
+      _logger.warning('Cannot update task without id');
       return null;
     }
     
@@ -178,8 +181,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'updateTask');
       return null;
-    } catch (e) {
-      print('Update task error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Update task error: $e');
       return null;
     }
   }
@@ -193,8 +196,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'deleteTask');
       return false;
-    } catch (e) {
-      print('Delete task error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Delete task error: $e');
       return false;
     }
   }
@@ -210,8 +213,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'toggleTaskCompletion');
       return false;
-    } catch (e) {
-      print('Toggle task completion error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Toggle task completion error: $e');
       return false;
     }
   }
@@ -234,8 +237,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'getHabits');
       return [];
-    } catch (e) {
-      print('Get habits error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Get habits error: $e');
       return [];
     }
   }
@@ -257,8 +260,8 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'getRandomQuote');
       return null;
-    } catch (e) {
-      print('Get random quote error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Get random quote error: $e');
       return null;
     }
   }
@@ -275,44 +278,43 @@ class ApiService {
     } on DioException catch (e) {
       _handleDioError(e, 'getRandomActivity');
       return null;
-    } catch (e) {
-      print('Get random activity error: $e');
+    } on Exception catch (e) {
+      _logger.warning('Get random activity error: $e');
       return null;
     }
   }
   
   // Hata yönetimi
   void _handleDioError(DioException e, String method) {
-    print('$method error: ${e.type}');
+    _logger.warning('$method error: ${e.type}');
     
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        print('Timeout error in $method: Connection timed out');
+        _logger.warning('Timeout error in $method: Connection timed out');
         break;
       
       case DioExceptionType.badResponse:
         final statusCode = e.response?.statusCode;
         final data = e.response?.data;
-        print('Bad response in $method: $statusCode - $data');
+        _logger.warning('Bad response in $method: $statusCode - $data');
         break;
         
       case DioExceptionType.cancel:
-        print('Request was cancelled in $method');
+        _logger.warning('Request was cancelled in $method');
         break;
         
       case DioExceptionType.connectionError:
-        print('No internet connection in $method');
+        _logger.warning('No internet connection in $method');
         break;
         
       case DioExceptionType.badCertificate:
-        print('Bad certificate in $method');
+        _logger.warning('Bad certificate in $method');
         break;
         
       case DioExceptionType.unknown:
-      default:
-        print('Unknown error in $method: ${e.error}');
+        _logger.warning('Unknown error in $method: ${e.error}');
         break;
     }
   }
