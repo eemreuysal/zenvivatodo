@@ -36,11 +36,12 @@ class Task {
   final bool isCompleted;
   final int? categoryId;
   
-  // JSON serileştirilirken TaskPriority ihmal edilecek
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  // priority alanı için JSON serialization ayarları
+  @JsonKey(includeToJson: false)
   final TaskPriority priority;
   
-  @JsonKey(name: 'priority') // JSON'da bu alanın adı 'priority' olacak
+  // JSON serialization için priority değeri
+  @JsonKey(name: 'priority')
   int get priorityValue => priority.value;
   
   final int userId;
