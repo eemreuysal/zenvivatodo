@@ -66,7 +66,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         debugPrint('Tarih ayrıştırma hatası: $e');
         // Tarih düzgün ayrıştırılamadıysa, bugünü kullan
         _startDate = DateTime.now();
-      } catch (e) {
+      } on Exception catch (e) {
         debugPrint('Beklenmeyen hata: $e');
         _startDate = DateTime.now();
       }
@@ -385,7 +385,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         _isLoading = false;
       });
       _showErrorMessage('Biçim hatası: $e');
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -420,8 +420,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         return 'Ayda Bir (Ayın ${_startDate.day}. günü)';
       case HabitFrequency.custom:
         return 'Özel Tekrarlama';
-      default:
-        return 'Tekrarlama Sıklığı';
     }
   }
 
