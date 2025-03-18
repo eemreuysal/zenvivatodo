@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:logging/logging.dart';
 
-import 'api_service.dart';
-import 'database_helper.dart';
-import 'connectivity_service.dart';
-import '../models/task.dart';
+// İmport sıralaması düzeltildi - directives_ordering
 import '../models/habit.dart';
+import '../models/task.dart';
+import 'api_service.dart';
+import 'connectivity_service.dart';
+import 'database_helper.dart';
 
 /// Çevrimiçi ve çevrimdışı veri senkronizasyonu yapan servis
 ///
@@ -15,7 +17,22 @@ import '../models/habit.dart';
 /// takip eder ve internet bağlantısı tekrar kurulduğunda
 /// bu değişiklikleri sunucuyla senkronize eder.
 class SyncService {
+  // Constructor'ı sınıfın başına taşıdık - sort_constructors_first
+  // Singleton pattern
+  factory SyncService() => _instance;
+  
+  SyncService._internal() {
+    // İnternet bağlantısı değişikliklerini dinle
+    _connectivityService.connectionStream.listen(_handleConnectivityChange);
+    
+    // Bekleyen işlemleri yükle
+    _loadPendingOperations();
+  }
+  
   static final SyncService _instance = SyncService._internal();
+  
+  // Logger tanımla
+  final _logger = Logger('SyncService');
   
   // Servisler
   final ApiService _apiService = ApiService();
@@ -30,17 +47,6 @@ class SyncService {
   
   // Kullanıcı ID
   int? _userId;
-  
-  // Singleton pattern
-  factory SyncService() => _instance;
-  
-  SyncService._internal() {
-    // İnternet bağlantısı değişikliklerini dinle
-    _connectivityService.connectionStream.listen(_handleConnectivityChange);
-    
-    // Bekleyen işlemleri yükle
-    _loadPendingOperations();
-  }
   
   // Servisi başlat
   Future<void> initialize(int userId) async {
@@ -66,10 +72,10 @@ class SyncService {
     _syncTimer = null;
   }
   
-  // Bağlantı değişikliklerini dinle
-  void _handleConnectivityChange(dynamic result) {
-    if (result != null && _connectivityService.hasConnection && _userId != null) {
-      print('İnternet bağlantısı kuruldu, senkronizasyon başlatılıyor...');
+  // Bağlantı değişikliklerini dinle - sık görülen bir parametre tipi olduğundan ConnectivityResult olarak belirtiyoruz
+  void _handleConnectivityChange(ConnectivityResult result) {
+    if (_connectivityService.hasConnection && _userId != null) {
+      _logger.info('İnternet bağlantısı kuruldu, senkronizasyon başlatılıyor...');
       syncAll(_userId!);
     }
   }
@@ -83,15 +89,18 @@ class SyncService {
       try {
         final List<dynamic> decoded = jsonDecode(pendingJson);
         _pendingOperations = decoded.cast<Map<String, dynamic>>();
+      } on FormatException catch (e) {
+        _logger.warning('Bekleyen işlemler yüklenirken format hatası: $e');
+        _pendingOperations = [];
       } catch (e) {
-        print('Bekleyen işlemler yüklenirken hata: $e');
+        _logger.severe('Bekleyen işlemler yüklenirken beklenmeyen hata: $e');
         _pendingOperations = [];
       }
     } else {
       _pendingOperations = [];
     }
     
-    print('${_pendingOperations.length} adet bekleyen işlem yüklendi');
+    _logger.info('${_pendingOperations.length} adet bekleyen işlem yüklendi');
   }
   
   // Bekleyen işlemleri kaydet
@@ -121,12 +130,12 @@ class SyncService {
   // Tüm veriyi senkronize et
   Future<void> syncAll(int userId) async {
     if (!_connectivityService.hasConnection) {
-      print('İnternet bağlantısı yok, senkronizasyon iptal edildi');
+      _logger.info('İnternet bağlantısı yok, senkronizasyon iptal edildi');
       return;
     }
     
     try {
-      print('Senkronizasyon başlatılıyor...');
+      _logger.info('Senkronizasyon başlatılıyor...');
       
       // Önce bekleyen işlemleri işle
       await _processPendingOperations();
@@ -141,9 +150,11 @@ class SyncService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('last_sync_time', DateTime.now().toIso8601String());
       
-      print('Senkronizasyon tamamlandı');
-    } catch (e) {
-      print('Senkronizasyon hatası: $e');
+      _logger.info('Senkronizasyon tamamlandı');
+    } on TimeoutException catch (e) {
+      _logger.warning('Senkronizasyon zaman aşımı: $e');
+    } on Exception catch (e) {
+      _logger.severe('Senkronizasyon hatası: $e');
     }
   }
   
@@ -153,7 +164,7 @@ class SyncService {
       return;
     }
     
-    print('${_pendingOperations.length} adet bekleyen işlem işleniyor...');
+    _logger.info('${_pendingOperations.length} adet bekleyen işlem işleniyor...');
     
     // İşlenecek işlemlerin kopyasını al (işlem sırasında liste değişebilir)
     final operations = List<Map<String, dynamic>>.from(_pendingOperations);
@@ -175,7 +186,7 @@ class SyncService {
             success = await _processHabitOperation(action, data);
             break;
           default:
-            print('Bilinmeyen işlem tipi: $type');
+            _logger.warning('Bilinmeyen işlem tipi: $type');
             break;
         }
         
@@ -183,8 +194,10 @@ class SyncService {
         if (success) {
           _pendingOperations.removeWhere((op) => op['id'] == operation['id']);
         }
-      } catch (e) {
-        print('İşlem işlenirken hata: $e');
+      } on FormatException catch (e) {
+        _logger.warning('İşlem verisi format hatası: $e');
+      } on Exception catch (e) {
+        _logger.warning('İşlem işlenirken hata: $e');
       }
     }
     
@@ -216,11 +229,14 @@ class SyncService {
           return await _apiService.toggleTaskCompletion(taskId, isCompleted);
           
         default:
-          print('Bilinmeyen görev işlemi: $action');
+          _logger.warning('Bilinmeyen görev işlemi: $action');
           return false;
       }
-    } catch (e) {
-      print('Görev işlemi işlenirken hata: $e');
+    } on ArgumentError catch (e) {
+      _logger.warning('Görev işlemi argüman hatası: $e');
+      return false;
+    } on Exception catch (e) {
+      _logger.warning('Görev işlemi işlenirken hata: $e');
       return false;
     }
   }
@@ -296,8 +312,10 @@ class SyncService {
         }
       }
       
-    } catch (e) {
-      print('Görev senkronizasyonu hatası: $e');
+    } on TimeoutException catch (e) {
+      _logger.warning('Görev senkronizasyonu zaman aşımı: $e');
+    } on Exception catch (e) {
+      _logger.severe('Görev senkronizasyonu hatası: $e');
     }
   }
   
@@ -315,8 +333,8 @@ class SyncService {
     if (lastSyncString != null) {
       try {
         return DateTime.parse(lastSyncString);
-      } catch (e) {
-        print('Son senkronizasyon zamanı ayrıştırma hatası: $e');
+      } on FormatException catch (e) {
+        _logger.warning('Son senkronizasyon zamanı ayrıştırma hatası: $e');
       }
     }
     
