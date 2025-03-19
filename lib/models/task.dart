@@ -92,8 +92,7 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     
-    // Bu şekilde değişkene atama gereksiz değer karşılaştırması sorununu çözebilir
-    final bool isCompletedValue = data['isCompleted'] as bool? ?? false;
+    // Gereksiz değişken atamasını kaldırıyoruz
     
     return Task(
       id: null,
@@ -101,7 +100,7 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: isCompletedValue, // Değişken kullanarak constructor'a geçir
+      isCompleted: data['isCompleted'] as bool? ?? false, // Doğrudan constructor'a geçiyoruz
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
