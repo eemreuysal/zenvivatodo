@@ -211,8 +211,8 @@ class HabitService {
         return true;
       }
       return false;
-    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
-      debugPrint('Alışkanlık tamamlama hatası');
+    } on Exception catch (e) { // Exception eklendi
+      debugPrint('Alışkanlık tamamlama hatası: $e');
       return false;
     }
   }
@@ -265,7 +265,7 @@ class HabitService {
       try {
         startDate = DateTime.parse(habitObj.startDate);
       } on FormatException catch (e) {
-        debugPrint('Geçersiz başlangıç tarihi: ${habitObj.startDate}');
+        debugPrint('Geçersiz başlangıç tarihi: ${habitObj.startDate}: $e');
         return;
       }
       
@@ -335,8 +335,8 @@ class HabitService {
         
         await _dbHelper.updateHabit(updatedHabit.toMap());
       }
-    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
-      debugPrint('Zincir güncelleme hatası');
+    } on Exception catch (e) { // Exception eklendi
+      debugPrint('Zincir güncelleme hatası: $e');
     }
   }
 
@@ -348,7 +348,7 @@ class HabitService {
     try {
       habitStartDate = DateTime.parse(habit.startDate);
     } on FormatException catch (e) {
-      debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}');
+      debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}: $e');
       return false;
     }
 
@@ -402,7 +402,7 @@ class HabitService {
       try {
         startDate = DateTime.parse(habit.startDate);
       } on FormatException catch (e) {
-        debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}');
+        debugPrint('Geçersiz başlangıç tarihi: ${habit.startDate}: $e');
         return 0.0;
       }
 
@@ -443,8 +443,8 @@ class HabitService {
 
       if (totalRequiredDays == 0) return 0.0;
       return completedDays / totalRequiredDays;
-    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
-      debugPrint('Tamamlanma oranı hesaplama hatası');
+    } on Exception catch (e) { // Exception eklendi
+      debugPrint('Tamamlanma oranı hesaplama hatası: $e');
       return 0.0;
     }
   }
@@ -462,15 +462,15 @@ class HabitService {
         // Tarihin geçerli formatta olduğunu doğrula
         DateFormat('yyyy-MM-dd').parse(date);
       } on FormatException catch (e) {
-        debugPrint('Geçersiz tarih formatı: $date');
+        debugPrint('Geçersiz tarih formatı: $date: $e');
         return false;
       }
       
       // Log kayıtlarını doğrudan HabitLog modeli olarak al
       final logs = await getHabitLogs(habitId, date: date);
       return logs.isNotEmpty && logs.first.completed;
-    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
-      debugPrint('Alışkanlık tamamlanma kontrolü hatası');
+    } on Exception catch (e) { // Exception eklendi
+      debugPrint('Alışkanlık tamamlanma kontrolü hatası: $e');
       return false;
     }
   }
@@ -498,8 +498,8 @@ class HabitService {
         final result = await _dbHelper.updateHabitLog(updatedLog.toMap());
         return result > 0;
       }
-    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
-      debugPrint('Alışkanlık not ekleme hatası');
+    } on Exception catch (e) { // Exception eklendi
+      debugPrint('Alışkanlık not ekleme hatası: $e');
       return false;
     }
   }
@@ -509,7 +509,8 @@ class HabitService {
     try {
       final dateTime = DateTime.parse(date);
       return DateFormat('d MMMM yyyy', 'tr_TR').format(dateTime);
-    } on FormatException { // 'catch (e)' yerine sadece 'catch' kullanıldı
+    } on FormatException catch (e) { // Exception eklendi
+      debugPrint('Tarih formatı hatası: $e');
       return date;
     }
   }
@@ -537,7 +538,8 @@ class HabitService {
           final totalDays = now.difference(startDate).inDays;
           
           results['allTime'] = await calculateCompletionRate(habitId, days: totalDays);
-        } on FormatException { // 'catch (e)' yerine sadece 'catch' kullanıldı
+        } on FormatException catch (e) { // Exception eklendi
+          debugPrint('Tarih formatı hatası (allTime): $e');
           results['allTime'] = 0.0;
         }
       } else {
