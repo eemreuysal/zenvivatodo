@@ -138,8 +138,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           if (value == null || value.isEmpty) {
                             return AppTexts.requiredField;
                           }
+                          // Fix invalid regex, removing the extra backslashes
                           if (!RegExp(
-                            r'^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$',
+                            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                           ).hasMatch(value)) {
                             return AppTexts.invalidEmail;
                           }
