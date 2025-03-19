@@ -1,3 +1,4 @@
+import 'dart:async'; // StreamSubscription için gerekli
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
