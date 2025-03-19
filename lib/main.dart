@@ -1,19 +1,19 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'constants/app_texts.dart';
 import 'constants/app_theme.dart';
 import 'screens/splash_screen.dart';
-import 'services/notification_service.dart';
-import 'services/connectivity_service.dart';
 import 'services/api_service.dart';
-import 'services/sync_service.dart';
+import 'services/connectivity_service.dart';
 import 'services/inspiration_service.dart';
+import 'services/notification_service.dart';
+import 'services/sync_service.dart';
 
 // Global navigator key to use for showing dialogs from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
