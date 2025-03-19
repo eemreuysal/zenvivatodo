@@ -45,6 +45,36 @@ class DatabaseHelper {
     );
   }
 
+  // Veritabanını sıfırlama işlemi
+  Future<bool> resetDatabase() async {
+    try {
+      // Önce veritabanı bağlantısını kapatalım
+      if (_database != null && _database!.isOpen) {
+        await _database!.close();
+        _database = null;
+      }
+
+      // Veritabanı dosyasını silelim
+      final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      final String path = join(documentsDirectory.path, 'zenviva.db');
+      final File dbFile = File(path);
+      
+      if (await dbFile.exists()) {
+        await dbFile.delete();
+        debugPrint('Veritabanı başarıyla silindi');
+      }
+      
+      // Yeni veritabanını başlatalım
+      await database;
+      debugPrint('Veritabanı yeniden oluşturuldu');
+      
+      return true;
+    } on Exception catch (e) {
+      debugPrint('Veritabanı sıfırlama hatası: $e');
+      return false;
+    }
+  }
+
   // Veritabanı yapılandırması - foreign key desteğini etkinleştirme
   Future<void> _onConfigure(Database db) async {
     // Foreign key kısıtlamalarını etkinleştir
