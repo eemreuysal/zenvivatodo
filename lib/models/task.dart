@@ -92,13 +92,8 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     
-    // isCompleted için reduntant varsayılan değeri kaldırmak için farklı bir yaklaşım
-    bool taskIsCompleted;
-    if (data.containsKey('isCompleted')) {
-      taskIsCompleted = data['isCompleted'] as bool? ?? false;
-    } else {
-      taskIsCompleted = false;
-    }
+    // Bu şekilde değişkene atama gereksiz değer karşılaştırması sorununu çözebilir
+    final bool isCompletedValue = data['isCompleted'] as bool? ?? false;
     
     return Task(
       id: null,
@@ -106,7 +101,7 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: taskIsCompleted,
+      isCompleted: isCompletedValue, // Değişken kullanarak constructor'a geçir
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
