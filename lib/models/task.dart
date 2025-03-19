@@ -34,7 +34,7 @@ class Task {
     required this.description,
     required this.date,
     this.time,
-    this.isCompleted = false,
+    required this.isCompleted, // isCompleted için varsayılan değeri kaldırdık
     this.categoryId,
     required int priority,
     required this.userId,
@@ -47,7 +47,7 @@ class Task {
     required this.title,
     required this.description,
     required DateTime dateTime,
-    required this.isCompleted, // required yaptık, böylece varsayılan değer null olamaz
+    required this.isCompleted,
     this.categoryId,
     required int priority,
     required this.userId,
@@ -65,7 +65,7 @@ class Task {
     required this.description,
     required this.date,
     this.time,
-    this.isCompleted = false,
+    required this.isCompleted, // Bu constructor için de varsayılan değeri kaldırdık
     this.categoryId,
     required int priority,
     required this.userId,
@@ -98,9 +98,6 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      // Constructor'ın default değerini kullanmak için isCompleted'i yalnızca 
-      // data'da varsa ve true ise açıkça belirtiyoruz. Aksi takdirde 
-      // constructor'ın default değeri (false) kullanılır.
       isCompleted: data['isCompleted'] == true,
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
@@ -238,7 +235,7 @@ class TaskDTO {
     required this.description,
     required this.date,
     this.time,
-    required this.isCompleted, // isCompleted için varsayılan değer kaldırıldı, required yapıldı
+    required this.isCompleted,
     this.categoryId,
     required this.priority,
     required this.userId,
