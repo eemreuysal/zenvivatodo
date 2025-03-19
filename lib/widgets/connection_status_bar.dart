@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-// ConnectivityService için import
-import '../services/connectivity_service.dart' hide ConnectivityProvider;
 import 'package:provider/provider.dart';
 
-// ConnectivityProvider sınıfı için import ve as kullanımı
-import '../main.dart' as main_lib; 
+// ConnectivityService için import
+import '../main.dart' as main_lib;
+import '../services/connectivity_service.dart' hide ConnectivityProvider;
 
 /// Bağlantı durumunu gösteren widget
 ///
