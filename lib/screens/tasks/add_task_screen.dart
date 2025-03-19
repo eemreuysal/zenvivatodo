@@ -102,7 +102,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
           );
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
@@ -192,7 +192,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                       );
                     }
-                  } catch (e) {
+                  } on Exception catch (e) {
                     if (!mounted) return;
 
                     ScaffoldMessenger.of(context).showSnackBar(
