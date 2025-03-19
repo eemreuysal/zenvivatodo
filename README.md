@@ -28,6 +28,9 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 
 ## Son Güncellemeler (Mart 2025)
 
+- **Flutter 3.29 Uyumluluğu**: En son Flutter sürümü 3.29 ile uyumlu olarak güncellendi
+- **Impeller Render Engine**: iOS ve Android için Impeller render engine desteği eklendi
+- **Dart 3.7 Formatter**: Yeni Dart 3.7 formatter stili ve wildcard değişken desteği eklendi
 - **Çevrimiçi/Çevrimdışı Senkronizasyon**: API servisleri ve çevrimiçi veri senkronizasyonu eklendi
 - **İlham Verici İçerik**: Günlük motivasyon alıntıları ve aktivite önerileri eklendi
 - **Bağlantı Yönetimi**: İnternet bağlantısı durumu ve çevrimiçi/çevrimdışı mod seçeneği eklendi
@@ -40,9 +43,10 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 
 ## Teknik Özellikler
 
-- Flutter 3.19+ desteği
+- **Flutter 3.29 desteği** (Mart 2025 güncellemesi)
+- **Impeller Render Engine** ile gelişmiş performans ve görsel tutarlılık
 - Android API 23+ (Android 6.0 Marshmallow ve üzeri) desteği
-- Modern Dart kodlama uygulamaları (null safety, super parameters)
+- Modern Dart 3.7 kodlama uygulamaları (null safety, super parameters, wildcard variables)
 - ProGuard entegrasyonu ile optimize edilmiş APK boyutu
 - Veritabanı indekslemesi ile yüksek performans
 - JSON serializable ile model sınıfları
@@ -51,7 +55,9 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 
 ## Kullanılan Teknolojiler
 
-- **Flutter**: UI geliştirme
+- **Flutter**: UI geliştirme (3.29+)
+- **Dart**: Programlama dili (3.7+)
+- **Impeller**: Render engine 
 - **SQLite**: Yerel veritabanı desteği
 - **Provider**: Durum yönetimi
 - **Shared Preferences**: Kullanıcı tercihleri depolama
@@ -93,10 +99,12 @@ Performans optimizasyonu için kritik alanlarda indeksler tanımlanmıştır.
 
 ## Geliştiriciler İçin
 
-- Kodlar modern Dart yazım kurallarına göre düzenlenmiştir
+- Kodlar modern Dart 3.7 yazım kurallarına göre düzenlenmiştir
 - 'super parameters' kullanılarak constructor'lar optimize edilmiştir
+- Wildcard değişkenler (`_`) kullanımı Dart 3.7 ile uyumlu şekilde güncellenmiştir
 - Lint kuralları sıkı tutularak kod kalitesi yüksek tutulmuştur
 - Proje tüm modern Android sürümlerinde çalışacak şekilde yapılandırılmıştır
+- Impeller render engine desteği hem Android hem iOS platformlarında etkinleştirilmiştir
 - Veritabanı sorguları optimize edilmiş ve SQL enjeksiyon saldırılarına karşı korunmalıdır
 - JSON serialization için build_runner kullanılmıştır
 
