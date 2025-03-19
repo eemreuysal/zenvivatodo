@@ -47,7 +47,7 @@ class Task {
     required this.title,
     required this.description,
     required DateTime dateTime,
-    this.isCompleted = false,
+    this.isCompleted, // isCompleted = false varsayılan değeri kaldırıldı
     this.categoryId,
     required int priority,
     required this.userId,
