@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// ConnectivityProvider için import
-import '../../services/connectivity_service.dart';
-
+// Düzeltme 1: Import sıralaması düzeltildi
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../services/auth_service.dart';
+import '../../services/connectivity_service.dart';
 import '../../services/habit_service.dart';
 import '../../services/task_service.dart';
 import '../../widgets/connection_status_bar.dart';
@@ -330,7 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Alışkanlıklar
         _buildSectionHeader('Alışkanlıklar', Icons.repeat),
-        FutureBuilder(
+        FutureBuilder<List<dynamic>>(  // Düzeltme 2: Generic tip belirlendi
           future: _habitService.getDashboardHabits(
             userId: widget.userId, 
             date: DateTime.now().toString(),
@@ -381,15 +380,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             );
           },
-          // FutureBuilder'da eksik type parametresi eklendi
-          type: _FutureBuilderValueType<List<dynamic>>(),
         ),
       ],
     );
   }
-
-  // FutureBuilder için generic tip parametresi sınıfı
-  class _FutureBuilderValueType<T> {}
 
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
