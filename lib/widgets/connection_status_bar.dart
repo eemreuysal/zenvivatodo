@@ -30,7 +30,7 @@ class ConnectionStatusBar extends StatelessWidget {
       builder: (context, connectivity, child) {
         final colorScheme = Theme.of(context).colorScheme;
         
-        final bgColor = connectivity?.hasConnection ?? false
+        final bgColor = connectivity.hasConnection
             ? onlineColor ?? Colors.green.shade600
             : offlineColor ?? Colors.red.shade600;
         
@@ -47,7 +47,7 @@ class ConnectionStatusBar extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      connectivity?.hasConnection ?? false
+                      connectivity.hasConnection
                           ? Icons.wifi
                           : Icons.wifi_off,
                       color: textColor,
@@ -55,7 +55,7 @@ class ConnectionStatusBar extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      connectivity?.hasConnection ?? false
+                      connectivity.hasConnection
                           ? 'İnternet bağlantısı mevcut'
                           : 'İnternet bağlantısı yok',
                       style: const TextStyle(
@@ -70,7 +70,7 @@ class ConnectionStatusBar extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        connectivity?.isOnlineMode ?? true
+                        connectivity.isOnlineMode
                             ? 'Çevrimiçi'
                             : 'Çevrimdışı',
                         style: const TextStyle(
@@ -79,8 +79,8 @@ class ConnectionStatusBar extends StatelessWidget {
                         ),
                       ),
                       Switch(
-                        value: connectivity?.isOnlineMode ?? true,
-                        onChanged: (_) => connectivity?.toggleOnlineMode(),
+                        value: connectivity.isOnlineMode,
+                        onChanged: (_) => connectivity.toggleOnlineMode(),
                         activeColor: colorScheme.primary,
                         inactiveThumbColor: colorScheme.secondary,
                       ),
@@ -172,7 +172,7 @@ class OnlineOperationWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, _) {
-        if (connectivity?.canPerformOnlineOperations ?? false) {
+        if (connectivity.canPerformOnlineOperations) {
           return child;
         }
         
@@ -189,7 +189,7 @@ class OnlineOperationWrapper extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  connectivity?.hasConnection ?? false
+                  connectivity.hasConnection
                       ? Icons.cloud_off
                       : Icons.wifi_off,
                   size: 64,
@@ -198,7 +198,7 @@ class OnlineOperationWrapper extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  connectivity?.hasConnection ?? false
+                  connectivity.hasConnection
                       ? 'Çevrimdışı Mod Aktif'
                       : 'İnternet Bağlantısı Yok',
                   style: Theme.of(context).textTheme.headlineSmall,
@@ -211,7 +211,7 @@ class OnlineOperationWrapper extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                if (!(connectivity?.hasConnection ?? false))
+                if (!connectivity.hasConnection)
                   ElevatedButton.icon(
                     onPressed: () async {
                       await ConnectivityService().checkConnection();
@@ -219,9 +219,9 @@ class OnlineOperationWrapper extends StatelessWidget {
                     icon: const Icon(Icons.refresh),
                     label: const Text('Bağlantıyı Kontrol Et'),
                   )
-                else if (!(connectivity?.isOnlineMode ?? true))
+                else if (!connectivity.isOnlineMode)
                   ElevatedButton.icon(
-                    onPressed: () => connectivity?.toggleOnlineMode(),
+                    onPressed: () => connectivity.toggleOnlineMode(),
                     icon: const Icon(Icons.cloud),
                     label: const Text('Çevrimiçi Moda Geç'),
                   ),
