@@ -3,6 +3,7 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")  // Firebase plugin eklendi
 }
 
 android {
@@ -47,6 +48,9 @@ dependencies {
     // Android platformu için pencere desteği
     implementation("androidx.window:window:1.0.0")
     implementation("androidx.window:window-java:1.0.0")
+    
+    // Firebase bağımlılıkları
+    implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
 }
 
 flutter {
