@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// ConnectivityProvider için import
+import '../../services/connectivity_service.dart';
+
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../services/auth_service.dart';
@@ -13,9 +16,6 @@ import '../habits/habits_screen.dart';
 import '../profile/profile_screen.dart';
 import '../tasks/active_tasks_screen.dart';
 import '../tasks/completed_tasks_screen.dart';
-
-// ConnectivityProvider için import - directives_ordering hatası düzeltildi
-import '../../services/connectivity_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -381,10 +381,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             );
           },
+          // FutureBuilder'da eksik type parametresi eklendi
+          type: _FutureBuilderValueType<List<dynamic>>(),
         ),
       ],
     );
   }
+
+  // FutureBuilder için generic tip parametresi sınıfı
+  class _FutureBuilderValueType<T> {}
 
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
