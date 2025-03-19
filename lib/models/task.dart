@@ -90,7 +90,7 @@ class Task {
 
   // Firestore'dan nesne oluşturma
   factory Task.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
     return Task(
       id: null,  // Firestore'da SQLite id'si olmayacak
       title: data['title'] ?? '',
