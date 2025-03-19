@@ -97,7 +97,7 @@ class Task {
     final bool completionStatus = data['isCompleted'] as bool? ?? false;
     
     return Task(
-      id: null,
+      // id yerine null değeri zaten varsayılan (gereksiz argüman kaldırıldı)
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
       date: data['date'] as String? ?? '',
