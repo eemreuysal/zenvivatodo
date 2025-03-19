@@ -59,7 +59,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -93,7 +93,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +127,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
