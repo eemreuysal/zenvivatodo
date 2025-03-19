@@ -671,6 +671,7 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
+      // Koşullu ifade yerine if elementi kullan
       final found = results.firstWhere(
         (r) => r['date'] == date, 
         orElse: () => {'date': date, 'count': 0},
@@ -807,6 +808,7 @@ class DatabaseHelper {
   }) async {
     final Database db = await database;
     
+    // Koşullu ifade yerine if koşulu kullan
     if (date != null) {
       return await db.query(
         'habit_logs',
@@ -814,14 +816,14 @@ class DatabaseHelper {
         whereArgs: [habitId, date],
         orderBy: 'date DESC',
       );
-    } else {
-      return await db.query(
-        'habit_logs',
-        where: 'habitId = ?',
-        whereArgs: [habitId],
-        orderBy: 'date DESC',
-      );
     }
+    
+    return await db.query(
+      'habit_logs',
+      where: 'habitId = ?',
+      whereArgs: [habitId],
+      orderBy: 'date DESC',
+    );
   }
 
   Future<int> toggleHabitCompletion(
