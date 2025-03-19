@@ -54,7 +54,7 @@ class TaskCard extends StatelessWidget {
         side:
             task.isCompleted
                 ? BorderSide(
-                  color: Colors.green.withValues(opacity: 0.5),
+                  color: Colors.green.withOpacity(0.5),
                   width: 1.5,
                 )
                 : BorderSide.none,
@@ -123,7 +123,7 @@ class TaskCard extends StatelessWidget {
                               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                               color:
                                   task.isCompleted
-                                      ? colorScheme.onSurface.withValues(opacity: 0.6)
+                                      ? colorScheme.onSurface.withOpacity(0.6)
                                       : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -165,7 +165,7 @@ class TaskCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: categoryColor.withValues(opacity: 0.2),
+                          color: categoryColor.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
