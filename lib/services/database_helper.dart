@@ -671,7 +671,6 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
-      // Koşullu ifade yerine if elementi kullanılarak değiştirildi
       final result = results.where((r) => r['date'] == date).toList();
       if (result.isNotEmpty) {
         mappedResults.add(result.first);
