@@ -92,13 +92,17 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     
+    // data['isCompleted'] tipinde bool? değerini alıyoruz
+    // Eğer null ise, varsayılan değer olarak false kullanacağız
+    final bool completionStatus = data['isCompleted'] as bool? ?? false;
+    
     return Task(
       id: null,
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
       date: data['date'] as String? ?? '',
       time: data['time'] as String?,
-      isCompleted: data['isCompleted'] as bool? ?? false,
+      isCompleted: completionStatus,
       categoryId: data['categoryId'] as int?,
       priority: data['priority'] as int? ?? 1,
       userId: data['userId'] as int? ?? 0,
