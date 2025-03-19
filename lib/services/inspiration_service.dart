@@ -24,7 +24,7 @@ class InspirationService {
     connectTimeout: const Duration(seconds: 5),
     receiveTimeout: const Duration(seconds: 5),
     contentType: 'application/json',
-  ));
+  ),);
   
   final ConnectivityService _connectivityService = ConnectivityService();
   final _logger = Logger('InspirationService');
@@ -48,7 +48,7 @@ class InspirationService {
             .map((item) => {
                   'text': item['text'] as String,
                   'author': item['author'] as String,
-                })
+                },)
             .toList();
       } on Exception catch (e) {
         _logger.warning('Alıntılar yüklenirken hata: $e');
@@ -77,7 +77,7 @@ class InspirationService {
   
   // JSON parse etme yardımcı metodu
   List<dynamic> _parseCachedJson(String json) {
-    // Format: [{\\\\\\\"key\\\\\\\":\\\\\\\"value\\\\\\\"}, {\\\\\\\"key\\\\\\\":\\\\\\\"value\\\\\\\"}]
+    // Format: [{\\\\\\\\\\\\\\\"key\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"value\\\\\\\\\\\\\\\"}, {\\\\\\\\\\\\\\\"key\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"value\\\\\\\\\\\\\\\"}]
     if (json.startsWith('[') && json.endsWith(']')) {
       return customJsonDecode(json);
     }
