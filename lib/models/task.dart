@@ -165,7 +165,9 @@ class Task {
       'description': description,
       'date': date,
       'time': time,
-      'isCompleted': isCompleted ? 1 : 0,
+      // 97. satır
+      'isCompleted': isCompleted ? 1 : 0, // 98. satır - muhtemelen hatanın olduğu yer
+      // 99. satır
       'categoryId': categoryId,
       'priority': priority.value,
       'userId': userId,
@@ -175,18 +177,20 @@ class Task {
 
   // Firestore için Map'e dönüştürme
   Map<String, dynamic> toFirestore() {
-    return {
+    // Farklı yaklaşım: Boolean değeri direkt kullanın, ? : operatörünü kaldırın
+    final Map<String, dynamic> result = {
       'title': title,
       'description': description,
       'date': date,
       'time': time,
-      'isCompleted': isCompleted,
+      'isCompleted': isCompleted, 
       'categoryId': categoryId,
       'priority': priority.value,
       'userId': userId,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
+    return result;
   }
 
   // JSON'a dönüştürme - API ile uyumluluk için
