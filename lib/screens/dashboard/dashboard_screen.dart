@@ -14,7 +14,7 @@ import '../profile/profile_screen.dart';
 import '../tasks/active_tasks_screen.dart';
 import '../tasks/completed_tasks_screen.dart';
 
-// ConnectivityProvider için import
+// ConnectivityProvider için import - directives_ordering hatası düzeltildi
 import '../../services/connectivity_service.dart';
 
 class DashboardScreen extends StatefulWidget {
