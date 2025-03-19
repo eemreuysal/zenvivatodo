@@ -108,13 +108,16 @@ class ThemeProvider with ChangeNotifier {
 class ConnectivityProvider with ChangeNotifier {
   ConnectivityProvider({required bool hasConnection, required bool isOnlineMode})
     : _hasConnection = hasConnection,
-      _isOnlineMode = isOnlineMode {
+      _isOnlineMode = isOnlineMode,
+      _subscription = null {
     // Bağlantı değişikliklerini dinle
-    ConnectivityService().connectionStream.listen(_updateConnectionStatus);
+    _subscription = ConnectivityService().connectionStream.listen(_updateConnectionStatus);
   }
 
   bool _hasConnection;
   bool _isOnlineMode;
+  // Stream aboneliği için değişken eklendi
+  StreamSubscription<ConnectivityResult>? _subscription;
 
   bool get hasConnection => _hasConnection;
   bool get isOnlineMode => _isOnlineMode;
@@ -163,6 +166,13 @@ class ConnectivityProvider with ChangeNotifier {
     if (userId != null) {
       await SyncService().syncAll(userId);
     }
+  }
+  
+  // Stream aboneliğini iptal etmek için dispose metodu ekle
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }
 
