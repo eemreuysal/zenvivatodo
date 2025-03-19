@@ -240,7 +240,8 @@ class HabitService {
           final logDate = DateTime.parse(log.date);
           final difference = now.difference(logDate).inDays;
           return difference <= days;
-        } catch (_) {
+        } on FormatException catch (e) {
+          debugPrint('Tarih ayrıştırma hatası: ${log.date}: $e');
           return false;
         }
       }).toList();
