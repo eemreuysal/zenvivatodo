@@ -97,8 +97,7 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      // Bu satır gereksiz default değeri içermiyor
-      isCompleted: data['isCompleted'] ?? false, 
+      isCompleted: data['isCompleted'] ?? false,
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
