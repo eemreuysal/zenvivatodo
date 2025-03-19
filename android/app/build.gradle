@@ -23,6 +23,11 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def flutterSdkPath = localProperties.getProperty('flutter.sdk')
+if (flutterSdkPath == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
 android {
     namespace "com.example.zenvivatodo"
     compileSdkVersion flutter.compileSdkVersion
@@ -57,7 +62,7 @@ android {
 }
 
 flutter {
-    source flutter.sdk
+    source flutterSdkPath
 }
 
 dependencies {
