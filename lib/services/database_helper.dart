@@ -712,7 +712,7 @@ class DatabaseHelper {
     return await db.query(
       'habits',
       where: 'userId = ? AND isArchived = ?',
-      whereArgs: [userId, if (includeArchived) 1 else 0],
+      whereArgs: [userId, includeArchived ? 1 : 0],
       orderBy: 'created_at DESC',
     );
   }
