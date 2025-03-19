@@ -54,7 +54,8 @@ class TaskCard extends StatelessWidget {
         side:
             task.isCompleted
                 ? BorderSide(
-                  color: Colors.green.withOpacity(0.5),
+                  // Yeşil renk, Flutter 3.29 Color API
+                  color: Colors.green.withValues(opacity: 0.5),
                   width: 1.5,
                 )
                 : BorderSide.none,
@@ -123,7 +124,8 @@ class TaskCard extends StatelessWidget {
                               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                               color:
                                   task.isCompleted
-                                      ? colorScheme.onSurface.withOpacity(0.6)
+                                      // Flutter 3.29 Color API
+                                      ? colorScheme.onSurface.withValues(opacity: 0.6)
                                       : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -165,7 +167,8 @@ class TaskCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: categoryColor.withOpacity(0.2),
+                          // Flutter 3.29 Color API
+                          color: categoryColor.withValues(opacity: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
