@@ -77,7 +77,7 @@ class InspirationService {
   
   // JSON parse etme yardımcı metodu
   List<dynamic> _parseCachedJson(String json) {
-    // Format: [{\\\"key\\\":\\\"value\\\"}, {\\\"key\\\":\\\"value\\\"}]
+    // Format: [{\\\\\\\"key\\\\\\\":\\\\\\\"value\\\\\\\"}, {\\\\\\\"key\\\\\\\":\\\\\\\"value\\\\\\\"}]
     if (json.startsWith('[') && json.endsWith(']')) {
       return customJsonDecode(json);
     }
