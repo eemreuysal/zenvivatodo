@@ -92,15 +92,13 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     
-    // Gereksiz değişken atamasını kaldırıyoruz
-    
     return Task(
       id: null,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: data['isCompleted'] as bool? ?? false, // Doğrudan constructor'a geçiyoruz
+      isCompleted: data['isCompleted'] as bool? ?? false,
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
