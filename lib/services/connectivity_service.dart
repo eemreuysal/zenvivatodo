@@ -17,8 +17,11 @@ class ConnectivityService {
     // Başlangıç durumunu al
     _initConnectivity();
     
-    // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    // Bağlantı değişikliklerini dinle - API değişikliği uyumu için
+    _connectivity.onConnectivityChanged.listen((result) {
+      // Liste yerine tek sonuç alındığında güncelleme yapılacak
+      _updateConnectionStatus(result);
+    });
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
