@@ -18,7 +18,8 @@ class ConnectivityService {
     _initConnectivity();
     
     // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    // API'nin eski versiyonu için gerekli olan liste parametre tipini kullan
+    _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -43,19 +44,29 @@ class ConnectivityService {
   // Bağlantı var mı?
   bool get hasConnection => _lastResult != ConnectivityResult.none;
   
+  // Connectivity değişikliğini işleyen yardımcı metot
+  void _handleConnectivityChange(List<ConnectivityResult> result) {
+    if (result.isNotEmpty) {
+      _updateConnectionStatus(result[0]);
+    } else {
+      _updateConnectionStatus(ConnectivityResult.none);
+    }
+  }
+  
   // Başlangıç durumunu kontrol et
   Future<void> _initConnectivity() async {
-    ConnectivityResult result;
     try {
-      // Connectivity Plus API en güncel versiyonu
-      result = await _connectivity.checkConnectivity();
+      // Eski API, List<ConnectivityResult> döndürüyor
+      final resultList = await _connectivity.checkConnectivity();
+      if (resultList.isNotEmpty) {
+        _updateConnectionStatus(resultList[0]);
+      } else {
+        _updateConnectionStatus(ConnectivityResult.none);
+      }
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
-      result = ConnectivityResult.none;
+      _updateConnectionStatus(ConnectivityResult.none);
     }
-    
-    // Bağlantı durumunu güncelle
-    _updateConnectionStatus(result);
   }
   
   // Connectivity sonucunu işle ve Stream'e ilet
@@ -67,17 +78,22 @@ class ConnectivityService {
   
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
-    ConnectivityResult result;
     try {
-      result = await _connectivity.checkConnectivity();
+      // Eski API, List<ConnectivityResult> döndürüyor
+      final resultList = await _connectivity.checkConnectivity();
+      
+      ConnectivityResult result = ConnectivityResult.none;
+      if (resultList.isNotEmpty) {
+        result = resultList[0];
+      }
+      
+      // ConnectivityResult değerini kullan
+      _updateConnectionStatus(result);
+      return result != ConnectivityResult.none;
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
-      result = ConnectivityResult.none;
+      return false;
     }
-    
-    // Bağlantı durumunu güncelle
-    _updateConnectionStatus(result);
-    return result != ConnectivityResult.none;
   }
   
   // Bağlantı durumu snackbar'ı göster
