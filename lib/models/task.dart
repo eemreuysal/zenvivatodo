@@ -1,4 +1,5 @@
 // Task modeli - JSON serializable desteği eklendi
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -87,6 +88,23 @@ class Task {
     );
   }
 
+  // Firestore'dan nesne oluşturma
+  factory Task.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Task(
+      id: null,  // Firestore'da SQLite id'si olmayacak
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      date: data['date'] ?? '',
+      time: data['time'],
+      isCompleted: data['isCompleted'] ?? false,
+      categoryId: data['categoryId'],
+      priority: data['priority'] ?? 1,
+      userId: data['userId'] ?? 0,
+      uniqueId: doc.id,  // Firestore döküman ID'sini uniqueId olarak kullan
+    );
+  }
+
   // JSON'dan nesne oluşturma - API ile uyumluluk için
   factory Task.fromJson(Map<String, dynamic> json) {
     return TaskDTO.fromJson(json).toTask();
@@ -147,6 +165,22 @@ class Task {
       'priority': priority.value,
       'userId': userId,
       'uniqueId': uniqueId,
+    };
+  }
+
+  // Firestore için Map'e dönüştürme
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'description': description,
+      'date': date,
+      'time': time,
+      'isCompleted': isCompleted,
+      'categoryId': categoryId,
+      'priority': priority.value,
+      'userId': userId,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     };
   }
 
