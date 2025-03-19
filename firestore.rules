@@ -2,6 +2,37 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Kullanıcı dokümanları
+    match /users/{userId} {
+      // Kullanıcılar kendi verilerini okuyabilir ve yazabilir
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Görevler
+    match /tasks/{taskId} {
+      // Kullanıcılar kendi görevlerini okuyabilir, oluşturabilir, güncelleyebilir ve silebilir
+      allow read, write: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Kategoriler
+    match /categories/{categoryId} {
+      // Kullanıcılar kendi kategorilerini okuyabilir, oluşturabilir, güncelleyebilir ve silebilir
+      allow read, write: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Alışkanlıklar
+    match /habits/{habitId} {
+      // Kullanıcılar kendi alışkanlıklarını okuyabilir, oluşturabilir, güncelleyebilir ve silebilir
+      allow read, write: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Alışkanlık logları
+    match /habit_logs/{logId} {
+      // Kullanıcılar kendi alışkanlık loglarını okuyabilir, oluşturabilir, güncelleyebilir ve silebilir
+      allow read, write: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Varsayılan olarak, tüm diğer işlemlere izin verme
     match /{document=**} {
       allow read, write: if false;
     }
