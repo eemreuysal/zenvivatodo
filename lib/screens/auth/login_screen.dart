@@ -40,7 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Try to login with entered credentials
         final user = await _authService.login(
-            _usernameController.text.trim(), _passwordController.text.trim());
+            _usernameController.text.trim(), 
+            _passwordController.text.trim(),
+            ); // Virgül eklendi
 
         if (!mounted) return;
 
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      if (_errorMessage != null) ...[
+                      if (_errorMessage != null) ...[ 
                         const SizedBox(height: 16),
                         Text(
                           _errorMessage!,
