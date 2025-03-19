@@ -18,11 +18,7 @@ class ConnectivityService {
     _initConnectivity();
     
     // Bağlantı değişikliklerini dinle
-    _connectivity.onConnectivityChanged.listen((result) {
-      // Connectivity Plus API'sinin son versiyonlarında artık doğrudan ConnectivityResult tipi dönüyor
-      // Bu nedenle liste[0] erişimi gerekmiyor
-      _updateConnectionStatus(result);
-    });
+    _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
   
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -49,14 +45,17 @@ class ConnectivityService {
   
   // Başlangıç durumunu kontrol et
   Future<void> _initConnectivity() async {
+    ConnectivityResult result;
     try {
-      // ConnectivityResult döndüren yeni API
-      final result = await _connectivity.checkConnectivity();
-      _updateConnectionStatus(result);
+      // Connectivity Plus API en güncel versiyonu
+      result = await _connectivity.checkConnectivity();
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
-      _updateConnectionStatus(ConnectivityResult.none);
+      result = ConnectivityResult.none;
     }
+    
+    // Bağlantı durumunu güncelle
+    _updateConnectionStatus(result);
   }
   
   // Connectivity sonucunu işle ve Stream'e ilet
@@ -68,17 +67,17 @@ class ConnectivityService {
   
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
+    ConnectivityResult result;
     try {
-      // ConnectivityResult tipinde sonuç alır
-      final result = await _connectivity.checkConnectivity();
-      
-      // ConnectivityResult değerini kullan
-      _updateConnectionStatus(result);
-      return result != ConnectivityResult.none;
+      result = await _connectivity.checkConnectivity();
     } on Exception catch (e) {
       _logger.warning('Connectivity check error: $e');
-      return false;
+      result = ConnectivityResult.none;
     }
+    
+    // Bağlantı durumunu güncelle
+    _updateConnectionStatus(result);
+    return result != ConnectivityResult.none;
   }
   
   // Bağlantı durumu snackbar'ı göster
