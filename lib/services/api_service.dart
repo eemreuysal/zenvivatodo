@@ -41,6 +41,23 @@ class ApiService {
 
   // Base URL - gerçek API entegrasyonu için değiştirilmelidir
   final String baseUrl = 'https://api.zenviva.example.com/api';
+  
+  // API timeout değerleri - Digit separator kullanımı (Dart 3.6+)
+  static const int connectTimeoutMs = 5_000; // 5 saniye
+  static const int receiveTimeoutMs = 10_000; // 10 saniye
+  static const int sendTimeoutMs = 3_000; // 3 saniye
+  
+  // Max API istek limitleri - Digit separator kullanımı (Dart 3.6+)
+  static const int maxConcurrentRequests = 5;
+  static const int maxRequestsPerMinute = 60;
+  static const int maxFileUploadSizeBytes = 10_000_000; // 10 MB
+  static const int maxResponseCacheItems = 100;
+  
+  // API rate limiting - Digit separator kullanımı (Dart 3.6+)
+  static const int defaultRateLimitPerMinute = 100;
+  static const int premiumRateLimitPerMinute = 1_000;
+  static const int defaultDailyLimit = 10_000;
+  static const int premiumDailyLimit = 100_000;
 
   // Auth token için setter
   set authToken(String token) {
