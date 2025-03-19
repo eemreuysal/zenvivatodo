@@ -24,7 +24,7 @@ enum HabitFrequency {
     'custom' => HabitFrequency.custom,
     _ => HabitFrequency.daily, // Varsayılan değer
   };
-  
+
   // Enum değerini String'e dönüştürme
   @override
   String toString() => value;
@@ -52,7 +52,7 @@ class Habit {
     this.createdAt,
     this.updatedAt,
   });
-  
+
   // String sıklık ile oluşturma (eski API uyumluluğu için)
   factory Habit.withStringFrequency({
     int? id,
@@ -91,7 +91,7 @@ class Habit {
       updatedAt: updatedAt,
     );
   }
-  
+
   // Belirli bir renkle oluşturma
   factory Habit.withColor({
     int? id,
@@ -153,17 +153,14 @@ class Habit {
 
   // JSON'dan nesne oluşturma
   factory Habit.fromJson(Map<String, dynamic> json) => _$HabitFromJson(json);
-  
+
   final int? id;
   final String title;
   final String description;
-  
-  @JsonKey(
-    toJson: _frequencyToJson,
-    fromJson: _frequencyFromJson,
-  )
+
+  @JsonKey(toJson: _frequencyToJson, fromJson: _frequencyFromJson)
   final HabitFrequency frequency;
-  
+
   final String? frequencyDays; // "1,3,5,7" (Pazartesi, Çarşamba, Cuma, Pazar)
   final String startDate;
   final int targetDays;
@@ -174,10 +171,10 @@ class Habit {
   final int longestStreak;
   final bool showInDashboard;
   final int userId;
-  
+
   @JsonKey(name: 'created_at')
   final String? createdAt;
-  
+
   @JsonKey(name: 'updated_at')
   final String? updatedAt;
 
@@ -219,42 +216,31 @@ class Habit {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-  
+
   // Streak güncelleme yöntemleri
   Habit incrementStreak() {
     final newCurrentStreak = currentStreak + 1;
-    final newLongestStreak = newCurrentStreak > longestStreak 
-        ? newCurrentStreak 
-        : longestStreak;
-        
+    final newLongestStreak = newCurrentStreak > longestStreak ? newCurrentStreak : longestStreak;
+
     return copyWith(
       currentStreak: newCurrentStreak,
       longestStreak: newLongestStreak,
       updatedAt: DateTime.now().toIso8601String(),
     );
   }
-  
+
   Habit resetStreak() {
-    return copyWith(
-      currentStreak: 0,
-      updatedAt: DateTime.now().toIso8601String(),
-    );
+    return copyWith(currentStreak: 0, updatedAt: DateTime.now().toIso8601String());
   }
-  
+
   // Arşiv durumunu değiştirme
   Habit toggleArchived() {
-    return copyWith(
-      isArchived: !isArchived,
-      updatedAt: DateTime.now().toIso8601String(),
-    );
+    return copyWith(isArchived: !isArchived, updatedAt: DateTime.now().toIso8601String());
   }
-  
+
   // Dashboard görünürlüğünü değiştirme
   Habit toggleDashboardVisibility() {
-    return copyWith(
-      showInDashboard: !showInDashboard,
-      updatedAt: DateTime.now().toIso8601String(),
-    );
+    return copyWith(showInDashboard: !showInDashboard, updatedAt: DateTime.now().toIso8601String());
   }
 
   // Veritabanı için Map'e dönüştürme (SQLite uyumluluğu için)
@@ -278,13 +264,13 @@ class Habit {
       'updated_at': updatedAt,
     };
   }
-  
+
   // JSON'a dönüştürme metodu
   Map<String, dynamic> toJson() => _$HabitToJson(this);
-  
+
   // JSON'a HabitFrequency'i dönüştürme
   static String _frequencyToJson(HabitFrequency frequency) => frequency.value;
-  
+
   // JSON'dan HabitFrequency oluşturma
   static HabitFrequency _frequencyFromJson(String value) => HabitFrequency.fromValue(value);
 
@@ -294,7 +280,7 @@ class Habit {
     return 'Habit{id: $id, title: $title, frequency: ${frequency.label}, currentStreak: $currentStreak, showInDashboard: $showInDashboard}';
   }
 
-  // Eşitlik kontrolü için 
+  // Eşitlik kontrolü için
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -308,16 +294,12 @@ class Habit {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        title.hashCode ^
-        frequency.hashCode ^
-        startDate.hashCode ^
-        userId.hashCode;
+    return id.hashCode ^ title.hashCode ^ frequency.hashCode ^ startDate.hashCode ^ userId.hashCode;
   }
 
   // Renk değeri elde etme
   Color get color => Color(colorCode);
-  
+
   // Tamamlanma oranı hesaplama
   double get completionRate {
     if (targetDays <= 0) return 0.0;

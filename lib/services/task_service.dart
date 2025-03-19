@@ -11,12 +11,12 @@ class TaskService {
   TaskService._internal();
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   final NotificationService _notificationService = NotificationService();
-  
+
   // Singleton pattern
   static final TaskService _instance = TaskService._internal();
 
   /// Yeni görev ekleme
-  /// 
+  ///
   /// [task] nesnesini veritabanına ekler ve başarı durumunu döndürür.
   /// Eğer görevin bildirim zamanı varsa, bildirim planlanır.
   Future<bool> addTask(Task task) async {
@@ -24,18 +24,18 @@ class TaskService {
       // Benzersiz ID ekleme
       final uniqueId = const Uuid().v4();
       final taskWithId = task.copyWith(uniqueId: uniqueId);
-      
+
       final int taskId = await _databaseHelper.insertTask(taskWithId);
-      
+
       if (taskId > 0) {
         // Göreve ID ekleyerek kopyala (bildirimleri planlamak için)
         final insertedTask = taskWithId.copyWith(id: taskId);
-        
+
         // Eğer görevin zamanı varsa, bildirim planla
         if (insertedTask.time != null && insertedTask.time!.isNotEmpty) {
           await _notificationService.scheduleTaskReminder(insertedTask);
         }
-        
+
         return true;
       }
       return false;
@@ -98,23 +98,15 @@ class TaskService {
   }
 
   /// Görev metni içinde arama yapma (yeni)
-  Future<List<Task>> searchTasks(
-    int userId, 
-    String query, 
-    {bool includeCompleted = false,}
-  ) async {
+  Future<List<Task>> searchTasks(int userId, String query, {bool includeCompleted = false}) async {
     try {
       if (query.trim().isEmpty) {
-        return includeCompleted 
+        return includeCompleted
             ? await _databaseHelper.getTasks(userId)
             : await _databaseHelper.getTasks(userId, isCompleted: false);
       }
-      
-      return await _databaseHelper.searchTasks(
-        userId, 
-        query, 
-        includeCompleted: includeCompleted,
-      );
+
+      return await _databaseHelper.searchTasks(userId, query, includeCompleted: includeCompleted);
     } on Exception catch (e) {
       debugPrint('Error searching tasks: $e');
       return [];
@@ -125,22 +117,17 @@ class TaskService {
   Future<bool> updateTask(Task task) async {
     try {
       // Mevcut görevi al (bildirim kontrolü için)
-      final List<Task> existingTasks = await _databaseHelper.getTasks(
-        task.userId,
-        date: task.date,
-      );
-      
-      final existingTask = existingTasks.firstWhereOrNull(
-        (t) => t.id == task.id,
-      );
-      
+      final List<Task> existingTasks = await _databaseHelper.getTasks(task.userId, date: task.date);
+
+      final existingTask = existingTasks.firstWhereOrNull((t) => t.id == task.id);
+
       final int result = await _databaseHelper.updateTask(task);
-      
+
       if (result > 0) {
         // Bildirim güncelleme işlemi
         final oldHasTime = existingTask?.time != null && existingTask!.time!.isNotEmpty;
         final newHasTime = task.time != null && task.time!.isNotEmpty;
-        
+
         if (existingTask != null) {
           // Bildirim iptal edilmeli mi?
           if (oldHasTime && !newHasTime) {
@@ -156,7 +143,7 @@ class TaskService {
             await _notificationService.scheduleTaskReminder(task);
           }
         }
-        
+
         return true;
       }
       return false;
@@ -169,11 +156,8 @@ class TaskService {
   /// Görev tamamlama durumunu değiştirme
   Future<bool> toggleTaskCompletion(int taskId, bool isCompleted) async {
     try {
-      final int result = await _databaseHelper.toggleTaskCompletion(
-        taskId,
-        isCompleted,
-      );
-      
+      final int result = await _databaseHelper.toggleTaskCompletion(taskId, isCompleted);
+
       if (result > 0) {
         // Görev tamamlandıysa bildirimini iptal et
         if (isCompleted) {
@@ -182,12 +166,12 @@ class TaskService {
           // Görev tamamlanmadı olarak işaretlendiyse ve bildirimi varsa tekrar planla
           final tasks = await _databaseHelper.getTasks(0); // userId bilgisi olmadan
           final task = tasks.firstWhereOrNull((t) => t.id == taskId);
-          
+
           if (task != null && task.time != null && task.time!.isNotEmpty) {
             await _notificationService.scheduleTaskReminder(task);
           }
         }
-        
+
         return true;
       }
       return false;
@@ -202,7 +186,7 @@ class TaskService {
     try {
       // Önce bildirimi iptal et
       await _notificationService.cancelTaskReminder(taskId);
-      
+
       final int result = await _databaseHelper.deleteTask(taskId);
       return result > 0;
     } on Exception catch (e) {
@@ -210,12 +194,12 @@ class TaskService {
       return false;
     }
   }
-  
+
   /// Toplu görev güncelleme (örn. birden fazla görevi tamamlama)
   Future<bool> batchUpdateTasks(List<Task> tasks) async {
     try {
       final result = await _databaseHelper.batchUpdateTasks(tasks);
-      
+
       if (result) {
         // Tamamlanan görevlerin bildirimlerini iptal et
         for (final task in tasks) {
@@ -224,14 +208,14 @@ class TaskService {
           }
         }
       }
-      
+
       return result;
     } on Exception catch (e) {
       debugPrint('Error batch updating tasks: $e');
       return false;
     }
   }
-  
+
   /// Kategori istatistikleri getirme (yeni)
   Future<List<Map<String, dynamic>>> getTaskStatsByCategory(int userId) async {
     try {
@@ -241,7 +225,7 @@ class TaskService {
       return [];
     }
   }
-  
+
   /// Günlük tamamlanan görev istatistikleri (yeni)
   Future<List<Map<String, dynamic>>> getCompletedTasksLast7Days(int userId) async {
     try {
@@ -251,7 +235,7 @@ class TaskService {
       return [];
     }
   }
-  
+
   /// Öncelik istatistikleri getirme (yeni)
   Future<List<Map<String, dynamic>>> getTaskStatsByPriority(int userId) async {
     try {
@@ -267,12 +251,10 @@ class TaskService {
     try {
       // Bugünün tarihini al
       final DateTime now = DateTime.now();
-      final String today = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-      
-      return await _databaseHelper.getTasks(
-        userId,
-        date: today,
-      );
+      final String today =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
+      return await _databaseHelper.getTasks(userId, date: today);
     } on Exception catch (e) {
       debugPrint('Error getting today tasks: $e');
       return [];
@@ -283,22 +265,20 @@ class TaskService {
   Future<List<Task>> getUpcomingTasks(int userId) async {
     try {
       // Tüm tamamlanmamış görevleri al
-      final List<Task> allActiveTasks = await _databaseHelper.getTasks(
-        userId, 
-        isCompleted: false,
-      );
-      
+      final List<Task> allActiveTasks = await _databaseHelper.getTasks(userId, isCompleted: false);
+
       // Bugünün tarihini al
       final DateTime now = DateTime.now();
-      final String today = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-      
+      final String today =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
       // Bugün dışındaki gelecek görevleri filtrele
       return allActiveTasks.where((task) {
-        if (task.date.isEmpty) return false;
-        return task.date.compareTo(today) > 0;
-      }).toList()
-      // Tarihe göre sırala
-      ..sort((a, b) => a.date.compareTo(b.date));
+          if (task.date.isEmpty) return false;
+          return task.date.compareTo(today) > 0;
+        }).toList()
+        // Tarihe göre sırala
+        ..sort((a, b) => a.date.compareTo(b.date));
     } on Exception catch (e) {
       debugPrint('Error getting upcoming tasks: $e');
       return [];

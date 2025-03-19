@@ -4,11 +4,7 @@ import '../constants/app_colors.dart';
 
 class DatePickerWidget extends StatelessWidget {
   // Constructor moved to the top
-  const DatePickerWidget({
-    super.key,
-    required this.selectedDate,
-    required this.onDateChanged,
-  });
+  const DatePickerWidget({super.key, required this.selectedDate, required this.onDateChanged});
 
   final DateTime selectedDate;
   final Function(DateTime) onDateChanged;
@@ -47,7 +43,8 @@ class DatePickerWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+            color:
+                theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Colors.grey.withAlpha(76),
           ),
           borderRadius: BorderRadius.circular(8),

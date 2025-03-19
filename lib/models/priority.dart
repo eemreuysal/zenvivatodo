@@ -8,10 +8,10 @@ enum TaskPriority {
   high(value: 2, label: 'Yüksek');
 
   const TaskPriority({required this.value, required this.label});
-  
+
   final int value;
   final String label;
-  
+
   /// Öncelik değerinden enum değeri oluşturma
   static TaskPriority fromValue(int value) => switch (value) {
     0 => TaskPriority.low,
@@ -19,11 +19,11 @@ enum TaskPriority {
     2 => TaskPriority.high,
     _ => TaskPriority.medium,
   };
-  
+
   /// String temsilini döndürme
   @override
   String toString() => label;
-  
+
   /// Öncelik rengini almak için yardımcı metod (eski kodlarla uyumluluk için)
   String getColorName() => switch (this) {
     TaskPriority.low => 'green',
@@ -36,10 +36,10 @@ enum TaskPriority {
 /// Not: Yeni kodlarda doğrudan TaskPriority enum'ını kullanın
 extension PriorityExtension on TaskPriority {
   String get name => label;
-  
+
   // Değer alanına erişim için
   int get value => this.value;
-  
+
   static TaskPriority fromValue(int value) => TaskPriority.fromValue(value);
 }
 

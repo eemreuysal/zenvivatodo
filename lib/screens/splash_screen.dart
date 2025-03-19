@@ -28,15 +28,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Navigate to login screen directly for now
     // Dart 3.7+ wildcard değişken kullanımı
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),);
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     // Material 3 renklerini kullanalım
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       body: Container(
         // Gradient arkaplan
@@ -44,10 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              colorScheme.primaryContainer,
-              colorScheme.surface,
-            ],
+            colors: [colorScheme.primaryContainer, colorScheme.surface],
           ),
         ),
         child: Center(
@@ -70,41 +66,40 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Icon(Icons.show_chart, size: 60, color: Colors.white),
-                ),
+                child: const Center(child: Icon(Icons.show_chart, size: 60, color: Colors.white)),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Uygulama adı
               Text(
                 AppTexts.appName,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Slogan
               Text(
                 AppTexts.appSlogan,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
               ),
-              
+
               const SizedBox(height: 48),
-              
+
               // Animasyonlu yükleme göstergesi
               TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.0, end: 1.0),
                 duration: const Duration(seconds: 2),
-                builder: (_, value, _) { // Gereksiz çoklu alt çizgi kullanımı düzeltildi
+                builder: (_, value, _) {
+                  // Gereksiz çoklu alt çizgi kullanımı düzeltildi
                   return CircularProgressIndicator(
-                    value: value, 
+                    value: value,
                     color: colorScheme.primary,
                     strokeWidth: 4,
                   );

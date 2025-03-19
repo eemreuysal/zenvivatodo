@@ -6,26 +6,25 @@ import 'database_helper.dart';
 
 /// Kullanıcı kimlik doğrulama ve yönetimi hizmetleri
 class AuthService {
-  
   // Constructor'lar (başa taşındı)
   factory AuthService() => _instance;
   AuthService._internal();
   // Sınıf değişkenleri
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-  
+
   // Singleton pattern
   static final AuthService _instance = AuthService._internal();
 
   /// Kullanıcı kaydı
-  /// 
+  ///
   /// [username], [email] ve [password] bilgileriyle yeni bir kullanıcı oluşturur.
   /// Başarılı olursa true, başarısız olursa false döner.
   Future<bool> register(String username, String email, String password) async {
     try {
       // User modeli artık şifre hash'leme işlemini kendisi yapıyor
       final user = User.withHashedPassword(
-        username: username, 
-        email: email, 
+        username: username,
+        email: email,
         plainPassword: password,
       );
 
@@ -44,37 +43,33 @@ class AuthService {
   }
 
   /// Kullanıcı girişi
-  /// 
+  ///
   /// [username] ve [password] ile oturum açmayı dener.
   /// Başarılı olursa User nesnesini, başarısız olursa null döner.
   Future<User?> login(String username, String password) async {
     try {
       // Veritabanında kullanıcıyı bul
       final users = await _databaseHelper.database;
-      final result = await users.query(
-        'users',
-        where: 'username = ?',
-        whereArgs: [username],
-      );
-      
+      final result = await users.query('users', where: 'username = ?', whereArgs: [username]);
+
       if (result.isEmpty) {
         return null;
       }
-      
+
       // Kullanıcı nesnesini oluştur
       final user = User.fromMap(result.first);
-      
+
       // Şifreyi doğrula
       if (user.verifyPassword(password)) {
         // Güncelleme: son giriş zamanını güncelle
         final updatedUser = user.withUpdatedLogin();
         await _databaseHelper.updateUser(updatedUser);
-        
+
         // Oturumu kaydet
         await _saveUserSession(user.id!);
         return updatedUser;
       }
-      
+
       return null;
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - giriş yaparken: $e');
@@ -123,22 +118,15 @@ class AuthService {
   }
 
   /// Kullanıcı profili güncelleme
-  Future<bool> updateUserProfile({
-    required int userId,
-    String? username,
-    String? email,
-  }) async {
+  Future<bool> updateUserProfile({required int userId, String? username, String? email}) async {
     try {
       // Mevcut kullanıcıyı getir
       final User? user = await _databaseHelper.getUserById(userId);
       if (user == null) return false;
-      
+
       // Değişimleri uygula
-      final updatedUser = user.copyWith(
-        username: username,
-        email: email,
-      );
-      
+      final updatedUser = user.copyWith(username: username, email: email);
+
       final int result = await _databaseHelper.updateUser(updatedUser);
       return result > 0;
     } on DatabaseException catch (e) {
@@ -152,7 +140,7 @@ class AuthService {
 
   /// Şifre değiştirme
   Future<bool> changePassword({
-    required int userId, 
+    required int userId,
     required String currentPassword,
     required String newPassword,
   }) async {
@@ -160,12 +148,12 @@ class AuthService {
       // Mevcut kullanıcıyı getir
       final User? user = await _databaseHelper.getUserById(userId);
       if (user == null) return false;
-      
+
       // Mevcut şifreyi doğrula
       if (!user.verifyPassword(currentPassword)) {
         return false;
       }
-      
+
       // Yeni şifreli kullanıcı oluştur
       final updatedUser = User.withHashedPassword(
         id: userId,
@@ -173,7 +161,7 @@ class AuthService {
         email: user.email,
         plainPassword: newPassword,
       );
-      
+
       final int result = await _databaseHelper.updateUser(updatedUser);
       return result > 0;
     } on DatabaseException catch (e) {
@@ -199,7 +187,7 @@ class AuthService {
       return false;
     }
   }
-  
+
   /// Kullanıcı bilgilerini ID'ye göre getir
   Future<User?> getUserById(int userId) async {
     try {
@@ -212,33 +200,29 @@ class AuthService {
       return null;
     }
   }
-  
+
   /// Test kullanıcısı oluştur
   /// Bu yöntem geliştirme/test için kullanılır
   Future<User?> createTestUser() async {
     try {
       // Önce test kullanıcısının var olup olmadığını kontrol et
       const testUsername = 'test';
-      
+
       // Veritabanında kullanıcıyı ara
       final db = await _databaseHelper.database;
-      final result = await db.query(
-        'users',
-        where: 'username = ?',
-        whereArgs: [testUsername],
-      );
-      
+      final result = await db.query('users', where: 'username = ?', whereArgs: [testUsername]);
+
       // Eğer kullanıcı varsa, onu döndür
       if (result.isNotEmpty) {
         return User.fromMap(result.first);
       }
-      
+
       // Yoksa yeni test kullanıcısı oluştur
       final success = await register(testUsername, 'test@example.com', 'password');
       if (success) {
         return login(testUsername, 'password');
       }
-      
+
       return null;
     } on DatabaseException catch (e) {
       debugPrint('Veritabanı hatası - test kullanıcısı oluşturulurken: $e');

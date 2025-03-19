@@ -8,14 +8,14 @@ extension ColorExtensions on Color {
     final int alpha = (opacity * 255).round();
     return withAlpha(alpha);
   }
-  
+
   /// Bileşen değerlerini kullanarak renk oluşturur
   Color withRGBValues({int? red, int? green, int? blue, double? opacity}) {
     final int r = red ?? this.r.toInt();
     final int g = green ?? this.g.toInt();
     final int b = blue ?? this.b.toInt();
     final int a = opacity != null ? (opacity * 255).round() : this.a.toInt();
-    
+
     return Color.fromARGB(a, r, g, b);
   }
 }

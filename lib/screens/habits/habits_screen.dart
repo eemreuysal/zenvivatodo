@@ -8,7 +8,6 @@ import 'add_habit_screen.dart';
 import 'habit_details_screen.dart';
 
 class HabitsScreen extends StatefulWidget {
-
   const HabitsScreen({super.key, required this.userId});
   final int userId;
 
@@ -16,8 +15,7 @@ class HabitsScreen extends StatefulWidget {
   State<HabitsScreen> createState() => _HabitsScreenState();
 }
 
-class _HabitsScreenState extends State<HabitsScreen>
-    with SingleTickerProviderStateMixin {
+class _HabitsScreenState extends State<HabitsScreen> with SingleTickerProviderStateMixin {
   final HabitService _habitService = HabitService();
   late TabController _tabController;
 
@@ -85,11 +83,7 @@ class _HabitsScreenState extends State<HabitsScreen>
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final currentStatus = _todayCompletedMap[habit.id!] ?? false;
 
-      final success = await _habitService.toggleHabitCompletion(
-        habit.id!,
-        today,
-        !currentStatus,
-      );
+      final success = await _habitService.toggleHabitCompletion(habit.id!, today, !currentStatus);
 
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
 
@@ -106,8 +100,7 @@ class _HabitsScreenState extends State<HabitsScreen>
 
           if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
 
-          if (updatedHabit != null &&
-              updatedHabit.currentStreak > habit.currentStreak) {
+          if (updatedHabit != null && updatedHabit.currentStreak > habit.currentStreak) {
             _checkAndShowAchievementMessage(updatedHabit.currentStreak);
           }
         }
@@ -158,9 +151,7 @@ class _HabitsScreenState extends State<HabitsScreen>
   void _navigateToAddHabit() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AddHabitScreen(userId: widget.userId),
-      ),
+      MaterialPageRoute(builder: (context) => AddHabitScreen(userId: widget.userId)),
     );
 
     if (result == true) {
@@ -172,10 +163,7 @@ class _HabitsScreenState extends State<HabitsScreen>
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => HabitDetailsScreen(
-          habit: habit,
-          userId: widget.userId,
-        ),
+        builder: (context) => HabitDetailsScreen(habit: habit, userId: widget.userId),
       ),
     );
 
@@ -185,12 +173,9 @@ class _HabitsScreenState extends State<HabitsScreen>
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
   }
 
   @override
@@ -204,24 +189,22 @@ class _HabitsScreenState extends State<HabitsScreen>
         ),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Bugün'),
-            Tab(text: 'Tümü'),
-          ],
+          tabs: const [Tab(text: 'Bugün'), Tab(text: 'Tümü')],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                // Bugün sekmesi
-                _buildTodayTab(),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : TabBarView(
+                controller: _tabController,
+                children: [
+                  // Bugün sekmesi
+                  _buildTodayTab(),
 
-                // Tümü sekmesi
-                _buildAllTab(),
-              ],
-            ),
+                  // Tümü sekmesi
+                  _buildAllTab(),
+                ],
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddHabit,
         tooltip: 'Yeni Alışkanlık Ekle',
@@ -236,16 +219,9 @@ class _HabitsScreenState extends State<HabitsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.check_circle_outline,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.check_circle_outline, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text(
-              'Bugün için alışkanlık yok',
-              style: TextStyle(fontSize: 18),
-            ),
+            const Text('Bugün için alışkanlık yok', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _navigateToAddHabit,
@@ -280,16 +256,9 @@ class _HabitsScreenState extends State<HabitsScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.repeat,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.repeat, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text(
-              'Henüz alışkanlık eklenmemiş',
-              style: TextStyle(fontSize: 18),
-            ),
+            const Text('Henüz alışkanlık eklenmemiş', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _navigateToAddHabit,
@@ -306,32 +275,31 @@ class _HabitsScreenState extends State<HabitsScreen>
     // 2. Bugün aktif olanlar (tamamlanmış)
     // 3. Bugün aktif olmayanlar
 
-    final List<Habit> sortedHabits = List.from(_allHabits)
-      ..sort((a, b) {
-        // a'nın bugün olup olmadığını kontrol et
-        final aIsToday = _todayHabits.any((h) => h.id == a.id);
-        // b'nin bugün olup olmadığını kontrol et
-        final bIsToday = _todayHabits.any((h) => h.id == b.id);
+    final List<Habit> sortedHabits = List.from(_allHabits)..sort((a, b) {
+      // a'nın bugün olup olmadığını kontrol et
+      final aIsToday = _todayHabits.any((h) => h.id == a.id);
+      // b'nin bugün olup olmadığını kontrol et
+      final bIsToday = _todayHabits.any((h) => h.id == b.id);
 
-        if (aIsToday && !bIsToday) {
-          return -1; // a bugün aktif, b değil - a önce gelsin
-        } else if (!aIsToday && bIsToday) {
-          return 1; // b bugün aktif, a değil - b önce gelsin
-        } else if (aIsToday && bIsToday) {
-          // Her ikisi de bugün aktif - tamamlanma durumuna göre sırala
-          final aCompleted = _todayCompletedMap[a.id] ?? false;
-          final bCompleted = _todayCompletedMap[b.id] ?? false;
+      if (aIsToday && !bIsToday) {
+        return -1; // a bugün aktif, b değil - a önce gelsin
+      } else if (!aIsToday && bIsToday) {
+        return 1; // b bugün aktif, a değil - b önce gelsin
+      } else if (aIsToday && bIsToday) {
+        // Her ikisi de bugün aktif - tamamlanma durumuna göre sırala
+        final aCompleted = _todayCompletedMap[a.id] ?? false;
+        final bCompleted = _todayCompletedMap[b.id] ?? false;
 
-          if (!aCompleted && bCompleted) {
-            return -1; // a tamamlanmamış, b tamamlanmış - a önce gelsin
-          } else if (aCompleted && !bCompleted) {
-            return 1; // a tamamlanmış, b tamamlanmamış - b önce gelsin
-          }
+        if (!aCompleted && bCompleted) {
+          return -1; // a tamamlanmamış, b tamamlanmış - a önce gelsin
+        } else if (aCompleted && !bCompleted) {
+          return 1; // a tamamlanmış, b tamamlanmamış - b önce gelsin
         }
+      }
 
-        // Diğer durumlarda isme göre sırala
-        return a.title.compareTo(b.title);
-      });
+      // Diğer durumlarda isme göre sırala
+      return a.title.compareTo(b.title);
+    });
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -339,14 +307,12 @@ class _HabitsScreenState extends State<HabitsScreen>
       itemBuilder: (context, index) {
         final habit = sortedHabits[index];
         final isToday = _todayHabits.any((h) => h.id == habit.id);
-        final isCompleted =
-            isToday ? (_todayCompletedMap[habit.id] ?? false) : false;
+        final isCompleted = isToday ? (_todayCompletedMap[habit.id] ?? false) : false;
 
         return HabitCard(
           habit: habit,
           isCompleted: isCompleted,
-          onToggleCompletion:
-              isToday ? () => _toggleHabitCompletion(habit) : () {},
+          onToggleCompletion: isToday ? () => _toggleHabitCompletion(habit) : () {},
           onTap: () => _navigateToHabitDetails(habit),
         );
       },

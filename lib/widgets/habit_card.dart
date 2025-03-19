@@ -30,9 +30,13 @@ class HabitCard extends StatelessWidget {
       surfaceTintColor: colorScheme.surfaceTint,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: isCompleted 
-            ? BorderSide(color: habitColor.withAlpha(128), width: 1.5) // 0.5 opacity = 128 alpha
-            : BorderSide.none,
+        side:
+            isCompleted
+                ? BorderSide(
+                  color: habitColor.withAlpha(128),
+                  width: 1.5,
+                ) // 0.5 opacity = 128 alpha
+                : BorderSide.none,
       ),
       // Animasyon eklendi
       child: Animate(
@@ -58,9 +62,10 @@ class HabitCard extends StatelessWidget {
                   children: [
                     // Tamamlandı işareti
                     Semantics(
-                      label: isCompleted 
-                          ? 'Tamamlandı, işareti kaldırmak için dokunun' 
-                          : 'Tamamlanmadı, tamamlamak için dokunun',
+                      label:
+                          isCompleted
+                              ? 'Tamamlandı, işareti kaldırmak için dokunun'
+                              : 'Tamamlanmadı, tamamlamak için dokunun',
                       child: InkWell(
                         onTap: onToggleCompletion,
                         borderRadius: BorderRadius.circular(50),
@@ -76,13 +81,14 @@ class HabitCard extends StatelessWidget {
                               width: 2,
                             ),
                           ),
-                          child: isCompleted
-                              ? const Icon(Icons.check, size: 16, color: Colors.white)
-                              : null,
+                          child:
+                              isCompleted
+                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                  : null,
                         ),
                       ),
                     ),
-                    
+
                     // Başlık ve alışkanlık bilgisi
                     Expanded(
                       child: Column(
@@ -92,26 +98,25 @@ class HabitCard extends StatelessWidget {
                           Text(
                             habit.title,
                             style: theme.textTheme.titleMedium?.copyWith(
-                              decoration: isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: isCompleted
-                                  ? colorScheme.onSurface.withAlpha(153) // 0.6 opacity = 153 alpha (255 * 0.6 = 153)
-                                  : colorScheme.onSurface,
+                              decoration: isCompleted ? TextDecoration.lineThrough : null,
+                              color:
+                                  isCompleted
+                                      ? colorScheme.onSurface.withAlpha(
+                                        153,
+                                      ) // 0.6 opacity = 153 alpha (255 * 0.6 = 153)
+                                      : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          
+
                           // Açıklama
-                          if (habit.description.isNotEmpty) ...[ 
+                          if (habit.description.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Text(
                               habit.description,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
-                                decoration: isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : null,
+                                decoration: isCompleted ? TextDecoration.lineThrough : null,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -120,41 +125,31 @@ class HabitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Alışkanlık göstergesi
                     Container(
                       width: 12,
                       height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: habitColor,
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: habitColor),
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Alt bilgiler
                 Row(
                   children: [
                     // Sıklık etiketi
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: habitColor.withAlpha(51), // 0.2 opacity = 51 alpha (255 * 0.2 = 51)
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
-                          Icon(
-                            _getFrequencyIcon(),
-                            size: 12,
-                            color: habitColor,
-                          ),
+                          Icon(_getFrequencyIcon(), size: 12, color: habitColor),
                           const SizedBox(width: 4),
                           Text(
                             habit.frequency.label,
@@ -166,28 +161,26 @@ class HabitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(width: 8),
-                    
+
                     // Zincir (Streak) göstergesi
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.orange.withAlpha(51) // 0.2 opacity = 51 alpha (255 * 0.2 = 51)
-                            : Colors.orange.withAlpha(26), // 0.1 opacity = 26 alpha (255 * 0.1 = 26)
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? Colors.orange.withAlpha(
+                                  51,
+                                ) // 0.2 opacity = 51 alpha (255 * 0.2 = 51)
+                                : Colors.orange.withAlpha(
+                                  26,
+                                ), // 0.1 opacity = 26 alpha (255 * 0.1 = 26)
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.local_fire_department,
-                            size: 12,
-                            color: Colors.orange,
-                          ),
+                          const Icon(Icons.local_fire_department, size: 12, color: Colors.orange),
                           const SizedBox(width: 4),
                           Text(
                             '${habit.currentStreak} gün',
@@ -199,9 +192,9 @@ class HabitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     const Spacer(),
-                    
+
                     // Hedef
                     Text(
                       'Hedef: ${habit.targetDays} gün',
@@ -211,15 +204,16 @@ class HabitCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 // İlerleme çubuğu
-                if (habit.targetDays > 0) ...[ 
+                if (habit.targetDays > 0) ...[
                   const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: habit.completionRate.clamp(0.0, 1.0),
-                      backgroundColor: colorScheme.surfaceContainerHighest, // Fixed deprecated surfaceVariant
+                      backgroundColor:
+                          colorScheme.surfaceContainerHighest, // Fixed deprecated surfaceVariant
                       valueColor: AlwaysStoppedAnimation<Color>(habitColor),
                       minHeight: 6,
                     ),
@@ -245,19 +239,15 @@ class HabitCard extends StatelessWidget {
 /// Hero animasyonlu geçiş için alışkanlık kartı
 class HabitHeroCard extends StatelessWidget {
   // Constructor moved to top
-  const HabitHeroCard({
-    super.key,
-    required this.habit,
-    required this.isCompleted,
-  });
-  
+  const HabitHeroCard({super.key, required this.habit, required this.isCompleted});
+
   final Habit habit;
   final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
     final uniqueTag = 'habit-${habit.id}';
-    
+
     return Hero(
       tag: uniqueTag,
       child: Material(

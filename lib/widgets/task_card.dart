@@ -28,19 +28,18 @@ class TaskCard extends StatelessWidget {
     // Material 3 tasarım dilini kullanan UI bileşenleri
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // Öncelik rengi
     final priorityColor = switch (task.priority) {
       TaskPriority.low => Colors.green,
       TaskPriority.medium => Colors.orange,
       TaskPriority.high => Colors.red,
     };
-    
+
     // Kategori rengi veya varsayılan renk
-    final categoryColor = category != null 
-        ? Color(category!.color)
-        : AppColors.defaultCategoryColor;
-    
+    final categoryColor =
+        category != null ? Color(category!.color) : AppColors.defaultCategoryColor;
+
     // Zaman bilgisi formatı
     final hasTime = task.time != null && task.time!.isNotEmpty;
 
@@ -52,9 +51,18 @@ class TaskCard extends StatelessWidget {
       // Material 3 Card şekli
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: task.isCompleted 
-            ? BorderSide(color: Color.from(alpha: 0.5, red: Colors.green.r, green: Colors.green.g, blue: Colors.green.b), width: 1.5) 
-            : BorderSide.none,
+        side:
+            task.isCompleted
+                ? BorderSide(
+                  color: Color.from(
+                    alpha: 0.5,
+                    red: Colors.green.r,
+                    green: Colors.green.g,
+                    blue: Colors.green.b,
+                  ),
+                  width: 1.5,
+                )
+                : BorderSide.none,
       ),
       // Animasyon eklendi - Flutter Animate paketi kullanılarak
       child: Animate(
@@ -81,7 +89,10 @@ class TaskCard extends StatelessWidget {
                   children: [
                     // Tamamlandı işareti
                     Semantics(
-                      label: task.isCompleted ? 'Tamamlandı, işareti kaldırmak için dokunun' : 'Tamamlanmadı, tamamlamak için dokunun',
+                      label:
+                          task.isCompleted
+                              ? 'Tamamlandı, işareti kaldırmak için dokunun'
+                              : 'Tamamlanmadı, tamamlamak için dokunun',
                       child: InkWell(
                         onTap: onToggleCompletion,
                         borderRadius: BorderRadius.circular(50),
@@ -97,13 +108,14 @@ class TaskCard extends StatelessWidget {
                               width: 2,
                             ),
                           ),
-                          child: task.isCompleted
-                              ? const Icon(Icons.check, size: 16, color: Colors.white)
-                              : null,
+                          child:
+                              task.isCompleted
+                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                  : null,
                         ),
                       ),
                     ),
-                    
+
                     // Başlık ve açıklama
                     Expanded(
                       child: Column(
@@ -113,16 +125,20 @@ class TaskCard extends StatelessWidget {
                           Text(
                             task.title,
                             style: theme.textTheme.titleMedium?.copyWith(
-                              decoration: task.isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: task.isCompleted
-                                  ? Color.from(alpha: 0.6, red: colorScheme.onSurface.r, green: colorScheme.onSurface.g, blue: colorScheme.onSurface.b)
-                                  : colorScheme.onSurface,
+                              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                              color:
+                                  task.isCompleted
+                                      ? Color.from(
+                                        alpha: 0.6,
+                                        red: colorScheme.onSurface.r,
+                                        green: colorScheme.onSurface.g,
+                                        blue: colorScheme.onSurface.b,
+                                      )
+                                      : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          
+
                           // Açıklama (varsa)
                           if (task.description.isNotEmpty) ...[
                             const SizedBox(height: 4),
@@ -130,9 +146,7 @@ class TaskCard extends StatelessWidget {
                               task.description,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
-                                decoration: task.isCompleted
-                                    ? TextDecoration.lineThrough
-                                    : null,
+                                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -141,33 +155,32 @@ class TaskCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Öncelik göstergesi
                     Container(
                       width: 12,
                       height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: priorityColor,
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: priorityColor),
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Alt bilgiler
                 Row(
                   children: [
                     // Kategori etiketi
                     if (category != null) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Color.from(alpha: 0.2, red: categoryColor.r, green: categoryColor.g, blue: categoryColor.b),
+                          color: Color.from(
+                            alpha: 0.2,
+                            red: categoryColor.r,
+                            green: categoryColor.g,
+                            blue: categoryColor.b,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -180,13 +193,9 @@ class TaskCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                     ],
-                    
+
                     // Tarih ve saat
-                    Icon(
-                      Icons.event,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.event, size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
                       task.date,
@@ -194,14 +203,10 @@ class TaskCard extends StatelessWidget {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    
+
                     if (hasTime) ...[
                       const SizedBox(width: 8),
-                      Icon(
-                        Icons.access_time,
-                        size: 16,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(
                         task.time!,
@@ -210,9 +215,9 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    
+
                     const Spacer(),
-                    
+
                     // Düzenleme ve silme butonları
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, size: 20),
@@ -248,19 +253,15 @@ class TaskCard extends StatelessWidget {
 // Hero animasyonlu görev detay kartı - Geçiş animasyonları için
 class TaskHeroCard extends StatelessWidget {
   // Constructor moved to top
-  const TaskHeroCard({
-    super.key,
-    required this.task,
-    this.category,
-  });
-  
+  const TaskHeroCard({super.key, required this.task, this.category});
+
   final Task task;
   final Category? category;
 
   @override
   Widget build(BuildContext context) {
     final uniqueTag = 'task-${task.id}';
-    
+
     return Hero(
       tag: uniqueTag,
       child: Material(

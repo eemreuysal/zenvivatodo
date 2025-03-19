@@ -43,7 +43,7 @@ class AppColors {
   static const Color errorLightColor = Color(0xFFFFB4AB); // Error light rengi eklendi
   static const Color warningColor = Color(0xFFFFA726);
   static const Color infoColor = Color(0xFF2196F3);
-  
+
   // Material 3 Light Theme Color Scheme
   static ColorScheme get lightColorScheme => const ColorScheme(
     brightness: Brightness.light,
@@ -78,7 +78,7 @@ class AppColors {
     inversePrimary: primaryLightColor,
     surfaceTint: primaryColor,
   );
-  
+
   // Material 3 Dark Theme Color Scheme
   static ColorScheme get darkColorScheme => const ColorScheme(
     brightness: Brightness.dark,

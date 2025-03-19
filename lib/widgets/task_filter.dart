@@ -28,12 +28,7 @@ class TaskFilter extends StatelessWidget {
 
     // Animasyon etkisi için widget'ı sarmala
     return Animate(
-      effects: [
-        FadeEffect(
-          duration: 300.ms,
-          curve: Curves.easeOut,
-        ),
-      ],
+      effects: [FadeEffect(duration: 300.ms, curve: Curves.easeOut)],
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
@@ -65,26 +60,27 @@ class TaskFilter extends StatelessWidget {
                       selected: selectedCategoryId == null,
                       onSelected: (_) => onCategoryChanged(null),
                       showCheckmark: false,
-                      avatar: selectedCategoryId == null
-                          ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
-                          : null,
+                      avatar:
+                          selectedCategoryId == null
+                              ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
+                              : null,
                       labelStyle: TextStyle(
-                        color: selectedCategoryId == null
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
+                        color:
+                            selectedCategoryId == null
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
                         fontWeight:
                             selectedCategoryId == null ? FontWeight.bold : FontWeight.normal,
                       ),
                       backgroundColor: colorScheme.surface,
                       selectedColor: colorScheme.primaryContainer,
                       side: BorderSide(
-                        color: selectedCategoryId == null
-                            ? Colors.transparent
-                            : colorScheme.outline.withAlphaValue(0.3),
+                        color:
+                            selectedCategoryId == null
+                                ? Colors.transparent
+                                : colorScheme.outline.withAlphaValue(0.3),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     ),
                   ),
@@ -101,9 +97,10 @@ class TaskFilter extends StatelessWidget {
                         selected: isSelected,
                         onSelected: (_) => onCategoryChanged(category.id),
                         showCheckmark: false,
-                        avatar: isSelected
-                            ? const Icon(Icons.check, size: 16, color: Colors.white)
-                            : null,
+                        avatar:
+                            isSelected
+                                ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                : null,
                         labelStyle: TextStyle(
                           color: isSelected ? Colors.white : colorScheme.onSurface,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -111,11 +108,10 @@ class TaskFilter extends StatelessWidget {
                         backgroundColor: colorScheme.surface,
                         selectedColor: categoryColor,
                         side: BorderSide(
-                          color: isSelected ? Colors.transparent : categoryColor.withAlphaValue(0.3),
+                          color:
+                              isSelected ? Colors.transparent : categoryColor.withAlphaValue(0.3),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       ),
                     );
@@ -140,25 +136,26 @@ class TaskFilter extends StatelessWidget {
                       selected: selectedPriority == null,
                       onSelected: (_) => onPriorityChanged(null),
                       showCheckmark: false,
-                      avatar: selectedPriority == null
-                          ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
-                          : null,
+                      avatar:
+                          selectedPriority == null
+                              ? Icon(Icons.check, size: 16, color: colorScheme.onPrimaryContainer)
+                              : null,
                       labelStyle: TextStyle(
-                        color: selectedPriority == null
-                            ? colorScheme.onPrimaryContainer
-                            : colorScheme.onSurface,
+                        color:
+                            selectedPriority == null
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
                         fontWeight: selectedPriority == null ? FontWeight.bold : FontWeight.normal,
                       ),
                       backgroundColor: colorScheme.surface,
                       selectedColor: colorScheme.primaryContainer,
                       side: BorderSide(
-                        color: selectedPriority == null
-                            ? Colors.transparent
-                            : colorScheme.outline.withAlphaValue(0.3),
+                        color:
+                            selectedPriority == null
+                                ? Colors.transparent
+                                : colorScheme.outline.withAlphaValue(0.3),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     ),
                   ),
@@ -204,9 +201,7 @@ class TaskFilter extends StatelessWidget {
         side: BorderSide(
           color: isSelected ? Colors.transparent : priorityColor.withAlphaValue(0.3),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
     );

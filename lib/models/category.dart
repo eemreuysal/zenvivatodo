@@ -9,13 +9,7 @@ part 'category.g.dart';
 @JsonSerializable()
 class Category {
   // Enhanced constructor (Dart 3.0+)
-  const Category({
-    this.id,
-    required this.name,
-    required this.color,
-    this.userId,
-    this.createdAt,
-  });
+  const Category({this.id, required this.name, required this.color, this.userId, this.createdAt});
 
   // Belirli bir renkle oluşturma
   Category.withColor({
@@ -36,26 +30,20 @@ class Category {
       createdAt: map['created_at'],
     );
   }
-  
+
   // JSON'dan nesne oluşturma
   factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
-  
+
   final int? id;
   final String name;
   final int color;
   final int? userId;
-  
+
   @JsonKey(name: 'created_at')
   final String? createdAt;
 
   // Kopyalama yöntemi (immutability için)
-  Category copyWith({
-    int? id,
-    String? name,
-    int? color,
-    int? userId,
-    String? createdAt,
-  }) {
+  Category copyWith({int? id, String? name, int? color, int? userId, String? createdAt}) {
     return Category(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -67,15 +55,9 @@ class Category {
 
   // Veritabanı için Map'e dönüştürme - SQLite uyumluluğu için
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'color': color,
-      'userId': userId,
-      'created_at': createdAt,
-    };
+    return {'id': id, 'name': name, 'color': color, 'userId': userId, 'created_at': createdAt};
   }
-  
+
   // JSON'a dönüştürme metodu
   Map<String, dynamic> toJson() => _$CategoryToJson(this);
 
@@ -85,7 +67,7 @@ class Category {
     return 'Category(id: $id, name: $name, color: $color, userId: $userId)';
   }
 
-  // Eşitlik kontrolü için 
+  // Eşitlik kontrolü için
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

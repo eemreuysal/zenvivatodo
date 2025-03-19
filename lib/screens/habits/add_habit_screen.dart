@@ -6,14 +6,11 @@ import '../../constants/habit_constants.dart';
 import '../../models/habit.dart';
 import '../../services/habit_service.dart';
 
-class AddHabitScreen extends StatefulWidget { // Düzenleme durumu için
+class AddHabitScreen extends StatefulWidget {
+  // Düzenleme durumu için
 
   // Constructor en üstte olmalı
-  const AddHabitScreen({
-    super.key,
-    required this.userId,
-    this.habit,
-  });
+  const AddHabitScreen({super.key, required this.userId, this.habit});
   final int userId;
   final Habit? habit;
 
@@ -75,20 +72,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       if (habit.frequency == HabitFrequency.weekly &&
           habit.frequencyDays != null &&
           habit.frequencyDays!.isNotEmpty) {
-        _selectedWeekDays = habit.frequencyDays!
-            .split(',')
-            .map((day) => int.parse(day))
-            .toList();
+        _selectedWeekDays = habit.frequencyDays!.split(',').map((day) => int.parse(day)).toList();
       }
 
       // Hatırlatıcı saat
       if (habit.reminderTime != null && habit.reminderTime!.isNotEmpty) {
         final parts = habit.reminderTime!.split(':');
         if (parts.length == 2) {
-          _reminderTime = TimeOfDay(
-            hour: int.parse(parts[0]),
-            minute: int.parse(parts[1]),
-          );
+          _reminderTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
         }
       }
     } else {
@@ -161,10 +152,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Tekrarlama Sıklığı',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text('Tekrarlama Sıklığı', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 16),
 
                   // Günlük
@@ -203,27 +191,27 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       padding: const EdgeInsets.only(left: 16),
                       child: Wrap(
                         spacing: 8,
-                        children: HabitConstants.weekdays.entries.map((entry) {
-                          final weekday = entry.key;
-                          final dayName = entry.value[0]; // İlk harf
-                          final isSelected =
-                              _selectedWeekDays.contains(weekday);
+                        children:
+                            HabitConstants.weekdays.entries.map((entry) {
+                              final weekday = entry.key;
+                              final dayName = entry.value[0]; // İlk harf
+                              final isSelected = _selectedWeekDays.contains(weekday);
 
-                          return FilterChip(
-                            label: Text(dayName),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setModalState(() {
-                                if (selected) {
-                                  _selectedWeekDays.add(weekday);
-                                } else {
-                                  _selectedWeekDays.remove(weekday);
-                                }
-                              });
-                              setState(() {});
-                            },
-                          );
-                        }).toList(),
+                              return FilterChip(
+                                label: Text(dayName),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setModalState(() {
+                                    if (selected) {
+                                      _selectedWeekDays.add(weekday);
+                                    } else {
+                                      _selectedWeekDays.remove(weekday);
+                                    }
+                                  });
+                                  setState(() {});
+                                },
+                              );
+                            }).toList(),
                       ),
                     ),
 
@@ -273,49 +261,45 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Renk Seçin',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Renk Seçin', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 20),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: HabitConstants.colors.map((color) {
-                  final isSelected = _colorCode ==
-                      color.toARGB32(); // value yerine toARGB32() kullanıyoruz
+                children:
+                    HabitConstants.colors.map((color) {
+                      final isSelected =
+                          _colorCode == color.toARGB32(); // value yerine toARGB32() kullanıyoruz
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _colorCode = color
-                            .toARGB32(); // value yerine toARGB32() kullanıyoruz
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected ? Colors.white : Colors.transparent,
-                          width: 3,
-                        ),
-                        boxShadow: [
-                          if (isSelected)
-                            BoxShadow(
-                              color: Colors.black.withAlpha(
-                                  77,), // withOpacity yerine withAlpha
-                              blurRadius: 4,
-                              spreadRadius: 2,
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _colorCode = color.toARGB32(); // value yerine toARGB32() kullanıyoruz
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? Colors.white : Colors.transparent,
+                              width: 3,
                             ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                            boxShadow: [
+                              if (isSelected)
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(77), // withOpacity yerine withAlpha
+                                  blurRadius: 4,
+                                  spreadRadius: 2,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
               ),
             ],
           ),
@@ -347,15 +331,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         frequency: _frequency,
-        frequencyDays: _frequency == HabitFrequency.weekly
-            ? _selectedWeekDays.join(',')
-            : null,
+        frequencyDays: _frequency == HabitFrequency.weekly ? _selectedWeekDays.join(',') : null,
         startDate: DateFormat('yyyy-MM-dd').format(_startDate),
         targetDays: int.parse(_targetDaysController.text),
         colorCode: _colorCode,
-        reminderTime: _reminderTime != null
-            ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
-            : null,
+        reminderTime:
+            _reminderTime != null
+                ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
+                : null,
         currentStreak: _isEdit ? widget.habit!.currentStreak : 0,
         longestStreak: _isEdit ? widget.habit!.longestStreak : 0,
         showInDashboard: _showInDashboard,
@@ -395,12 +378,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   }
 
   void _showErrorMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
   }
 
   String _getFrequencyText() {
@@ -411,9 +391,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         if (_selectedWeekDays.isEmpty) {
           return 'Haftanın Belirli Günleri';
         } else {
-          final days = _selectedWeekDays
-              .map((day) => HabitConstants.weekdays[day])
-              .join(', ');
+          final days = _selectedWeekDays.map((day) => HabitConstants.weekdays[day]).join(', ');
           return 'Haftada $days';
         }
       case HabitFrequency.monthly:
@@ -435,267 +413,244 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Renk ve Başlık
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: _showColorPicker,
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            margin: const EdgeInsets.only(right: 16, top: 8),
-                            decoration: BoxDecoration(
-                              color: Color(_colorCode),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.repeat,
-                              color: Colors.white,
-                              size: 28,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Renk ve Başlık
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: _showColorPicker,
+                            child: Container(
+                              width: 56,
+                              height: 56,
+                              margin: const EdgeInsets.only(right: 16, top: 8),
+                              decoration: BoxDecoration(
+                                color: Color(_colorCode),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.repeat, color: Colors.white, size: 28),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _titleController,
-                            decoration: const InputDecoration(
-                              labelText: 'Alışkanlık Adı',
-                              hintText:
-                                  'Örn: Günlük yürüyüş, Su içmek, Kitap okumak',
+                          Expanded(
+                            child: TextFormField(
+                              controller: _titleController,
+                              decoration: const InputDecoration(
+                                labelText: 'Alışkanlık Adı',
+                                hintText: 'Örn: Günlük yürüyüş, Su içmek, Kitap okumak',
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Lütfen bir isim girin';
+                                }
+                                return null;
+                              },
                             ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Lütfen bir isim girin';
-                              }
-                              return null;
-                            },
                           ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Açıklama
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Açıklama (İsteğe Bağlı)',
-                        hintText: 'Bu alışkanlığın detayları',
+                        ],
                       ),
-                      maxLines: 2,
-                    ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
-                    // Tekrarlama Sıklığı
-                    Card(
-                      child: InkWell(
-                        onTap: _showFrequencyPicker,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.repeat),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Tekrarlama Sıklığı',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                      // Açıklama
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Açıklama (İsteğe Bağlı)',
+                          hintText: 'Bu alışkanlığın detayları',
+                        ),
+                        maxLines: 2,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Tekrarlama Sıklığı
+                      Card(
+                        child: InkWell(
+                          onTap: _showFrequencyPicker,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.repeat),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Tekrarlama Sıklığı',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _getFrequencyText(),
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.keyboard_arrow_right),
-                            ],
+                                    const SizedBox(height: 4),
+                                    Text(_getFrequencyText(), style: theme.textTheme.bodyMedium),
+                                  ],
+                                ),
+                                const Spacer(),
+                                const Icon(Icons.keyboard_arrow_right),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    // Başlangıç Tarihi
-                    Card(
-                      child: InkWell(
-                        onTap: _selectStartDate,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.calendar_today),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Başlangıç Tarihi',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                      // Başlangıç Tarihi
+                      Card(
+                        child: InkWell(
+                          onTap: _selectStartDate,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.calendar_today),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Başlangıç Tarihi',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    DateFormat('d MMMM yyyy', 'tr_TR')
-                                        .format(_startDate),
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.keyboard_arrow_right),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Hatırlatıcı Saati
-                    Card(
-                      child: InkWell(
-                        onTap: _selectReminderTime,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.access_time),
-                              const SizedBox(width: 16),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Hatırlatıcı Saati (İsteğe Bağlı)',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      DateFormat('d MMMM yyyy', 'tr_TR').format(_startDate),
+                                      style: theme.textTheme.bodyMedium,
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _reminderTime != null
-                                        ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
-                                        : 'Hatırlatıcı yok',
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.keyboard_arrow_right),
-                            ],
+                                  ],
+                                ),
+                                const Spacer(),
+                                const Icon(Icons.keyboard_arrow_right),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 16),
 
-                    // Ana menüde göster seçeneği
-                    SwitchListTile(
-                      title: const Text(
-                        'Ana menüde göster',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      // Hatırlatıcı Saati
+                      Card(
+                        child: InkWell(
+                          onTap: _selectReminderTime,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.access_time),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Hatırlatıcı Saati (İsteğe Bağlı)',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      _reminderTime != null
+                                          ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
+                                          : 'Hatırlatıcı yok',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                const Icon(Icons.keyboard_arrow_right),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      subtitle: const Text(
-                        'Etkinleştirildiğinde, bu alışkanlık görev panosunda gösterilir',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      value: _showInDashboard,
-                      onChanged: (value) {
-                        setState(() {
-                          _showInDashboard = value;
-                        });
-                      },
-                      activeColor: AppColors.primaryColor,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 24),
 
-                    // Hedef
-                    Text(
-                      'Hedef',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    TextFormField(
-                      controller: _targetDaysController,
-                      decoration: const InputDecoration(
-                        labelText: 'Hedef Gün Sayısı',
-                        hintText: 'Örn: 21, 30, 90',
-                        suffixText: 'gün',
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Lütfen bir hedef gün sayısı girin';
-                        }
-                        final number = int.tryParse(value);
-                        if (number == null || number <= 0) {
-                          return 'Geçerli bir sayı girin';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    Text(
-                      'Yeni bir alışkanlık oluşturmak genellikle 21 ile 66 gün arasında sürer.',
-                      style: theme.textTheme.bodySmall,
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Kaydet butonu
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _saveHabit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
-                          foregroundColor: Colors.white,
+                      // Ana menüde göster seçeneği
+                      SwitchListTile(
+                        title: const Text(
+                          'Ana menüde göster',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        child: Text(_isEdit ? 'GÜNCELLE' : 'OLUŞTUR'),
+                        subtitle: const Text(
+                          'Etkinleştirildiğinde, bu alışkanlık görev panosunda gösterilir',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        value: _showInDashboard,
+                        onChanged: (value) {
+                          setState(() {
+                            _showInDashboard = value;
+                          });
+                        },
+                        activeColor: AppColors.primaryColor,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
-                  ],
+                      const SizedBox(height: 16),
+
+                      // Hedef
+                      Text(
+                        'Hedef',
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      TextFormField(
+                        controller: _targetDaysController,
+                        decoration: const InputDecoration(
+                          labelText: 'Hedef Gün Sayısı',
+                          hintText: 'Örn: 21, 30, 90',
+                          suffixText: 'gün',
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Lütfen bir hedef gün sayısı girin';
+                          }
+                          final number = int.tryParse(value);
+                          if (number == null || number <= 0) {
+                            return 'Geçerli bir sayı girin';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Yeni bir alışkanlık oluşturmak genellikle 21 ile 66 gün arasında sürer.',
+                        style: theme.textTheme.bodySmall,
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Kaydet butonu
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _saveHabit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(_isEdit ? 'GÜNCELLE' : 'OLUŞTUR'),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 }

@@ -17,7 +17,7 @@ class ConnectionStatusBar extends StatelessWidget {
     this.offlineColor,
     this.showOnlineSwitch = true,
   });
-  
+
   final Color? onlineColor;
   final Color? offlineColor;
   final bool showOnlineSwitch;
@@ -27,13 +27,14 @@ class ConnectionStatusBar extends StatelessWidget {
     return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, child) {
         final colorScheme = Theme.of(context).colorScheme;
-        
-        final bgColor = connectivity.hasConnection
-            ? onlineColor ?? Colors.green.shade600
-            : offlineColor ?? Colors.red.shade600;
-        
+
+        final bgColor =
+            connectivity.hasConnection
+                ? onlineColor ?? Colors.green.shade600
+                : offlineColor ?? Colors.red.shade600;
+
         const textColor = Colors.white;
-        
+
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           color: bgColor,
@@ -45,9 +46,7 @@ class ConnectionStatusBar extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      connectivity.hasConnection
-                          ? Icons.wifi
-                          : Icons.wifi_off,
+                      connectivity.hasConnection ? Icons.wifi : Icons.wifi_off,
                       color: textColor,
                       size: 16,
                     ),
@@ -68,13 +67,8 @@ class ConnectionStatusBar extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        connectivity.isOnlineMode
-                            ? 'Çevrimiçi'
-                            : 'Çevrimdışı',
-                        style: const TextStyle(
-                          color: textColor,
-                          fontSize: 12,
-                        ),
+                        connectivity.isOnlineMode ? 'Çevrimiçi' : 'Çevrimdışı',
+                        style: const TextStyle(color: textColor, fontSize: 12),
                       ),
                       Switch(
                         value: connectivity.isOnlineMode,
@@ -110,7 +104,7 @@ class ConnectionAwareScaffold extends StatelessWidget {
     this.resizeToAvoidBottomInset,
     this.showConnectionStatusBar = true,
   });
-  
+
   final String title;
   final Widget body;
   final Widget? bottomNavigationBar;
@@ -125,16 +119,12 @@ class ConnectionAwareScaffold extends StatelessWidget {
     return Consumer<main_lib.ConnectivityProvider>(
       builder: (context, connectivity, _) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-            actions: actions,
-          ),
+          appBar: AppBar(title: Text(title), actions: actions),
           body: Column(
             children: [
               // Bağlantı durumu çubuğu
-              if (showConnectionStatusBar)
-                const ConnectionStatusBar(),
-              
+              if (showConnectionStatusBar) const ConnectionStatusBar(),
+
               // Ana içerik
               Expanded(child: body),
             ],
@@ -161,7 +151,7 @@ class OnlineOperationWrapper extends StatelessWidget {
     this.offlineWidget,
     this.offlineMessage = 'Bu özellik internet bağlantısı gerektirir',
   });
-  
+
   final Widget child;
   final Widget? offlineWidget;
   final String offlineMessage;
@@ -173,12 +163,12 @@ class OnlineOperationWrapper extends StatelessWidget {
         if (connectivity.canPerformOnlineOperations) {
           return child;
         }
-        
+
         // Özel offline widget varsa onu göster
         if (offlineWidget != null) {
           return offlineWidget!;
         }
-        
+
         // Varsayılan offline mesajı
         return Center(
           child: Padding(
@@ -187,18 +177,14 @@ class OnlineOperationWrapper extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  connectivity.hasConnection
-                      ? Icons.cloud_off
-                      : Icons.wifi_off,
+                  connectivity.hasConnection ? Icons.cloud_off : Icons.wifi_off,
                   size: 64,
                   // withOpacity yerine withValues kullanımı
                   color: Theme.of(context).colorScheme.primary.withAlpha(153), // 0.6 opaklık
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  connectivity.hasConnection
-                      ? 'Çevrimdışı Mod Aktif'
-                      : 'İnternet Bağlantısı Yok',
+                  connectivity.hasConnection ? 'Çevrimdışı Mod Aktif' : 'İnternet Bağlantısı Yok',
                   style: Theme.of(context).textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),

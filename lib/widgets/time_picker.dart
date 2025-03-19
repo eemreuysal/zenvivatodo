@@ -50,7 +50,8 @@ class TimePickerWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
+            color:
+                theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                 Color.fromRGBO(
                   Colors.grey.shade400.r.toInt(),
                   Colors.grey.shade400.g.toInt(),
@@ -69,12 +70,13 @@ class TimePickerWidget extends StatelessWidget {
               selectedTime != null
                   ? '${selectedTime!.hour.toString().padLeft(2, '0')}:${selectedTime!.minute.toString().padLeft(2, '0')}'
                   : isOptional
-                      ? 'Saat seçin (Opsiyonel)'
-                      : 'Saat seçin',
+                  ? 'Saat seçin (Opsiyonel)'
+                  : 'Saat seçin',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: selectedTime == null
-                    ? theme.textTheme.bodySmall?.color
-                    : theme.textTheme.bodyMedium?.color,
+                color:
+                    selectedTime == null
+                        ? theme.textTheme.bodySmall?.color
+                        : theme.textTheme.bodyMedium?.color,
               ),
             ),
             const Spacer(),

@@ -14,7 +14,6 @@ import '../../widgets/date_picker.dart';
 import '../../widgets/time_picker.dart';
 
 class AddTaskScreen extends StatefulWidget {
-
   const AddTaskScreen({
     super.key,
     required this.userId,
@@ -71,9 +70,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
           date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-          time: _selectedTime != null
-              ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-              : null,
+          time:
+              _selectedTime != null
+                  ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                  : null,
           categoryId: _selectedCategory?.id,
           priority: _selectedPriority.value,
           userId: widget.userId,
@@ -118,8 +118,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void _showAddCategoryDialog() {
-    final TextEditingController categoryNameController =
-        TextEditingController();
+    final TextEditingController categoryNameController = TextEditingController();
     const Color selectedColor = Colors.blue;
 
     showDialog(
@@ -132,9 +131,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             children: [
               TextField(
                 controller: categoryNameController,
-                decoration: const InputDecoration(
-                  labelText: AppTexts.categoryName,
-                ),
+                decoration: const InputDecoration(labelText: AppTexts.categoryName),
               ),
             ],
           ),
@@ -155,16 +152,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   );
 
                   try {
-                    final success = await _categoryService.addCategory(
-                      category,
-                    );
+                    final success = await _categoryService.addCategory(category);
 
                     if (!mounted) return;
 
                     if (success) {
                       // Reload categories
-                      final updatedCategories =
-                          await _categoryService.getCategories(widget.userId);
+                      final updatedCategories = await _categoryService.getCategories(widget.userId);
 
                       if (!mounted) return;
 
@@ -185,9 +179,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                            'Kategori eklenirken bir hata oluştu.',
-                          ),
+                          content: Text('Kategori eklenirken bir hata oluştu.'),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -197,9 +189,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          'Kategori eklenirken bir hata oluştu: $e',
-                        ),
+                        content: Text('Kategori eklenirken bir hata oluştu: $e'),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -234,10 +224,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             child: ListView(
               children: [
                 // Title
-                const Text(
-                  'Başlık',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                const Text('Başlık', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
                 CustomTextField(
                   controller: _titleController,
@@ -252,10 +239,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 const SizedBox(height: 16),
 
                 // Description
-                const Text(
-                  'Açıklama',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                const Text('Açıklama', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
                 CustomTextField(
                   controller: _descriptionController,
@@ -309,15 +293,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     const Text(
                       'Kategori',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: _showAddCategoryDialog,
-                    ),
+                    IconButton(icon: const Icon(Icons.add), onPressed: _showAddCategoryDialog),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -325,8 +303,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: theme.inputDecorationTheme.enabledBorder
-                              ?.borderSide.color ??
+                      color:
+                          theme.inputDecorationTheme.enabledBorder?.borderSide.color ??
                           Colors.grey.withAlpha(76),
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -336,25 +314,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: DropdownButton<Category>(
                       isExpanded: true,
                       value: _selectedCategory,
-                      items: _categories.map((category) {
-                        return DropdownMenuItem<Category>(
-                          value: category,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: Color(category.color & 0xFFFFFFFF),
-                                  shape: BoxShape.circle,
-                                ),
+                      items:
+                          _categories.map((category) {
+                            return DropdownMenuItem<Category>(
+                              value: category,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Color(category.color & 0xFFFFFFFF),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(category.name),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(category.name),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
                       onChanged: (category) {
                         setState(() {
                           _selectedCategory = category;
@@ -366,32 +345,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 const SizedBox(height: 16),
 
                 // Priority
-                const Text(
-                  'Öncelik',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                const Text('Öncelik', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
+                    Expanded(child: _buildPriorityButton(Priority.low, AppColors.lowPriorityColor)),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: _buildPriorityButton(
-                        Priority.low,
-                        AppColors.lowPriorityColor,
-                      ),
+                      child: _buildPriorityButton(Priority.medium, AppColors.mediumPriorityColor),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildPriorityButton(
-                        Priority.medium,
-                        AppColors.mediumPriorityColor,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildPriorityButton(
-                        Priority.high,
-                        AppColors.highPriorityColor,
-                      ),
+                      child: _buildPriorityButton(Priority.high, AppColors.highPriorityColor),
                     ),
                   ],
                 ),
@@ -439,10 +404,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Center(
           child: Text(
             priority.name,
-            style: TextStyle(
-              color: isSelected ? Colors.white : color,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: isSelected ? Colors.white : color, fontWeight: FontWeight.bold),
           ),
         ),
       ),

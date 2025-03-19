@@ -8,12 +8,7 @@ import '../../widgets/habit_heatmap.dart';
 import 'add_habit_screen.dart';
 
 class HabitDetailsScreen extends StatefulWidget {
-
-  const HabitDetailsScreen({
-    super.key,
-    required this.habit,
-    required this.userId,
-  });
+  const HabitDetailsScreen({super.key, required this.habit, required this.userId});
   final Habit habit;
   final int userId;
 
@@ -46,8 +41,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       final logs = await _habitService.getRecentHabitLogs(widget.habit.id!);
 
       // Tamamlanma oranını hesapla
-      final completionRate =
-          await _habitService.calculateCompletionRate(widget.habit.id!);
+      final completionRate = await _habitService.calculateCompletionRate(widget.habit.id!);
 
       // Bugün tamamlanmış mı kontrol et
       final todayLogs = logs.where((log) => log.date == _todayDate).toList();
@@ -61,7 +55,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
           _isLoading = false;
         });
       }
-    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
+    } on Exception catch (_) {
+      // '_' değişkeni ile düzeltildi
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -91,7 +86,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
-    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
+    } on Exception catch (_) {
+      // '_' değişkeni ile düzeltildi
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
     }
@@ -101,10 +97,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddHabitScreen(
-          userId: widget.userId,
-          habit: widget.habit,
-        ),
+        builder: (context) => AddHabitScreen(userId: widget.userId, habit: widget.habit),
       ),
     );
 
@@ -126,16 +119,13 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
             text: TextSpan(
               style: const TextStyle(fontSize: 16, color: Colors.black),
               children: [
-                const TextSpan(
-                  text: 'Bu alışkanlığı silmek istediğinize emin misiniz?\n\n',
-                ),
+                const TextSpan(text: 'Bu alışkanlığı silmek istediğinize emin misiniz?\n\n'),
                 TextSpan(
                   text: widget.habit.title,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const TextSpan(
-                  text:
-                      '\n\nBu işlem geri alınamaz ve tüm ilerleme kaydınız silinir.',
+                  text: '\n\nBu işlem geri alınamaz ve tüm ilerleme kaydınız silinir.',
                 ),
               ],
             ),
@@ -150,10 +140,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                 Navigator.pop(dialogContext);
                 _deleteHabit();
               },
-              child: const Text(
-                AppTexts.delete,
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text(AppTexts.delete, style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -172,19 +159,17 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
       }
-    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
+    } on Exception catch (_) {
+      // '_' değişkeni ile düzeltildi
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
   }
 
   @override
@@ -201,288 +186,254 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: _navigateToEditHabit,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: _showDeleteConfirmation,
-          ),
+          IconButton(icon: const Icon(Icons.edit), onPressed: _navigateToEditHabit),
+          IconButton(icon: const Icon(Icons.delete_outline), onPressed: _showDeleteConfirmation),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Özet Kart
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: habitColor,
-                                radius: 24,
-                                child: const Icon(
-                                  Icons.repeat,
-                                  color: Colors.white,
-                                  size: 28,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Özet Kart
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: habitColor,
+                                  radius: 24,
+                                  child: const Icon(Icons.repeat, color: Colors.white, size: 28),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.habit.title,
-                                      style:
-                                          theme.textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    if (widget
-                                        .habit.description.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
                                       Text(
-                                        widget.habit.description,
-                                        style: theme.textTheme.bodyMedium,
+                                        widget.habit.title,
+                                        style: theme.textTheme.titleLarge?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
+                                      if (widget.habit.description.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          widget.habit.description,
+                                          style: theme.textTheme.bodyMedium,
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildStatColumn(
-                                'Mevcut Zincir',
-                                '${widget.habit.currentStreak} gün',
-                              ),
-                              _buildStatColumn(
-                                'En Uzun Zincir',
-                                '${widget.habit.longestStreak} gün',
-                              ),
-                              _buildStatColumn(
-                                'Tamamlanma',
-                                '%$formattedCompletionRate',
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Bugün için tamamla butonu
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton.icon(
-                              onPressed: _toggleTodayCompletion,
-                              icon: Icon(
-                                _todayCompleted
-                                    ? Icons.check_circle
-                                    : Icons.check_circle_outline,
-                              ),
-                              label: Text(
-                                _todayCompleted
-                                    ? 'Bugün Tamamlandı'
-                                    : 'Bugün Tamamla',
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    _todayCompleted ? Colors.green : habitColor,
-                                foregroundColor: Colors.white,
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 24),
+                            const SizedBox(height: 24),
 
-                  // Alışkanlık İlerlemesi
-                  Text(
-                    'İlerleme',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hedef: ${widget.habit.targetDays} gün',
-                            style: theme.textTheme.titleSmall,
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: LinearProgressIndicator(
-                              value: widget.habit.currentStreak /
-                                  widget.habit.targetDays,
-                              backgroundColor: Colors.grey.shade200,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(habitColor),
-                              minHeight: 16,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildStatColumn(
+                                  'Mevcut Zincir',
+                                  '${widget.habit.currentStreak} gün',
+                                ),
+                                _buildStatColumn(
+                                  'En Uzun Zincir',
+                                  '${widget.habit.longestStreak} gün',
+                                ),
+                                _buildStatColumn('Tamamlanma', '%$formattedCompletionRate'),
+                              ],
                             ),
-                          ),
 
-                          const SizedBox(height: 8),
+                            const SizedBox(height: 24),
 
-                          // İlerleme yüzdesi
-                          Text(
-                            '${((widget.habit.currentStreak / widget.habit.targetDays) * 100).toStringAsFixed(0)}% tamamlandı',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-
-                          if (widget.habit.currentStreak > 0) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              'Arka arkaya ${widget.habit.currentStreak} gündür devam ediyor!',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: habitColor,
+                            // Bugün için tamamla butonu
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton.icon(
+                                onPressed: _toggleTodayCompletion,
+                                icon: Icon(
+                                  _todayCompleted ? Icons.check_circle : Icons.check_circle_outline,
+                                ),
+                                label: Text(_todayCompleted ? 'Bugün Tamamlandı' : 'Bugün Tamamla'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _todayCompleted ? Colors.green : habitColor,
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
                             ),
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Alışkanlık Detayları
-                  Text(
-                    'Detaylar',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    // Alışkanlık İlerlemesi
+                    Text(
+                      'İlerleme',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          _buildDetailRow(
-                            'Tekrarlama',
-                            _getFrequencyText(widget.habit),
-                            Icons.repeat,
-                          ),
-                          const Divider(),
-                          _buildDetailRow(
-                            'Başlangıç',
-                            DateFormat('d MMMM yyyy', 'tr_TR')
-                                .format(DateTime.parse(widget.habit.startDate)),
-                            Icons.calendar_today,
-                          ),
-                          if (widget.habit.reminderTime != null) ...[
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hedef: ${widget.habit.targetDays} gün',
+                              style: theme.textTheme.titleSmall,
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: LinearProgressIndicator(
+                                value: widget.habit.currentStreak / widget.habit.targetDays,
+                                backgroundColor: Colors.grey.shade200,
+                                valueColor: AlwaysStoppedAnimation<Color>(habitColor),
+                                minHeight: 16,
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // İlerleme yüzdesi
+                            Text(
+                              '${((widget.habit.currentStreak / widget.habit.targetDays) * 100).toStringAsFixed(0)}% tamamlandı',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+
+                            if (widget.habit.currentStreak > 0) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                'Arka arkaya ${widget.habit.currentStreak} gündür devam ediyor!',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: habitColor,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Alışkanlık Detayları
+                    Text(
+                      'Detaylar',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            _buildDetailRow(
+                              'Tekrarlama',
+                              _getFrequencyText(widget.habit),
+                              Icons.repeat,
+                            ),
                             const Divider(),
                             _buildDetailRow(
-                              'Hatırlatıcı',
-                              widget.habit.reminderTime!,
-                              Icons.alarm,
+                              'Başlangıç',
+                              DateFormat(
+                                'd MMMM yyyy',
+                                'tr_TR',
+                              ).format(DateTime.parse(widget.habit.startDate)),
+                              Icons.calendar_today,
                             ),
+                            if (widget.habit.reminderTime != null) ...[
+                              const Divider(),
+                              _buildDetailRow(
+                                'Hatırlatıcı',
+                                widget.habit.reminderTime!,
+                                Icons.alarm,
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Isı Haritası
-                  Text(
-                    'Aktivite Haritası',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    // Isı Haritası
+                    Text(
+                      'Aktivite Haritası',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
+                    const SizedBox(height: 8),
 
-                  HabitHeatmap(
-                    logs: _recentLogs,
-                    color: habitColor,
-                    onDayTap: (date) async {
-                      final dateObj = DateTime.parse(date);
-                      final today = DateTime.now();
-                      final isToday = DateUtils.isSameDay(dateObj, today);
-                      final isPast = dateObj.isBefore(today) && !isToday;
+                    HabitHeatmap(
+                      logs: _recentLogs,
+                      color: habitColor,
+                      onDayTap: (date) async {
+                        final dateObj = DateTime.parse(date);
+                        final today = DateTime.now();
+                        final isToday = DateUtils.isSameDay(dateObj, today);
+                        final isPast = dateObj.isBefore(today) && !isToday;
 
-                      if (isToday || isPast) {
-                        // Bugün veya geçmiş için tamamlama durumunu değiştir
-                        final currentLogs = _recentLogs
-                            .where((log) => log.date == date)
-                            .toList();
-                        final currentStatus = currentLogs.isNotEmpty &&
-                            currentLogs.first.completed;
+                        if (isToday || isPast) {
+                          // Bugün veya geçmiş için tamamlama durumunu değiştir
+                          final currentLogs = _recentLogs.where((log) => log.date == date).toList();
+                          final currentStatus =
+                              currentLogs.isNotEmpty && currentLogs.first.completed;
 
-                        await _habitService.toggleHabitCompletion(
-                          widget.habit.id!,
-                          date,
-                          !currentStatus,
-                        );
+                          await _habitService.toggleHabitCompletion(
+                            widget.habit.id!,
+                            date,
+                            !currentStatus,
+                          );
 
-                        if (!mounted) {
-                          return; // Asenkron işlemden sonra mounted kontrolü ekledik
+                          if (!mounted) {
+                            return; // Asenkron işlemden sonra mounted kontrolü ekledik
+                          }
+                          _loadData(); // Verileri yenile
                         }
-                        _loadData(); // Verileri yenile
-                      }
-                    },
-                  ),
+                      },
+                    ),
 
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
-            ),
     );
   }
 
   Widget _buildStatColumn(String title, String value) {
     return Column(
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
+        Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
         const SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: title == 'Mevcut Zincir' && widget.habit.currentStreak > 0
-                ? Color(widget.habit.colorCode)
-                : Colors.black,
+            color:
+                title == 'Mevcut Zincir' && widget.habit.currentStreak > 0
+                    ? Color(widget.habit.colorCode)
+                    : Colors.black,
           ),
         ),
       ],
@@ -500,20 +451,9 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
+                Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
                 const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+                Text(value, style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),

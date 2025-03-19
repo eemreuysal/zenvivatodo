@@ -48,9 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                'Hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.',
-              ),
+              content: Text('Hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.'),
               backgroundColor: AppColors.successColor,
             ),
           );
@@ -58,15 +56,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Navigator.of(context).pop();
         } else {
           setState(() {
-            _errorMessage =
-                'Hesap oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.';
+            _errorMessage = 'Hesap oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.';
             _isLoading = false;
           });
         }
       } on Exception catch (e) {
         setState(() {
-          _errorMessage =
-              'Hesap oluşturulurken bir hata oluştu: $e. Lütfen tekrar deneyin.';
+          _errorMessage = 'Hesap oluşturulurken bir hata oluştu: $e. Lütfen tekrar deneyin.';
           _isLoading = false;
         });
       }
@@ -80,10 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Theme.of(context).iconTheme.color,
-          ),
+          icon: Icon(Icons.arrow_back_ios, color: Theme.of(context).iconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -98,9 +91,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     AppTexts.createAccount,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -163,20 +156,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           return null;
                         },
                       ),
-                      if (_errorMessage != null) ...[ 
+                      if (_errorMessage != null) ...[
                         const SizedBox(height: 16),
                         Text(
                           _errorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       ],
                       const SizedBox(height: 32),
-                      if (_isLoading) const CircularProgressIndicator() else CustomButton(
-                              text: AppTexts.registerButtonText,
-                              onPressed: _register,
-                            ),
+                      if (_isLoading)
+                        const CircularProgressIndicator()
+                      else
+                        CustomButton(text: AppTexts.registerButtonText, onPressed: _register),
                     ],
                   ),
                 ),

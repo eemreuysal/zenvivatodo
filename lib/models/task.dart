@@ -20,7 +20,7 @@ enum TaskPriority {
     0 => TaskPriority.low,
     1 => TaskPriority.medium,
     2 => TaskPriority.high,
-    _ => TaskPriority.medium, // Varsayılan 
+    _ => TaskPriority.medium, // Varsayılan
   };
 }
 
@@ -51,9 +51,11 @@ class Task {
     required int priority,
     required this.userId,
     this.uniqueId,
-  })  : date = '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}',
-        time = '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}',
-        priority = TaskPriority.fromValue(priority);
+  }) : date =
+           '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}',
+       time =
+           '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}',
+       priority = TaskPriority.fromValue(priority);
 
   // Benzersiz ID ile yeni görev oluşturma
   Task.withUniqueId({
@@ -66,8 +68,8 @@ class Task {
     this.categoryId,
     required int priority,
     required this.userId,
-  })  : priority = TaskPriority.fromValue(priority),
-        uniqueId = const Uuid().v4();
+  }) : priority = TaskPriority.fromValue(priority),
+       uniqueId = const Uuid().v4();
 
   // Map'ten nesne oluşturma - SQLite veritabanı ile uyumluluk için
   factory Task.fromMap(Map<String, dynamic> map) {
@@ -101,7 +103,7 @@ class Task {
   final TaskPriority priority;
   final int userId;
   final String? uniqueId;
-  
+
   // Öncelik değerini int olarak döndür
   int get priorityValue => priority.value;
 
@@ -159,7 +161,7 @@ class Task {
     return 'Task(id: $id, title: $title, priority: ${priority.label}, date: $date, time: $time, completed: $isCompleted)';
   }
 
-  // Eşitlik kontrolü için 
+  // Eşitlik kontrolü için
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -206,7 +208,7 @@ class TaskDTO {
   });
 
   factory TaskDTO.fromJson(Map<String, dynamic> json) => _$TaskDTOFromJson(json);
-  
+
   factory TaskDTO.fromTask(Task task) {
     return TaskDTO(
       id: task.id,
@@ -221,7 +223,7 @@ class TaskDTO {
       uniqueId: task.uniqueId,
     );
   }
-  
+
   final int? id;
   final String title;
   final String description;
@@ -232,9 +234,9 @@ class TaskDTO {
   final int priority;
   final int userId;
   final String? uniqueId;
-  
+
   Map<String, dynamic> toJson() => _$TaskDTOToJson(this);
-  
+
   Task toTask() {
     return Task(
       id: id,

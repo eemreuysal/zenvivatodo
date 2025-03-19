@@ -11,16 +11,10 @@ class AppTheme {
       secondary: AppColors.secondaryColor,
       error: AppColors.errorColor,
     ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: false,
-      elevation: 0,
-      scrolledUnderElevation: 2,
-    ),
+    appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0, scrolledUnderElevation: 2),
     cardTheme: CardTheme(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(vertical: 6),
     ),
@@ -45,20 +39,12 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.primaryColor,
-    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.primaryColor),
     sliderTheme: const SliderThemeData(),
-    chipTheme: ChipThemeData(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
+    chipTheme: ChipThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       ),
     ),
@@ -80,16 +66,10 @@ class AppTheme {
       error: AppColors.errorLightColor,
       surface: Colors.grey.shade800,
     ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: false,
-      elevation: 0,
-      scrolledUnderElevation: 2,
-    ),
+    appBarTheme: const AppBarTheme(centerTitle: false, elevation: 0, scrolledUnderElevation: 2),
     cardTheme: CardTheme(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(vertical: 6),
     ),
@@ -114,20 +94,12 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.primaryLightColor,
-    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.primaryLightColor),
     sliderTheme: const SliderThemeData(),
-    chipTheme: ChipThemeData(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
+    chipTheme: ChipThemeData(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       ),
     ),

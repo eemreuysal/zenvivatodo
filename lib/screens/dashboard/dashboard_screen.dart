@@ -17,11 +17,8 @@ import '../tasks/active_tasks_screen.dart';
 import '../tasks/completed_tasks_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({
-    super.key,
-    required this.userId,
-  });
-  
+  const DashboardScreen({super.key, required this.userId});
+
   final int userId;
 
   @override
@@ -78,22 +75,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _currentIndex == 0
-              ? '${AppTexts.welcome} $_username'
-              : _getAppBarTitle(),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          _currentIndex == 0 ? '${AppTexts.welcome} $_username' : _getAppBarTitle(),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
             icon: Icon(
               connectivityProvider.isOnlineMode ? Icons.cloud_done : Icons.cloud_off,
-              color: connectivityProvider.isOnlineMode
-                  ? connectivityProvider.hasConnection
-                      ? Colors.green
-                      : Colors.orange
-                  : Colors.grey,
+              color:
+                  connectivityProvider.isOnlineMode
+                      ? connectivityProvider.hasConnection
+                          ? Colors.green
+                          : Colors.orange
+                      : Colors.grey,
             ),
             onPressed: () {
               connectivityProvider.toggleOnlineMode();
@@ -108,25 +102,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             },
-            tooltip: connectivityProvider.isOnlineMode
-                ? 'Çevrimiçi mod aktif'
-                : 'Çevrimdışı mod aktif',
+            tooltip:
+                connectivityProvider.isOnlineMode ? 'Çevrimiçi mod aktif' : 'Çevrimdışı mod aktif',
           ),
         ],
       ),
       body: Column(
         children: [
           // Bağlantı durumu gösterge çubuğu
-          if (!connectivityProvider.hasConnection)
-            const ConnectionStatusBar(),
-          
+          if (!connectivityProvider.hasConnection) const ConnectionStatusBar(),
+
           // Ana içerik
           Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : _currentIndex == 0
+            child:
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _currentIndex == 0
                     ? _buildHomeScreen()
                     : screens[_currentIndex],
           ),
@@ -168,23 +159,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      floatingActionButton: _currentIndex <= 2
-          ? FloatingActionButton(
-              onPressed: () {
-                switch (_currentIndex) {
-                  case 0:
-                  case 1:
-                    Navigator.pushNamed(context, '/add_task');
-                    break;
-                  case 2:
-                    Navigator.pushNamed(context, '/add_habit');
-                    break;
-                }
-              },
-              backgroundColor: AppColors.primaryColor,
-              child: const Icon(Icons.add),
-            )
-          : null,
+      floatingActionButton:
+          _currentIndex <= 2
+              ? FloatingActionButton(
+                onPressed: () {
+                  switch (_currentIndex) {
+                    case 0:
+                    case 1:
+                      Navigator.pushNamed(context, '/add_task');
+                      break;
+                    case 2:
+                      Navigator.pushNamed(context, '/add_habit');
+                      break;
+                  }
+                },
+                backgroundColor: AppColors.primaryColor,
+                child: const Icon(Icons.add),
+              )
+              : null,
     );
   }
 
@@ -194,18 +186,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         // İlham verici alıntı kartı
         const InspirationCard(type: 'quote'),
-        
+
         const SizedBox(height: 24),
-        
+
         // Bugün görevler
         _buildSectionHeader('Bugünkü Görevler', Icons.today),
-        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<dynamic>>(
+          // Düzeltme: Generic tip belirlendi
           future: _taskService.getTodayTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             if (snapshot.hasError) {
               return Center(
                 child: Text(
@@ -214,18 +207,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             }
-            
+
             final tasks = snapshot.data ?? [];
-            
+
             if (tasks.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: Text('Bugün için görev bulunmuyor'),
-                ),
+                child: Center(child: Text('Bugün için görev bulunmuyor')),
               );
             }
-            
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -234,17 +225,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 final task = tasks[index];
                 return ListTile(
                   leading: Icon(
-                    task.isCompleted
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
+                    task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
                     color: task.isCompleted ? Colors.green : Colors.grey,
                   ),
                   title: Text(
                     task.title,
                     style: TextStyle(
-                      decoration: task.isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
+                      decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   subtitle: Text(task.time ?? 'Tüm gün'),
@@ -254,29 +241,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     size: 12,
                   ),
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/edit_task',
-                      arguments: task.id,
-                    );
+                    Navigator.pushNamed(context, '/edit_task', arguments: task.id);
                   },
                 );
               },
             );
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Yaklaşan görevler
         _buildSectionHeader('Yaklaşan Görevler', Icons.event),
-        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<dynamic>>(
+          // Düzeltme: Generic tip belirlendi
           future: _taskService.getUpcomingTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             if (snapshot.hasError) {
               return Center(
                 child: Text(
@@ -285,18 +269,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             }
-            
+
             final tasks = snapshot.data ?? [];
-            
+
             if (tasks.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: Text('Yaklaşan görev bulunmuyor'),
-                ),
+                child: Center(child: Text('Yaklaşan görev bulunmuyor')),
               );
             }
-            
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -313,32 +295,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     size: 12,
                   ),
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/edit_task',
-                      arguments: task.id,
-                    );
+                    Navigator.pushNamed(context, '/edit_task', arguments: task.id);
                   },
                 );
               },
             );
           },
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Alışkanlıklar
         _buildSectionHeader('Alışkanlıklar', Icons.repeat),
-        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<dynamic>>(
+          // Düzeltme: Generic tip belirlendi
           future: _habitService.getDashboardHabits(
-            userId: widget.userId, 
+            userId: widget.userId,
             date: DateTime.now().toString(),
           ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            
+
             if (snapshot.hasError) {
               return Center(
                 child: Text(
@@ -347,18 +326,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               );
             }
-            
+
             final habits = snapshot.data ?? [];
-            
+
             if (habits.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(
-                  child: Text('Panoda gösterilecek alışkanlık bulunmuyor'),
-                ),
+                child: Center(child: Text('Panoda gösterilecek alışkanlık bulunmuyor')),
               );
             }
-            
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -370,11 +347,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title: Text(habit.title),
                   subtitle: Text('${habit.currentStreak} gün seri'),
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/habit_details',
-                      arguments: habit.id,
-                    );
+                    Navigator.pushNamed(context, '/habit_details', arguments: habit.id);
                   },
                 );
               },
@@ -392,13 +365,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Icon(icon, color: AppColors.primaryColor),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ],
       ),
     );

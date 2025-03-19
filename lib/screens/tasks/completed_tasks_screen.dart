@@ -11,7 +11,6 @@ import '../../widgets/task_filter.dart';
 import 'edit_task_screen.dart';
 
 class CompletedTasksScreen extends StatefulWidget {
-
   const CompletedTasksScreen({super.key, required this.userId});
   final int userId;
 
@@ -76,10 +75,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
 
   Future<void> _toggleTaskCompletion(Task task) async {
     try {
-      final success = await _taskService.toggleTaskCompletion(
-        task.id!,
-        !task.isCompleted,
-      );
+      final success = await _taskService.toggleTaskCompletion(task.id!, !task.isCompleted);
 
       if (!mounted) return;
 
@@ -156,10 +152,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                 Navigator.pop(dialogContext);
                 _deleteTask(task);
               },
-              child: const Text(
-                AppTexts.delete,
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text(AppTexts.delete, style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -238,94 +231,90 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.sort),
-            onPressed: () => _showSortMenu(context),
-          ),
+          IconButton(icon: const Icon(Icons.sort), onPressed: () => _showSortMenu(context)),
         ],
       ),
       body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  // Filters
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: TaskFilter(
-                      categories: _categories,
-                      selectedCategoryId: _selectedCategoryId,
-                      selectedPriority: _selectedPriority,
-                      onCategoryChanged: (categoryId) {
-                        setState(() {
-                          _selectedCategoryId = categoryId;
-                        });
-                        _loadData();
-                      },
-                      onPriorityChanged: (priority) {
-                        setState(() {
-                          _selectedPriority = priority;
-                        });
-                        _loadData();
-                      },
+        child:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                  children: [
+                    // Filters
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TaskFilter(
+                        categories: _categories,
+                        selectedCategoryId: _selectedCategoryId,
+                        selectedPriority: _selectedPriority,
+                        onCategoryChanged: (categoryId) {
+                          setState(() {
+                            _selectedCategoryId = categoryId;
+                          });
+                          _loadData();
+                        },
+                        onPriorityChanged: (priority) {
+                          setState(() {
+                            _selectedPriority = priority;
+                          });
+                          _loadData();
+                        },
+                      ),
                     ),
-                  ),
 
-                  // Tasks list
-                  Expanded(
-                    child: _tasks.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Tamamlanmış görev bulunamadı',
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
-                            itemCount: _tasks.length,
-                            itemBuilder: (context, index) {
-                              final task = _tasks[index];
-
-                              // Find the category for this task
-                              final category = task.categoryId != null
-                                  ? _categories.firstWhere(
-                                      (c) => c.id == task.categoryId,
-                                      orElse: () => Category(
-                                        name: 'Kategori Yok',
-                                        color: Colors.grey.toARGB32(),
-                                      ),
-                                    )
-                                  : null;
-
-                              return TaskCard(
-                                task: task,
-                                category: category,
-                                onToggleCompletion: () =>
-                                    _toggleTaskCompletion(task),
-                                onEdit: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => EditTaskScreen(
-                                        userId: widget.userId,
-                                        task: task,
-                                        categories: _categories,
-                                      ),
-                                    ),
-                                  ).then((_) => _loadData());
-                                },
-                                onDelete: () => _showDeleteConfirmation(
-                                  context,
-                                  task,
+                    // Tasks list
+                    Expanded(
+                      child:
+                          _tasks.isEmpty
+                              ? Center(
+                                child: Text(
+                                  'Tamamlanmış görev bulunamadı',
+                                  style: theme.textTheme.bodyLarge,
                                 ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
+                              )
+                              : ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                itemCount: _tasks.length,
+                                itemBuilder: (context, index) {
+                                  final task = _tasks[index];
+
+                                  // Find the category for this task
+                                  final category =
+                                      task.categoryId != null
+                                          ? _categories.firstWhere(
+                                            (c) => c.id == task.categoryId,
+                                            orElse:
+                                                () => Category(
+                                                  name: 'Kategori Yok',
+                                                  color: Colors.grey.toARGB32(),
+                                                ),
+                                          )
+                                          : null;
+
+                                  return TaskCard(
+                                    task: task,
+                                    category: category,
+                                    onToggleCompletion: () => _toggleTaskCompletion(task),
+                                    onEdit: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => EditTaskScreen(
+                                                userId: widget.userId,
+                                                task: task,
+                                                categories: _categories,
+                                              ),
+                                        ),
+                                      ).then((_) => _loadData());
+                                    },
+                                    onDelete: () => _showDeleteConfirmation(context, task),
+                                  );
+                                },
+                              ),
+                    ),
+                  ],
+                ),
       ),
     );
   }

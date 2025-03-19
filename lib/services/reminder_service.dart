@@ -7,7 +7,6 @@ import '../models/task.dart';
 /// Bu servis şu anda kısmen devre dışı bırakılmıştır.
 /// Bildirimleri kullanmak yerine yerel diyalog gösterimini kullanıyor.
 class ReminderService {
-  
   // Constructorlar diğer üyelerden önce
   factory ReminderService() => _instance;
   ReminderService._internal();
@@ -23,7 +22,7 @@ class ReminderService {
   // Initialize the reminder service
   void initialize() {
     debugPrint('ReminderService devre dışı bildirimlerin yerine diyaloglar kullanılıyor.');
-    
+
     // Check for reminders every minute
     _checkTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
       _checkForReminders();
@@ -66,8 +65,7 @@ class ReminderService {
             );
 
             // Calculate the reminder time (5 minutes before task time)
-            final reminderTime =
-                taskDateTime.subtract(const Duration(minutes: 5));
+            final reminderTime = taskDateTime.subtract(const Duration(minutes: 5));
 
             // Check if it's time for the reminder
             if (isTimeForReminder(now, reminderTime)) {
@@ -81,7 +79,8 @@ class ReminderService {
           }
         } on FormatException catch (e) {
           debugPrint('Tarih/saat formatı hatası: $e');
-        } on Exception catch (e) { // Belirli exception türü belirtildi
+        } on Exception catch (e) {
+          // Belirli exception türü belirtildi
           debugPrint('Error parsing task date/time: $e');
         }
       }

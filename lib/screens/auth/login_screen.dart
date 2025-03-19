@@ -40,34 +40,31 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         // Try to login with entered credentials
         final user = await _authService.login(
-            _usernameController.text.trim(), 
-            _passwordController.text.trim(),
-            ); // Virgül eklendi
+          _usernameController.text.trim(),
+          _passwordController.text.trim(),
+        ); // Virgül eklendi
 
         if (!mounted) return;
 
         if (user != null) {
           // Navigate to dashboard if login successful
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => DashboardScreen(userId: user.id!),
-            ),
-          );
+          Navigator.of(
+            context,
+          ).pushReplacement(MaterialPageRoute(builder: (_) => DashboardScreen(userId: user.id!)));
         } else {
           // Show error if login failed
           setState(() {
-            _errorMessage =
-                'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.';
+            _errorMessage = 'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.';
             _isLoading = false;
           });
         }
-      } on Exception { // Burayı 'catch (e)' yerine sadece 'catch' olarak düzelttik
+      } on Exception {
+        // Burayı 'catch (e)' yerine sadece 'catch' olarak düzelttik
         if (!mounted) return;
 
         // Show error if exception occurs
         setState(() {
-          _errorMessage =
-              'Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.';
+          _errorMessage = 'Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.';
           _isLoading = false;
         });
       }
@@ -96,22 +93,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: const Center(
-                          child: Icon(
-                            Icons.show_chart,
-                            size: 40,
-                            color: Colors.white,
-                          ),
+                          child: Icon(Icons.show_chart, size: 40, color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         AppTexts.appName,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.headlineSmall?.copyWith(
-                              color: AppColors.primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -122,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     AppTexts.login,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -165,20 +156,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      if (_errorMessage != null) ...[ 
+                      if (_errorMessage != null) ...[
                         const SizedBox(height: 16),
                         Text(
                           _errorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       ],
                       const SizedBox(height: 32),
-                      if (_isLoading) const CircularProgressIndicator() else CustomButton(
-                              text: AppTexts.loginButtonText,
-                              onPressed: _login,
-                            ),
+                      if (_isLoading)
+                        const CircularProgressIndicator()
+                      else
+                        CustomButton(text: AppTexts.loginButtonText, onPressed: _login),
                     ],
                   ),
                 ),
@@ -187,18 +176,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      AppTexts.dontHaveAccount,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    Text(AppTexts.dontHaveAccount, style: Theme.of(context).textTheme.bodyMedium),
                     TextButton(
                       onPressed: () {
                         // Navigate to register screen
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterScreen(),
-                          ),
-                        );
+                        Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
                       },
                       child: const Text(
                         AppTexts.registerButtonText,

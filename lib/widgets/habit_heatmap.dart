@@ -38,9 +38,7 @@ class HabitHeatmap extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -50,9 +48,9 @@ class HabitHeatmap extends StatelessWidget {
               children: [
                 Text(
                   'Son $days Gün',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 _buildLegend(context),
               ],
@@ -74,13 +72,7 @@ class HabitHeatmap extends StatelessWidget {
                 final dayNumber = date.day;
                 final isToday = DateUtils.isSameDay(date, now);
 
-                return _buildDayCell(
-                  context,
-                  dayNumber,
-                  dateStr,
-                  isCompleted,
-                  isToday,
-                );
+                return _buildDayCell(context, dayNumber, dateStr, isCompleted, isToday);
               },
             ),
           ],
@@ -100,9 +92,9 @@ class HabitHeatmap extends StatelessWidget {
     final completedColor = baseColor;
     // Double -> int dönüşümü ile Color.fromRGBO kullanımı düzeltildi
     final notCompletedColor = Color.fromRGBO(
-      (255 * (1 - 0.9)).toInt(), 
-      (255 * 0.1).toInt(), 
-      (255 * 0.1).toInt(), 
+      (255 * (1 - 0.9)).toInt(),
+      (255 * 0.1).toInt(),
+      (255 * 0.1).toInt(),
       0.1,
     );
     final todayBorderColor = Theme.of(context).primaryColor;
@@ -114,8 +106,7 @@ class HabitHeatmap extends StatelessWidget {
         decoration: BoxDecoration(
           color: isCompleted ? completedColor : notCompletedColor,
           borderRadius: BorderRadius.circular(4),
-          border:
-              isToday ? Border.all(color: todayBorderColor, width: 2) : null,
+          border: isToday ? Border.all(color: todayBorderColor, width: 2) : null,
         ),
         child: Center(
           child: Text(
@@ -138,12 +129,7 @@ class HabitHeatmap extends StatelessWidget {
           height: 12,
           decoration: BoxDecoration(
             // Double -> int dönüşümü ile Color.fromRGBO kullanımı düzeltildi
-            color: Color.fromRGBO(
-              128.toInt(), 
-              128.toInt(), 
-              255.toInt(), 
-              0.1,
-            ),
+            color: Color.fromRGBO(128.toInt(), 128.toInt(), 255.toInt(), 0.1),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -153,10 +139,7 @@ class HabitHeatmap extends StatelessWidget {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
-          ),
+          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(width: 4),
         const Text('Tamamlandı'),

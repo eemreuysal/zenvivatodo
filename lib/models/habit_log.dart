@@ -2,7 +2,6 @@
 
 /// Alışkanlık takip kaydı sınıfı
 class HabitLog {
-
   // Enhanced constructor (Dart 3.0+)
   const HabitLog({
     this.id,
@@ -12,7 +11,7 @@ class HabitLog {
     this.notes,
     this.createdAt,
   });
-  
+
   // Bugünün tarihiyle oluşturma
   factory HabitLog.forToday({
     int? id,
@@ -21,8 +20,9 @@ class HabitLog {
     String? notes,
   }) {
     final now = DateTime.now();
-    final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    
+    final dateStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
     return HabitLog(
       id: id,
       habitId: habitId,
@@ -32,7 +32,7 @@ class HabitLog {
       createdAt: DateTime.now().toIso8601String(),
     );
   }
-  
+
   // Belirli bir tarih için oluşturma
   factory HabitLog.forDate({
     int? id,
@@ -41,8 +41,9 @@ class HabitLog {
     bool completed = false,
     String? notes,
   }) {
-    final dateStr = '${logDate.year}-${logDate.month.toString().padLeft(2, '0')}-${logDate.day.toString().padLeft(2, '0')}';
-    
+    final dateStr =
+        '${logDate.year}-${logDate.month.toString().padLeft(2, '0')}-${logDate.day.toString().padLeft(2, '0')}';
+
     return HabitLog(
       id: id,
       habitId: habitId,
@@ -89,19 +90,15 @@ class HabitLog {
       createdAt: createdAt ?? this.createdAt,
     );
   }
-  
+
   // Tamamlanma durumunu değiştirme
   HabitLog toggleCompletion() {
-    return copyWith(
-      completed: !completed,
-    );
+    return copyWith(completed: !completed);
   }
-  
+
   // Not ekleme
   HabitLog withNotes(String newNotes) {
-    return copyWith(
-      notes: newNotes,
-    );
+    return copyWith(notes: newNotes);
   }
 
   // Veritabanı için Map'e dönüştürme
@@ -126,25 +123,23 @@ class HabitLog {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is HabitLog &&
-        other.id == id &&
-        other.habitId == habitId &&
-        other.date == date;
+    return other is HabitLog && other.id == id && other.habitId == habitId && other.date == date;
   }
 
   @override
   int get hashCode => id.hashCode ^ habitId.hashCode ^ date.hashCode;
-  
+
   // Tarih nesnesi olarak elde etme
   DateTime get dateAsDateTime {
     final parts = date.split('-').map(int.parse).toList();
     return DateTime(parts[0], parts[1], parts[2]);
   }
-  
+
   // Kaydın bugüne ait olup olmadığını kontrol etme
   bool get isToday {
     final now = DateTime.now();
-    final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     return date == today;
   }
 }

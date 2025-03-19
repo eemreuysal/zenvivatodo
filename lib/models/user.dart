@@ -20,7 +20,7 @@ class User {
     this.createdAt,
     this.lastLogin,
   });
-  
+
   // Şifreyi güvenli şekilde hash'leyerek yeni kullanıcı oluştur (kayıt için)
   factory User.withHashedPassword({
     int? id,
@@ -29,7 +29,7 @@ class User {
     required String plainPassword,
   }) {
     final hashedPassword = _secureHash(plainPassword);
-    
+
     return User(
       id: id,
       username: username,
@@ -50,37 +50,37 @@ class User {
       lastLogin: map['last_login'],
     );
   }
-  
+
   // JSON'dan nesne oluşturma
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
-  
+
   final int? id;
   final String username;
   final String email;
-  
-  @JsonKey(includeToJson: false)  // JSON'a dönüştürürken şifreyi dahil etme
+
+  @JsonKey(includeToJson: false) // JSON'a dönüştürürken şifreyi dahil etme
   final String password; // Artık "salt:hash" formatında saklanıyor
-  
+
   @JsonKey(name: 'created_at')
   final String? createdAt;
-  
+
   @JsonKey(name: 'last_login')
   final String? lastLogin;
-  
+
   // Daha güvenli şifre hashleme yöntemi
   static String _secureHash(String password) {
     // Rastgele salt (tuz) oluştur
     final Random random = Random.secure();
     final List<int> saltBytes = List<int>.generate(32, (_) => random.nextInt(256));
     final String salt = base64Encode(saltBytes);
-    
+
     // PBKDF2 benzeri bir yaklaşım - daha fazla iterasyon güvenliği artırır
     String hash = password + salt;
     for (int i = 0; i < 1000; i++) {
       final bytes = utf8.encode(hash);
       hash = sha256.convert(bytes).toString();
     }
-    
+
     // salt:hash formatında döndür
     return '$salt:$hash';
   }
@@ -94,21 +94,21 @@ class User {
       final digest = sha256.convert(bytes).toString();
       return digest == password;
     }
-    
+
     // Yeni format (salt:hash)
     final parts = password.split(':');
     if (parts.length != 2) return false;
-    
+
     final salt = parts[0];
     final storedHash = parts[1];
-    
+
     // Aynı algoritma ile kontrol et
     String hash = plainPassword + salt;
     for (int i = 0; i < 1000; i++) {
       final bytes = utf8.encode(hash);
       hash = sha256.convert(bytes).toString();
     }
-    
+
     return hash == storedHash;
   }
 
@@ -147,7 +147,7 @@ class User {
       'last_login': lastLogin,
     };
   }
-  
+
   // JSON'a dönüştürme metodu
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
@@ -157,14 +157,11 @@ class User {
     return 'User(id: $id, username: $username, email: $email)';
   }
 
-  // Eşitlik kontrolü için 
+  // Eşitlik kontrolü için
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is User &&
-        other.id == id &&
-        other.username == username &&
-        other.email == email;
+    return other is User && other.id == id && other.username == username && other.email == email;
   }
 
   @override
