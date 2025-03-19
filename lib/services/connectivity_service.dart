@@ -17,9 +17,10 @@ class ConnectivityService {
     // Başlangıç durumunu al
     _initConnectivity();
     
-    // Bağlantı değişikliklerini dinle - API değişikliği uyumu için
+    // Bağlantı değişikliklerini dinle
     _connectivity.onConnectivityChanged.listen((result) {
-      // Liste yerine tek sonuç aldığımızı belirtiyoruz - tip hatası düzeltildi
+      // Connectivity Plus API'sinin son versiyonlarında artık doğrudan ConnectivityResult tipi dönüyor
+      // Bu nedenle liste[0] erişimi gerekmiyor
       _updateConnectionStatus(result);
     });
   }
@@ -49,6 +50,7 @@ class ConnectivityService {
   // Başlangıç durumunu kontrol et
   Future<void> _initConnectivity() async {
     try {
+      // ConnectivityResult döndüren yeni API
       final result = await _connectivity.checkConnectivity();
       _updateConnectionStatus(result);
     } on Exception catch (e) {
@@ -67,6 +69,7 @@ class ConnectivityService {
   // Mevcut bağlantı durumunu kontrol et
   Future<bool> checkConnection() async {
     try {
+      // ConnectivityResult tipinde sonuç alır
       final result = await _connectivity.checkConnectivity();
       
       // ConnectivityResult değerini kullan
