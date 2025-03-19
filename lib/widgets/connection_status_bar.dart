@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 // ConnectivityService için import
 import '../services/connectivity_service.dart' hide ConnectivityProvider;
+import 'package:provider/provider.dart';
 
 // ConnectivityProvider sınıfı için import ve as kullanımı
 import '../main.dart' as main_lib; 
