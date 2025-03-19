@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 // Düzeltme 1: Import sıralaması düzeltildi
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
-import '../../models/task.dart';
 import '../../models/habit.dart';
+import '../../models/task.dart';
 import '../../services/auth_service.dart';
 import '../../services/connectivity_service.dart';
 import '../../services/habit_service.dart';
