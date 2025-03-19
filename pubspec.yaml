@@ -7,6 +7,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.7.0 <4.0.0'  # Dart 3.7 ile uyumlu olarak güncellendi
+  flutter: '>=3.29.0'    # Flutter 3.29 için minimum gereksinim
 
 dependencies:
   flutter:
@@ -61,7 +62,7 @@ dependencies:
   url_launcher: ^6.2.4               # URL açmak için
   
   # Web için JS interoperabilite
-  web: ^1.1.1
+  web: ^1.1.1                        # Modern web API'leri için
 
 dev_dependencies:
   flutter_test:
@@ -82,7 +83,7 @@ flutter:
     - assets/images/
     - assets/icons/
 
-# Formatter ayarları
+# Formatter ayarları - Dart 3.7 ile uyumlu
 formatter:
   page_width: 100                   # Sayfa genişliği (Dart 3.7+)
 
