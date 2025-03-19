@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Flutter 3.29 ile Impeller desteği - varsayılan olarak etkin olmasına rağmen açıkça belirtiliyor -->
+	<key>FLTEnableImpeller</key>
+	<true/>
 </dict>
 </plist>
