@@ -47,7 +47,7 @@ class Task {
     required this.title,
     required this.description,
     required DateTime dateTime,
-    this.isCompleted, // isCompleted = false varsayılan değeri kaldırıldı
+    required this.isCompleted, // required yaptık, böylece varsayılan değer null olamaz
     this.categoryId,
     required int priority,
     required this.userId,
@@ -97,7 +97,8 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: data['isCompleted'] ?? false, // Varsayılan değer false eklendi
+      // Bu satır gereksiz default değeri içermiyor
+      isCompleted: data['isCompleted'] ?? false, 
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
