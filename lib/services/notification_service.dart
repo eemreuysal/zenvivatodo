@@ -123,11 +123,13 @@ class NotificationService {
           critical: true, // Kritik bildirimler için (Focus Mode durumunda bile bildirim gösterme)
         );
       }
-    } on PlatformException catch (e) {
-      // Platform-specifik hatalar için uygun şekilde işleyin
-      _logger.warning('Platform izin desteği yok: $e');
-    } on Exception catch (e) {
-      _logger.warning('Bildirim izinleri alınamadı: $e');
+    } on PlatformException catch (_) {
+      // Platform-specifik hatalar için uygun şekilde işle
+      // Wildcard değişken kullanımı (Dart 3.7 özelliği) - değişken adı gereksiz
+      _logger.warning('Platform izin desteği yok');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Bildirim izinleri alınamadı');
     }
   }
 
@@ -181,13 +183,13 @@ class NotificationService {
         return false;
       }
 
-      final scheduledDate = DateTime(
-        dateComponents[0], // yıl
-        dateComponents[1], // ay
-        dateComponents[2], // gün
-        timeComponents[0], // saat
-        timeComponents[1], // dakika
-      );
+      // Wildcard değişken kullanımı olmadan tuple ile yıl, ay, gün bilgisini alıyoruz
+      final (year, month, day) = (dateComponents[0], dateComponents[1], dateComponents[2]);
+      
+      // Wildcard değişken kullanımı olmadan tuple ile saat, dakika bilgisini alıyoruz
+      final (hour, minute) = (timeComponents[0], timeComponents[1]);
+      
+      final scheduledDate = DateTime(year, month, day, hour, minute);
 
       // Bildirim zamanları oluştur - ikili bildirim sistemi
       final reminderTime = scheduledDate.subtract(const Duration(minutes: 5));
@@ -210,7 +212,7 @@ class NotificationService {
 
       // Tam zamanında hatırlatma
       await _scheduleNotification(
-        id: task.id! + 100000, // İlk bildirimle çakışmasın diye farklı ID
+        id: task.id! + 100_000, // İlk bildirimle çakışmasın diye farklı ID (digit separator)
         title: 'Görev Zamanı',
         body: '${task.title} görevi için planlanan zaman geldi',
         scheduledTime: exactTime,
@@ -222,11 +224,13 @@ class NotificationService {
         'Bildirim planlandı: ${task.id} - ${task.title} için ${reminderTime.toString()}',
       );
       return true;
-    } on FormatException catch (e) {
-      _logger.warning('Tarih veya saat ayrıştırma hatası: $e');
+    } on FormatException catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Tarih veya saat ayrıştırma hatası');
       return false;
-    } on Exception catch (e) {
-      _logger.warning('Bildirim planlama hatası: $e');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Bildirim planlama hatası');
       return false;
     }
   }
@@ -295,12 +299,13 @@ class NotificationService {
       // Ana hatırlatıcı bildirimi iptal et
       await _notifications.cancel(taskId);
       // Tam zaman bildirimi de iptal et
-      await _notifications.cancel(taskId + 100000);
+      await _notifications.cancel(taskId + 100_000);
 
       _logger.info('Bildirim iptal edildi: $taskId');
       return true;
-    } on Exception catch (e) {
-      _logger.warning('Bildirim iptal edilirken hata: $e');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Bildirim iptal edilirken hata');
       return false;
     }
   }
@@ -316,8 +321,9 @@ class NotificationService {
       await _notifications.cancelAll();
       _logger.info('Tüm bildirimler iptal edildi');
       return true;
-    } on Exception catch (e) {
-      _logger.warning('Tüm bildirimler iptal edilirken hata: $e');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Tüm bildirimler iptal edilirken hata');
       return false;
     }
   }
@@ -356,8 +362,9 @@ class NotificationService {
       await _notifications.show(id, title, body, notificationDetails, payload: payload);
 
       return true;
-    } on Exception catch (e) {
-      _logger.warning('Anlık bildirim gösterilirken hata: $e');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Anlık bildirim gösterilirken hata');
       return false;
     }
   }
@@ -371,7 +378,7 @@ class NotificationService {
       await showDialog(
         context: context,
         builder:
-            (context) => AlertDialog(
+            (_) => AlertDialog(
               title: Text(title),
               content: Text(message),
               actions: [
@@ -403,8 +410,9 @@ class NotificationService {
       // iOS için izin kontrolü buraya eklenebilir
 
       return true;
-    } on Exception catch (e) {
-      _logger.warning('Bildirim izinleri kontrol edilirken hata: $e');
+    } on Exception catch (_) {
+      // Wildcard değişken kullanımı (Dart 3.7)
+      _logger.warning('Bildirim izinleri kontrol edilirken hata');
       return false;
     }
   }
