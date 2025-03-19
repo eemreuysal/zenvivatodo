@@ -28,13 +28,37 @@ class AuthService {
         plainPassword: password,
       );
 
+      // Önce bu kullanıcı adı veya e-posta kullanılıyor mu kontrol et
+      final db = await _databaseHelper.database;
+      final checkUsername = await db.query('users', where: 'username = ?', whereArgs: [username]);
+      if (checkUsername.isNotEmpty) {
+        debugPrint('Kayıt hatası: Kullanıcı adı zaten kullanılıyor');
+        return false;
+      }
+      
+      final checkEmail = await db.query('users', where: 'email = ?', whereArgs: [email]);
+      if (checkEmail.isNotEmpty) {
+        debugPrint('Kayıt hatası: E-posta adresi zaten kullanılıyor');
+        return false;
+      }
+
       final int userId = await _databaseHelper.insertUser(user);
       if (userId > 0) {
         return true;
       }
       return false;
     } on DatabaseException catch (e) {
-      debugPrint('Veritabanı hatası - kullanıcı kaydolurken: $e');
+      // Daha detaylı hata kaydı
+      String errorMessage = 'Veritabanı hatası - kullanıcı kaydolurken: $e';
+      
+      // UNIQUE constraint hatalarını belirle
+      if (e.toString().contains('UNIQUE constraint failed: users.username')) {
+        errorMessage = 'Bu kullanıcı adı zaten kullanılıyor.';
+      } else if (e.toString().contains('UNIQUE constraint failed: users.email')) {
+        errorMessage = 'Bu e-posta adresi zaten kullanılıyor.';
+      }
+      
+      debugPrint(errorMessage);
       return false;
     } on Exception catch (e) {
       debugPrint('Error registering user: $e');
