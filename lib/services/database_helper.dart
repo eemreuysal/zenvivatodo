@@ -671,7 +671,7 @@ class DatabaseHelper {
     // Tüm günler için sonuçları oluştur, eksik günler 0 sayacak
     final mappedResults = <Map<String, dynamic>>[];
     for (final date in dates) {
-      // Koşullu ifade yerine if elementi kullan
+      // Koşullu ifade yerine if elementi ile değiştirildi
       final found = results.firstWhere(
         (r) => r['date'] == date, 
         orElse: () => {'date': date, 'count': 0},
@@ -808,7 +808,7 @@ class DatabaseHelper {
   }) async {
     final Database db = await database;
     
-    // Koşullu ifade yerine if koşulu kullan
+    // Koşullu ifade yerine if koşulu kullanıldı
     if (date != null) {
       return await db.query(
         'habit_logs',
