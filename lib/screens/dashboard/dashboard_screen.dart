@@ -199,7 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Bugün görevler
         _buildSectionHeader('Bugünkü Görevler', Icons.today),
-        FutureBuilder(
+        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
           future: _taskService.getTodayTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -270,7 +270,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Yaklaşan görevler
         _buildSectionHeader('Yaklaşan Görevler', Icons.event),
-        FutureBuilder(
+        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
           future: _taskService.getUpcomingTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -329,7 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         
         // Alışkanlıklar
         _buildSectionHeader('Alışkanlıklar', Icons.repeat),
-        FutureBuilder<List<dynamic>>(  // Düzeltme 2: Generic tip belirlendi
+        FutureBuilder<List<dynamic>>(  // Düzeltme: Generic tip belirlendi
           future: _habitService.getDashboardHabits(
             userId: widget.userId, 
             date: DateTime.now().toString(),
