@@ -48,5 +48,20 @@
 	<!-- Flutter 3.29 ile Impeller desteği - varsayılan olarak etkin olmasına rağmen açıkça belirtiliyor -->
 	<key>FLTEnableImpeller</key>
 	<true/>
+	
+	<!-- Notification İzinleri - iOS 10+ -->
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	
+	<!-- iOS 17+ için bildirim izinleri -->
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Görev hatırlatmaları için bildirim izni gerekiyor</string>
+	
+	<!-- Background modları -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
