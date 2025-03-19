@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 // Düzeltme 1: Import sıralaması düzeltildi
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
+import '../../models/task.dart';
+import '../../models/habit.dart';
 import '../../services/auth_service.dart';
 import '../../services/connectivity_service.dart';
 import '../../services/habit_service.dart';
@@ -191,8 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Bugün görevler
         _buildSectionHeader('Bugünkü Görevler', Icons.today),
-        FutureBuilder<List<dynamic>>(
-          // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<Task>>(
           future: _taskService.getTodayTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -253,8 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Yaklaşan görevler
         _buildSectionHeader('Yaklaşan Görevler', Icons.event),
-        FutureBuilder<List<dynamic>>(
-          // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<Task>>(
           future: _taskService.getUpcomingTasks(widget.userId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -307,8 +307,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         // Alışkanlıklar
         _buildSectionHeader('Alışkanlıklar', Icons.repeat),
-        FutureBuilder<List<dynamic>>(
-          // Düzeltme: Generic tip belirlendi
+        FutureBuilder<List<Habit>>(
           future: _habitService.getDashboardHabits(
             userId: widget.userId,
             date: DateTime.now().toString(),

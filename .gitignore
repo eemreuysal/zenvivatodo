@@ -64,3 +64,6 @@ credentials.json
 
 # Backup files
 *.bak
+
+# Empty files
+update_super_params.dart
