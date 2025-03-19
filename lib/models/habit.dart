@@ -45,7 +45,7 @@ class Habit {
     required this.colorCode,
     this.reminderTime,
     this.isArchived = false,
-    this.currentStreak = a0,
+    this.currentStreak = 0,
     this.longestStreak = 0,
     this.showInDashboard = false,
     required this.userId,
