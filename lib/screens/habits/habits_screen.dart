@@ -70,12 +70,12 @@ class _HabitsScreenState extends State<HabitsScreen>
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        _showErrorSnackBar('Veriler yüklenirken bir hata oluştu');
+        _showErrorSnackBar('Veriler yüklenirken bir hata oluştu: $e');
       }
     }
   }
@@ -114,9 +114,9 @@ class _HabitsScreenState extends State<HabitsScreen>
       } else {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü
-      _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
+      _showErrorSnackBar('Durum güncellenirken bir hata oluştu: $e');
     }
   }
 
