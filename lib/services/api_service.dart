@@ -28,7 +28,7 @@ class ApiService {
       requestBody: true,
       responseBody: true,
       // error parametresi varsayılan değer olduğu için kaldırıldı
-    ));
+    ),);
   }
   
   static final ApiService _instance = ApiService._internal();
@@ -56,7 +56,7 @@ class ApiService {
       final response = await _dio.post('/auth/login', data: {
         'username': username,
         'password': password,
-      });
+      },);
       
       if (response.statusCode == 200) {
         // Yanıttan token alınır ve header'a eklenir
@@ -83,7 +83,7 @@ class ApiService {
         'username': username,
         'email': email,
         'password': password,
-      });
+      },);
       
       if (response.statusCode == 201) {
         // Kayıttan sonra otomatik giriş
@@ -106,7 +106,7 @@ class ApiService {
     try {
       final response = await _dio.get('/tasks', queryParameters: {
         'userId': userId,
-      });
+      },);
       
       if (response.statusCode == 200) {
         return (response.data as List)
@@ -129,7 +129,7 @@ class ApiService {
       final response = await _dio.get('/tasks', queryParameters: {
         'userId': userId,
         'date': date,
-      });
+      },);
       
       if (response.statusCode == 200) {
         return (response.data as List)
@@ -149,7 +149,7 @@ class ApiService {
   /// Görev oluştur
   Future<Task?> createTask(Task task) async {
     try {
-      final response = await _dio.post('/tasks', data: task.toJson());
+      final response = await _dio.post('/tasks', data: task.toJson(),);
       
       if (response.statusCode == 201) {
         return Task.fromJson(response.data);
@@ -172,7 +172,7 @@ class ApiService {
     }
     
     try {
-      final response = await _dio.put('/tasks/${task.id}', data: task.toJson());
+      final response = await _dio.put('/tasks/${task.id}', data: task.toJson(),);
       
       if (response.statusCode == 200) {
         return Task.fromJson(response.data);
@@ -207,7 +207,7 @@ class ApiService {
     try {
       final response = await _dio.patch('/tasks/$taskId/complete', data: {
         'isCompleted': isCompleted,
-      });
+      },);
       
       return response.statusCode == 200;
     } on DioException catch (e) {
@@ -226,12 +226,13 @@ class ApiService {
     try {
       final response = await _dio.get('/habits', queryParameters: {
         'userId': userId,
-      });
+      },);
       
       if (response.statusCode == 200) {
-        // Burada Habit modelinizin JSON'dan dönüşüm desteği olmalı 
-        // TODO: Habit modeli için fromJson metodu eklenmelidir
-        return []; // Şimdilik boş liste dönüyoruz
+        // Habit modelinin fromJson metodunu kullan
+        return (response.data as List)
+            .map((json) => Habit.fromJson(json))
+            .toList();
       }
       return [];
     } on DioException catch (e) {
@@ -269,7 +270,7 @@ class ApiService {
   /// Rastgele aktivite önerisi getir
   Future<Map<String, dynamic>?> getRandomActivity() async {
     try {
-      final response = await _dio.get('https://www.boredapi.com/api/activity');
+      final response = await _dio.get('https://www.boredapi.com/api/activity',);
       
       if (response.statusCode == 200) {
         return response.data;
