@@ -19,7 +19,7 @@ class ConnectivityService {
     
     // Bağlantı değişikliklerini dinle - API değişikliği uyumu için
     _connectivity.onConnectivityChanged.listen((result) {
-      // Liste yerine tek sonuç alındığında güncelleme yapılacak
+      // Liste yerine tek sonuç aldığımızı belirtiyoruz - tip hatası düzeltildi
       _updateConnectionStatus(result);
     });
   }
