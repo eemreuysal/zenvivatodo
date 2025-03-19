@@ -306,32 +306,32 @@ class _HabitsScreenState extends State<HabitsScreen>
     // 2. Bugün aktif olanlar (tamamlanmış)
     // 3. Bugün aktif olmayanlar
 
-    final List<Habit> sortedHabits = List.from(_allHabits);
-    sortedHabits.sort((a, b) {
-      // a'nın bugün olup olmadığını kontrol et
-      final aIsToday = _todayHabits.any((h) => h.id == a.id);
-      // b'nin bugün olup olmadığını kontrol et
-      final bIsToday = _todayHabits.any((h) => h.id == b.id);
+    final List<Habit> sortedHabits = List.from(_allHabits)
+      ..sort((a, b) {
+        // a'nın bugün olup olmadığını kontrol et
+        final aIsToday = _todayHabits.any((h) => h.id == a.id);
+        // b'nin bugün olup olmadığını kontrol et
+        final bIsToday = _todayHabits.any((h) => h.id == b.id);
 
-      if (aIsToday && !bIsToday) {
-        return -1; // a bugün aktif, b değil - a önce gelsin
-      } else if (!aIsToday && bIsToday) {
-        return 1; // b bugün aktif, a değil - b önce gelsin
-      } else if (aIsToday && bIsToday) {
-        // Her ikisi de bugün aktif - tamamlanma durumuna göre sırala
-        final aCompleted = _todayCompletedMap[a.id] ?? false;
-        final bCompleted = _todayCompletedMap[b.id] ?? false;
+        if (aIsToday && !bIsToday) {
+          return -1; // a bugün aktif, b değil - a önce gelsin
+        } else if (!aIsToday && bIsToday) {
+          return 1; // b bugün aktif, a değil - b önce gelsin
+        } else if (aIsToday && bIsToday) {
+          // Her ikisi de bugün aktif - tamamlanma durumuna göre sırala
+          final aCompleted = _todayCompletedMap[a.id] ?? false;
+          final bCompleted = _todayCompletedMap[b.id] ?? false;
 
-        if (!aCompleted && bCompleted) {
-          return -1; // a tamamlanmamış, b tamamlanmış - a önce gelsin
-        } else if (aCompleted && !bCompleted) {
-          return 1; // a tamamlanmış, b tamamlanmamış - b önce gelsin
+          if (!aCompleted && bCompleted) {
+            return -1; // a tamamlanmamış, b tamamlanmış - a önce gelsin
+          } else if (aCompleted && !bCompleted) {
+            return 1; // a tamamlanmış, b tamamlanmamış - b önce gelsin
+          }
         }
-      }
 
-      // Diğer durumlarda isme göre sırala
-      return a.title.compareTo(b.title);
-    });
+        // Diğer durumlarda isme göre sırala
+        return a.title.compareTo(b.title);
+      });
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
