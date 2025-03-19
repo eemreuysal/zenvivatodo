@@ -54,12 +54,7 @@ class TaskCard extends StatelessWidget {
         side:
             task.isCompleted
                 ? BorderSide(
-                  color: Color.from(
-                    alpha: 0.5,
-                    red: Colors.green.r,
-                    green: Colors.green.g,
-                    blue: Colors.green.b,
-                  ),
+                  color: Colors.green.withValues(opacity: 0.5),
                   width: 1.5,
                 )
                 : BorderSide.none,
@@ -128,12 +123,7 @@ class TaskCard extends StatelessWidget {
                               decoration: task.isCompleted ? TextDecoration.lineThrough : null,
                               color:
                                   task.isCompleted
-                                      ? Color.from(
-                                        alpha: 0.6,
-                                        red: colorScheme.onSurface.r,
-                                        green: colorScheme.onSurface.g,
-                                        blue: colorScheme.onSurface.b,
-                                      )
+                                      ? colorScheme.onSurface.withValues(opacity: 0.6)
                                       : colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
@@ -175,12 +165,7 @@ class TaskCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Color.from(
-                            alpha: 0.2,
-                            red: categoryColor.r,
-                            green: categoryColor.g,
-                            blue: categoryColor.b,
-                          ),
+                          color: categoryColor.withValues(opacity: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
