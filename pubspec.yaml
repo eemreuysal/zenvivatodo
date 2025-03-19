@@ -89,8 +89,9 @@ flutter:
     - assets/icons/
 
 # Formatter ayarları - Dart 3.7 ile uyumlu
-formatter:
-  page_width: 100                   # Sayfa genişliği (Dart 3.7+)
+dart_code_formatter:
+  page_width: 100                    # Sayfa genişliği (Dart 3.7+)
+  style: tall                        # Dart 3.7 ile gelen yeni formatter stili
 
 # Dart analyzer ayarları
 analyzer:
