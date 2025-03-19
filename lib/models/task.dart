@@ -97,7 +97,7 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: data['isCompleted'],
+      isCompleted: data['isCompleted'] ?? false, // Varsayılan değer false eklendi
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
