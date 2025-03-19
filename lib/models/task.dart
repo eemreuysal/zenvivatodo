@@ -164,6 +164,7 @@ class Task {
       'title': title,
       'description': description,
       'date': date,
+      // SQLite için boolean değeri 1/0 olarak dönüştür
       'isCompleted': isCompleted ? 1 : 0,
       'priority': priority.value,
       'userId': userId,
@@ -196,6 +197,7 @@ class Task {
       'title': title,
       'description': description,
       'date': date,
+      // Firestore boolean değeri doğrudan kullanır
       'isCompleted': isCompleted,
       'priority': priority.value,
       'userId': userId,
