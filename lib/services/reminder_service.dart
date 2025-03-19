@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
 import '../models/task.dart';
-import 'notification_service.dart';
+// Kullanılmayan NotificationService import'u kaldırıldı
 
 /// Bu servis şu anda kısmen devre dışı bırakılmıştır.
 /// Bildirimleri kullanmak yerine yerel diyalog gösterimini kullanıyor.
@@ -18,7 +18,7 @@ class ReminderService {
   final BehaviorSubject<Task> onTaskReminder = BehaviorSubject<Task>();
   Timer? _checkTimer;
   List<Task> _activeTasks = [];
-  final NotificationService _notificationService = NotificationService();
+  // Kullanılmayan _notificationService alanını kaldırdık
 
   // Initialize the reminder service
   void initialize() {
@@ -81,7 +81,7 @@ class ReminderService {
           }
         } on FormatException catch (e) {
           debugPrint('Tarih/saat formatı hatası: $e');
-        } catch (e) {
+        } on Exception catch (e) { // Belirli exception türü belirtildi
           debugPrint('Error parsing task date/time: $e');
         }
       }
