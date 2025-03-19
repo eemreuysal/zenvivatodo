@@ -77,6 +77,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           categoryId: _selectedCategory?.id,
           priority: _selectedPriority.value,
           userId: widget.userId,
+          isCompleted: false, // Eklenen zorunlu parametre
         );
 
         final success = await _taskService.addTask(task);
