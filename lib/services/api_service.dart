@@ -28,7 +28,7 @@ class ApiService {
       requestBody: true,
       responseBody: true,
       // error parametresi varsayılan değer olduğu için kaldırıldı
-    ),); // Virgül eklendi
+    ));
   }
   
   static final ApiService _instance = ApiService._internal();
