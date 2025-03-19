@@ -90,25 +90,22 @@ class Task {
 
   // Firestore'dan nesne oluşturma
   factory Task.fromFirestore(DocumentSnapshot doc) {
-    final Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
-    
-    // isCompleted değeri için özel işlem - değer null ise ana constructor'daki default çalışacak
-    bool? isCompletedValue;
-    if (data.containsKey('isCompleted')) {
-      isCompletedValue = data['isCompleted'] as bool?;
-    }
+    final data = doc.data()! as Map<String, dynamic>;
     
     return Task(
-      id: null,  // Firestore'da SQLite id'si olmayacak
+      id: null,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: isCompletedValue ?? false,
+      // Constructor'ın default değerini kullanmak için isCompleted'i yalnızca 
+      // data'da varsa ve true ise açıkça belirtiyoruz. Aksi takdirde 
+      // constructor'ın default değeri (false) kullanılır.
+      isCompleted: data['isCompleted'] == true,
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
-      uniqueId: doc.id,  // Firestore döküman ID'sini uniqueId olarak kullan
+      uniqueId: doc.id,
     );
   }
 
