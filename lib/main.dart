@@ -56,7 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ConnectivityProvider(
           hasConnection: connectivityService.hasConnection,
           isOnlineMode: isOnlineMode,
-        )),
+        ),),
       ],
       child: const MyApp(),
     ),
@@ -163,7 +163,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
-      builder: (_, themeProvider, __) {
+      builder: (_, themeProvider, _) {
         // Google Fonts entegrasyonu
         final textTheme = GoogleFonts.montserratTextTheme(
           themeProvider.isDarkMode 
