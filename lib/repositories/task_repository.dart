@@ -174,11 +174,9 @@ class HybridTaskRepository implements TaskRepository {
   Future<void> _syncTasksToLocal(List<Task> tasks) async {
     // Firestore'dan gelen görevleri SQLite'a senkronize et
     for (final Task task in tasks) {
-      if (task.id != null) {
-        await _sqliteRepo.updateTask(task);
-      } else {
-        await _sqliteRepo.addTask(task);
-      }
+      // Burada id null olabilir, bu yüzden id kullanmadan task'ı senkronize et
+      // veya id null ise farkli bir strateji kullan
+      await _sqliteRepo.addOrUpdateTask(task);
     }
   }
 
@@ -222,6 +220,12 @@ class SQLiteTaskRepository implements TaskRepository {
   @override
   Future<void> updateTask(Task task) {
     // Görevi SQLite'da güncelle
+    throw UnimplementedError();
+  }
+
+  // id null olduğunda da çalışabilecek bir metot ekleyelim
+  Future<void> addOrUpdateTask(Task task) {
+    // Task'ın id'si varsa güncelle, yoksa ekle
     throw UnimplementedError();
   }
   
