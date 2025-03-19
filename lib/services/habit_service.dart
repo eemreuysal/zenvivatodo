@@ -211,8 +211,8 @@ class HabitService {
         return true;
       }
       return false;
-    } on Exception catch (e) {
-      debugPrint('Alışkanlık tamamlama hatası: $e');
+    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
+      debugPrint('Alışkanlık tamamlama hatası');
       return false;
     }
   }
@@ -335,8 +335,8 @@ class HabitService {
         
         await _dbHelper.updateHabit(updatedHabit.toMap());
       }
-    } on Exception catch (e) {
-      debugPrint('Zincir güncelleme hatası: $e');
+    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
+      debugPrint('Zincir güncelleme hatası');
     }
   }
 
@@ -443,8 +443,8 @@ class HabitService {
 
       if (totalRequiredDays == 0) return 0.0;
       return completedDays / totalRequiredDays;
-    } on Exception catch (e) {
-      debugPrint('Tamamlanma oranı hesaplama hatası: $e');
+    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
+      debugPrint('Tamamlanma oranı hesaplama hatası');
       return 0.0;
     }
   }
@@ -469,8 +469,8 @@ class HabitService {
       // Log kayıtlarını doğrudan HabitLog modeli olarak al
       final logs = await getHabitLogs(habitId, date: date);
       return logs.isNotEmpty && logs.first.completed;
-    } on Exception catch (e) {
-      debugPrint('Alışkanlık tamamlanma kontrolü hatası: $e');
+    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
+      debugPrint('Alışkanlık tamamlanma kontrolü hatası');
       return false;
     }
   }
@@ -498,8 +498,8 @@ class HabitService {
         final result = await _dbHelper.updateHabitLog(updatedLog.toMap());
         return result > 0;
       }
-    } on Exception catch (e) {
-      debugPrint('Alışkanlık not ekleme hatası: $e');
+    } on Exception { // 'catch (e)' yerine sadece 'catch' kullanıldı
+      debugPrint('Alışkanlık not ekleme hatası');
       return false;
     }
   }
@@ -509,7 +509,7 @@ class HabitService {
     try {
       final dateTime = DateTime.parse(date);
       return DateFormat('d MMMM yyyy', 'tr_TR').format(dateTime);
-    } on FormatException catch (e) {
+    } on FormatException { // 'catch (e)' yerine sadece 'catch' kullanıldı
       return date;
     }
   }
@@ -537,7 +537,7 @@ class HabitService {
           final totalDays = now.difference(startDate).inDays;
           
           results['allTime'] = await calculateCompletionRate(habitId, days: totalDays);
-        } on FormatException catch (e) {
+        } on FormatException { // 'catch (e)' yerine sadece 'catch' kullanıldı
           results['allTime'] = 0.0;
         }
       } else {
