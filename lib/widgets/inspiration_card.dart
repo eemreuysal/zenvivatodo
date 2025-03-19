@@ -70,7 +70,7 @@ class _InspirationCardState extends State<InspirationCard> {
           _isLoading = false;
         });
       }
-    } on Exception catch (e) {
+    } on Exception {
       if (mounted) {
         setState(() {
           _isLoading = false;
