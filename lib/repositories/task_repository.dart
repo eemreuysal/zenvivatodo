@@ -145,8 +145,8 @@ class HybridTaskRepository implements TaskRepository {
     final task = await _sqliteRepo.getTaskByUniqueId(id);
     
     if (task != null && task.id != null) {
-      // SQLite'den sil
-      await _sqliteRepo.deleteTaskById(task.id);
+      // SQLite'den sil - null safety için null assertion operator kullanıyoruz
+      await _sqliteRepo.deleteTaskById(task.id!); // ! işareti eklenerek id'nin null olmadığını garantiliyoruz
     }
     
     if (_isOnline) {
@@ -174,8 +174,7 @@ class HybridTaskRepository implements TaskRepository {
   Future<void> _syncTasksToLocal(List<Task> tasks) async {
     // Firestore'dan gelen görevleri SQLite'a senkronize et
     for (final Task task in tasks) {
-      // Burada id null olabilir, bu yüzden id kullanmadan task'ı senkronize et
-      // veya id null ise farkli bir strateji kullan
+      // id null olabilir, bu yüzden addOrUpdateTask kullanıyoruz
       await _sqliteRepo.addOrUpdateTask(task);
     }
   }
@@ -229,9 +228,9 @@ class SQLiteTaskRepository implements TaskRepository {
     throw UnimplementedError();
   }
   
-  // deleteTask(int id) yerine deleteTaskById(int id) metodunu tanımlıyoruz
+  // Non-nullable int id parametresi alan metot
   Future<void> deleteTaskById(int id) {
-    // Görevi SQLite'dan sil
+    // Görevi SQLite'dan sil (id parametresi artık non-nullable)
     throw UnimplementedError();
   }
   
