@@ -193,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.all(16.0),
       children: [
         // İlham verici alıntı kartı
-        const InspirationCard(),
+        const InspirationCard(type: 'quote'),
         
         const SizedBox(height: 24),
         
