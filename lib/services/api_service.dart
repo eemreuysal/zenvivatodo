@@ -21,14 +21,14 @@ class ApiService {
       receiveTimeout: const Duration(seconds: 5),
       contentType: 'application/json',
       // ResponseType.json varsayılan değer olduğu için kaldırıldı
-    ));
+    ),);
     
     // İnterceptor ekleyerek tüm istekleri logla
     _dio.interceptors.add(LogInterceptor(
       requestBody: true,
       responseBody: true,
       // error parametresi varsayılan değer olduğu için kaldırıldı
-    ));
+    ),);
   }
   
   static final ApiService _instance = ApiService._internal();
