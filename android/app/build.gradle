@@ -24,13 +24,8 @@ if (flutterVersionName == null) {
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.google.gms.google-services' // Google Services plugin
-}
-
-// Flutter plugin'i artık apply edilmiyor, burada olduğunu doğrulayalım
-def flutterPluginVersion = project.getPlugins().hasPlugin('dev.flutter.flutter-gradle-plugin')
-if (!flutterPluginVersion) {
-    throw new GradleException("Flutter plugin is not detected. Ensure it's correctly applied by the loader plugin in settings.gradle.")
+    id 'dev.flutter.flutter-gradle-plugin'  // Flutter plugin için doğru kullanım
+    id 'com.google.gms.google-services'     // Google Services plugin
 }
 
 android {
@@ -64,6 +59,11 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+}
+
+flutter {
+    // Flutter SDK'nin bulunduğu yol
+    source flutterRoot
 }
 
 dependencies {
