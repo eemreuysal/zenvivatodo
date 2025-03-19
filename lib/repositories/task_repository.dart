@@ -20,7 +20,7 @@ class FirestoreTaskRepository implements TaskRepository {
   
   @override
   Future<List<Task>> getTasks(int userId) async {
-    QuerySnapshot snapshot = await _tasks
+    final QuerySnapshot snapshot = await _tasks
         .where('userId', isEqualTo: userId)
         .orderBy('date')
         .orderBy('time')
@@ -33,7 +33,7 @@ class FirestoreTaskRepository implements TaskRepository {
   
   @override
   Future<Task?> getTask(String id) async {
-    DocumentSnapshot doc = await _tasks.doc(id).get();
+    final DocumentSnapshot doc = await _tasks.doc(id).get();
     
     if (doc.exists) {
       return Task.fromFirestore(doc);
@@ -44,7 +44,7 @@ class FirestoreTaskRepository implements TaskRepository {
   
   @override
   Future<String> addTask(Task task) async {
-    DocumentReference docRef = await _tasks.add(task.toFirestore());
+    final DocumentReference docRef = await _tasks.add(task.toFirestore());
     return docRef.id;
   }
   
@@ -73,17 +73,18 @@ class FirestoreTaskRepository implements TaskRepository {
         .orderBy('time')
         .snapshots()
         .map((snapshot) => 
-            snapshot.docs.map((doc) => Task.fromFirestore(doc)).toList());
+            snapshot.docs.map((doc) => Task.fromFirestore(doc)).toList(),);
   }
 }
 
 // Hibrit repository (geçiş dönemi için)
 class HybridTaskRepository implements TaskRepository {
+  // Constructor sınıf başına taşındı
+  HybridTaskRepository(this._firestoreRepo, this._sqliteRepo, this._isOnline);
+  
   final FirestoreTaskRepository _firestoreRepo;
   final SQLiteTaskRepository _sqliteRepo;
   final bool _isOnline;
-  
-  HybridTaskRepository(this._firestoreRepo, this._sqliteRepo, this._isOnline);
   
   @override
   Future<List<Task>> getTasks(int userId) async {
@@ -91,7 +92,7 @@ class HybridTaskRepository implements TaskRepository {
       // Eğer çevrimiçiyse, Firestore'dan al
       final tasks = await _firestoreRepo.getTasks(userId);
       // Yerel veriyi de güncelle
-      _syncTasksToLocal(tasks);
+      await _syncTasksToLocal(tasks);
       return tasks;
     } else {
       // Çevrimdışıysa, yerel veritabanından al
@@ -143,9 +144,9 @@ class HybridTaskRepository implements TaskRepository {
     // SQLite'deki görevi bul
     final task = await _sqliteRepo.getTaskByUniqueId(id);
     
-    if (task != null) {
+    if (task != null && task.id != null) {
       // SQLite'den sil
-      await _sqliteRepo.deleteTask(task.id!);
+      await _sqliteRepo.deleteTaskById(task.id);
     }
     
     if (_isOnline) {
@@ -172,7 +173,7 @@ class HybridTaskRepository implements TaskRepository {
   // Yardımcı metotlar
   Future<void> _syncTasksToLocal(List<Task> tasks) async {
     // Firestore'dan gelen görevleri SQLite'a senkronize et
-    for (Task task in tasks) {
+    for (final Task task in tasks) {
       if (task.id != null) {
         await _sqliteRepo.updateTask(task);
       } else {
@@ -224,15 +225,15 @@ class SQLiteTaskRepository implements TaskRepository {
     throw UnimplementedError();
   }
   
-  @override
-  Future<void> deleteTask(int id) {
+  // deleteTask(int id) yerine deleteTaskById(int id) metodunu tanımlıyoruz
+  Future<void> deleteTaskById(int id) {
     // Görevi SQLite'dan sil
     throw UnimplementedError();
   }
   
   @override
   Future<void> deleteTask(String id) {
-    // Uyum için eklendi
+    // String id ile silme işlemi yapabiliriz
     throw UnimplementedError();
   }
   
@@ -260,7 +261,7 @@ class TaskRepositoryFactory {
         return HybridTaskRepository(
           FirestoreTaskRepository(), 
           SQLiteTaskRepository(),
-          isOnline
+          isOnline,
         );
       }
     }
@@ -269,7 +270,7 @@ class TaskRepositoryFactory {
     return HybridTaskRepository(
       FirestoreTaskRepository(), 
       SQLiteTaskRepository(),
-      isOnline
+      isOnline,
     );
   }
 }
