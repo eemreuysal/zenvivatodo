@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../models/habit.dart';
+// Kullanılmayan import kaldırıldı: '../models/habit.dart'
 import '../models/task.dart';
 import 'api_service.dart';
 import 'connectivity_service.dart';
@@ -233,9 +233,12 @@ class SyncService {
           _logger.warning('Bilinmeyen görev işlemi: $action');
           return false;
       }
-    } catch (e) {
-      // ArgumentError'u özel olarak yakalamak yerine genel exception yakalıyoruz
+    } on ArgumentError catch (e) {
+      // ArgumentError'u özel olarak yakalamak için on clause kullandık
       _logger.warning('Görev işlemi işlenirken hata: $e');
+      return false;
+    } on Exception catch (e) {
+      _logger.warning('Görev işlemi beklenmeyen hata: $e');
       return false;
     }
   }
