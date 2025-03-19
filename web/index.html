@@ -35,6 +35,12 @@
 
   <!-- Flutter JavaScript utilities -->
   <script>
+    // Flutter 3.29+ WebAssembly (Wasm) renderer configuration
+    // The pre-compiled "main.dart.js" script will be replaced by main.dart.wasm
+    // when WebAssembly is enabled by the Flutter build system
+    window.flutterWebRenderer = "canvaskit"; // Use "html" for older browsers without WebAssembly support
+    window.isCanvasKitForced = false;
+    
     // Check if WasmGC is supported by the browser
     function checkWasmGCSupport() {
       try {
@@ -48,6 +54,12 @@
       return false;
     }
 
+    // Set renderer based on WebAssembly support
+    if (!checkWasmGCSupport()) {
+      window.flutterWebRenderer = "html";
+      console.info("Using HTML renderer due to lack of WebAssembly support");
+    }
+
     // Flutter service worker for caching
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -57,7 +69,27 @@
   </script>
 </head>
 <body>
-  <!-- Flutter bootstrap script for proper initialization -->
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- This script installs service_worker.js to provide PWA functionality -->
+  <script>
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    function loadMainDartJs() {
+      if (scriptLoaded) {
+        return;
+      }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+      scriptTag.src = 'main.dart.js';
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
+    }
+
+    // Load app when the document is ready
+    if (document.readyState === 'complete') {
+      loadMainDartJs();
+    } else {
+      window.addEventListener('load', loadMainDartJs);
+    }
+  </script>
 </body>
 </html>
