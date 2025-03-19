@@ -517,6 +517,8 @@ class DatabaseHelper {
     final Database db = await database;
     
     // SQL enjeksiyon riskini azaltmak için parametre kullanımı
+    // Ternary ifade yerine int değişkeni kullan
+    final int isCompletedValue = includeCompleted ? 1 : 0;
     final List<Map<String, dynamic>> maps = await db.query(
       'tasks',
       where: 'userId = ? AND (title LIKE ? OR description LIKE ?) AND isCompleted = ?',
@@ -524,7 +526,7 @@ class DatabaseHelper {
         userId, 
         '%$query%', 
         '%$query%',
-        (includeCompleted ? 1 : 0),
+        isCompletedValue,
       ],
       orderBy: 'date ASC, time ASC',
     );
@@ -551,10 +553,11 @@ class DatabaseHelper {
 
   Future<int> toggleTaskCompletion(int id, bool isCompleted) async {
     final Database db = await database;
+    final int completedValue = isCompleted ? 1 : 0;
     return await db.update(
       'tasks',
       {
-        'isCompleted': isCompleted ? 1 : 0,
+        'isCompleted': completedValue,
         'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
@@ -710,10 +713,11 @@ class DatabaseHelper {
     bool includeArchived = false,
   }) async {
     final Database db = await database;
+    final int archivedValue = includeArchived ? 1 : 0;
     return await db.query(
       'habits',
       where: 'userId = ? AND isArchived = ?',
-      whereArgs: [userId, includeArchived ? 1 : 0],
+      whereArgs: [userId, archivedValue],
       orderBy: 'created_at DESC',
     );
   }
@@ -768,10 +772,11 @@ class DatabaseHelper {
 
   Future<int> archiveHabit(int id, bool isArchived) async {
     final Database db = await database;
+    final int archivedValue = isArchived ? 1 : 0;
     return await db.update(
       'habits',
       {
-        'isArchived': isArchived ? 1 : 0,
+        'isArchived': archivedValue,
         'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
@@ -781,10 +786,11 @@ class DatabaseHelper {
 
   Future<int> toggleShowInDashboard(int id, bool showInDashboard) async {
     final Database db = await database;
+    final int dashboardValue = showInDashboard ? 1 : 0;
     return await db.update(
       'habits',
       {
-        'showInDashboard': showInDashboard ? 1 : 0,
+        'showInDashboard': dashboardValue,
         'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
@@ -832,6 +838,7 @@ class DatabaseHelper {
     bool completed,
   ) async {
     final Database db = await database;
+    final int completedValue = completed ? 1 : 0;
 
     // Check if log exists
     final List<Map<String, dynamic>> logs = await db.query(
@@ -845,14 +852,14 @@ class DatabaseHelper {
       return await db.insert('habit_logs', {
         'habitId': habitId,
         'date': date,
-        'completed': completed ? 1 : 0,
+        'completed': completedValue,
         'created_at': DateTime.now().toIso8601String(),
       });
     } else {
       // Update existing log
       return await db.update(
         'habit_logs',
-        {'completed': completed ? 1 : 0},
+        {'completed': completedValue},
         where: 'habitId = ? AND date = ?',
         whereArgs: [habitId, date],
       );
