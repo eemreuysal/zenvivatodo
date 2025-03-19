@@ -41,7 +41,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         _categories = categories;
         _isLoading = false;
       });
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       setState(() {
@@ -100,7 +100,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -247,7 +247,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         }
-                      } catch (e) {
+                      } on Exception catch (e) {
                         if (!mounted) return;
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -376,7 +376,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                             ),
                           );
                         }
-                      } catch (e) {
+                      } on Exception catch (e) {
                         if (!mounted) return;
 
                         ScaffoldMessenger.of(context).showSnackBar(
