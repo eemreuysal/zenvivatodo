@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../services/auth_service.dart';
@@ -34,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       // Veritabanını önceden yükleyelim
       await _dbHelper.database;
-    } catch (e) {
+    } on DatabaseException catch (e) {
       debugPrint('Veritabanı başlatılırken hata: $e');
       // Hata durumunda kullanıcıyı bilgilendirmek için state güncelleme
       setState(() {
@@ -82,13 +83,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           final usernameExists = await db.query(
             'users', 
             where: 'username = ?', 
-            whereArgs: [_usernameController.text.trim()]
+            whereArgs: [_usernameController.text.trim()],
           );
           
           final emailExists = await db.query(
             'users', 
             where: 'email = ?', 
-            whereArgs: [_emailController.text.trim()]
+            whereArgs: [_emailController.text.trim()],
           );
 
           setState(() {
