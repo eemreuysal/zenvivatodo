@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_texts.dart';
 import '../../services/auth_service.dart';
+import '../../services/database_helper.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
 
@@ -18,8 +19,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDatabase();
+  }
+
+  // Veritabanının ilk yüklenmesi için başlatma
+  Future<void> _initializeDatabase() async {
+    try {
+      // Veritabanını önceden yükleyelim
+      await _dbHelper.database;
+    } catch (e) {
+      debugPrint('Veritabanı başlatılırken hata: $e');
+      // Hata durumunda kullanıcıyı bilgilendirmek için state güncelleme
+      setState(() {
+        _errorMessage = 'Veritabanı başlatılırken hata oluştu. Lütfen tekrar deneyin.';
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -55,8 +77,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // Navigate back to login screen
           Navigator.of(context).pop();
         } else {
+          // Giriş yapılan kullanıcı adı veya e-posta kontrolü
+          final db = await _dbHelper.database;
+          final usernameExists = await db.query(
+            'users', 
+            where: 'username = ?', 
+            whereArgs: [_usernameController.text.trim()]
+          );
+          
+          final emailExists = await db.query(
+            'users', 
+            where: 'email = ?', 
+            whereArgs: [_emailController.text.trim()]
+          );
+
           setState(() {
-            _errorMessage = 'Hesap oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.';
+            if (usernameExists.isNotEmpty) {
+              _errorMessage = 'Bu kullanıcı adı zaten kullanılıyor.';
+            } else if (emailExists.isNotEmpty) {
+              _errorMessage = 'Bu e-posta adresi zaten kullanılıyor.';
+            } else {
+              _errorMessage = 'Hesap oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.';
+            }
             _isLoading = false;
           });
         }
@@ -100,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Merhaba, uygulamayı kullanmak için lütfen hesap oluşturun.',
+                    'Merhaba, uygulamaıyı kullanmak için lütfen hesap oluşturun.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
