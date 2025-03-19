@@ -159,39 +159,58 @@ class Task {
 
   // Veritabanı için Map'e dönüştürme - SQLite ile uyumluluk için
   Map<String, dynamic> toMap() {
-    // 1 ve 0 değerlerini hesapla
-    final int completedValue = isCompleted ? 1 : 0;
-    
+    // Başlangıçta zorunlu alanlar ile map oluştur
     final map = <String, dynamic>{
-      'id': id,
       'title': title,
       'description': description,
       'date': date,
-      'time': time,
-      'isCompleted': completedValue, // değişkeni kullan
-      'categoryId': categoryId,
+      'isCompleted': isCompleted ? 1 : 0,
       'priority': priority.value,
       'userId': userId,
-      'uniqueId': uniqueId,
     };
+    
+    // Opsiyonel alanlar (null kontrolü ile ekle)
+    if (id != null) {
+      map['id'] = id;
+    }
+    
+    if (time != null) {
+      map['time'] = time;
+    }
+    
+    if (categoryId != null) {
+      map['categoryId'] = categoryId;
+    }
+    
+    if (uniqueId != null) {
+      map['uniqueId'] = uniqueId;
+    }
     
     return map;
   }
 
   // Firestore için Map'e dönüştürme
   Map<String, dynamic> toFirestore() {
+    // Başlangıçta zorunlu alanlar ile map oluştur
     final map = <String, dynamic>{
       'title': title,
       'description': description,
       'date': date,
-      'time': time,
-      'isCompleted': isCompleted, 
-      'categoryId': categoryId,
+      'isCompleted': isCompleted,
       'priority': priority.value,
       'userId': userId,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
+    
+    // Opsiyonel alanlar (null kontrolü ile ekle)
+    if (time != null) {
+      map['time'] = time;
+    }
+    
+    if (categoryId != null) {
+      map['categoryId'] = categoryId;
+    }
     
     return map;
   }
