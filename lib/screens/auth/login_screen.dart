@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _isLoading = false;
           });
         }
-      } on Exception catch (e) {
+      } on Exception { // Burayı 'catch (e)' yerine sadece 'catch' olarak düzelttik
         if (!mounted) return;
 
         // Show error if exception occurs
