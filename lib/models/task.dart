@@ -34,7 +34,7 @@ class Task {
     required this.description,
     required this.date,
     this.time,
-    required this.isCompleted, // isCompleted için varsayılan değeri kaldırdık
+    required this.isCompleted,
     this.categoryId,
     required int priority,
     required this.userId,
@@ -65,7 +65,7 @@ class Task {
     required this.description,
     required this.date,
     this.time,
-    required this.isCompleted, // Bu constructor için de varsayılan değeri kaldırdık
+    required this.isCompleted,
     this.categoryId,
     required int priority,
     required this.userId,
@@ -92,13 +92,21 @@ class Task {
   factory Task.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
     
+    // isCompleted için reduntant varsayılan değeri kaldırmak için farklı bir yaklaşım
+    bool taskIsCompleted;
+    if (data.containsKey('isCompleted')) {
+      taskIsCompleted = data['isCompleted'] as bool? ?? false;
+    } else {
+      taskIsCompleted = false;
+    }
+    
     return Task(
       id: null,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       date: data['date'] ?? '',
       time: data['time'],
-      isCompleted: data['isCompleted'] == true,
+      isCompleted: taskIsCompleted,
       categoryId: data['categoryId'],
       priority: data['priority'] ?? 1,
       userId: data['userId'] ?? 0,
