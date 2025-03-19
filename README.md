@@ -41,6 +41,10 @@ Sağlıklı ve Düzenli Bir Yaşam için To-Do Uygulaması
 - **SQL Enjeksiyon Koruması**: Tüm sorgulamalar güvenli şekilde parametrize edildi
 - **Bellek Optimizasyonu**: Büyük listelerde ve veritabanı sorgularında daha verimli işlemler
 
+## Sorun Giderme
+
+Projede karşılaşabileceğiniz sorunlar ve çözüm yolları için [FIX_GUIDE.md](FIX_GUIDE.md) dosyasını inceleyebilirsiniz.
+
 ## Teknik Özellikler
 
 - **Flutter 3.29 desteği** (Mart 2025 güncellemesi)
