@@ -29,7 +29,9 @@ class NotificationService {
   // Kanal grup tanımı (Android 8+ için önerilir)
   static const String _groupId = 'zenviva_todo_group';
   static const String _groupName = 'ZenViva Todo Bildirimleri';
-  static const NotificationService _instance = NotificationService._internal();
+  
+  // Singleton instance (const kaldırıldı)
+  static final NotificationService _instance = NotificationService._internal();
 
   /// Bildirim servisini başlatır ve gerekli izinleri alır
   Future<bool> init() async {
