@@ -63,10 +63,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _isLoading = false;
           });
         }
-      } catch (e) {
+      } on Exception catch (e) {
         setState(() {
           _errorMessage =
-              'Hesap oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.';
+              'Hesap oluşturulurken bir hata oluştu: $e. Lütfen tekrar deneyin.';
           _isLoading = false;
         });
       }
@@ -139,7 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return AppTexts.requiredField;
                           }
                           if (!RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            r'^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$',
                           ).hasMatch(value)) {
                             return AppTexts.invalidEmail;
                           }
@@ -162,7 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           return null;
                         },
                       ),
-                      if (_errorMessage != null) ...[
+                      if (_errorMessage != null) ...[ 
                         const SizedBox(height: 16),
                         Text(
                           _errorMessage!,
