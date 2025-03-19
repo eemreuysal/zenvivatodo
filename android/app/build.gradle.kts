@@ -11,13 +11,13 @@ android {
     ndkVersion = "27.0.12077973"  // Güncellenmiş NDK sürümü
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true  // Desugaring etkinleştirildi
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
@@ -41,7 +41,12 @@ android {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
+    // En güncel desugar_jdk_libs sürümü kullanıldı
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    
+    // Android platformu için pencere desteği
+    implementation("androidx.window:window:1.0.0")
+    implementation("androidx.window:window-java:1.0.0")
 }
 
 flutter {
