@@ -238,7 +238,7 @@ class TaskDTO {
     required this.description,
     required this.date,
     this.time,
-    this.isCompleted = false,
+    required this.isCompleted, // isCompleted için varsayılan değer kaldırıldı, required yapıldı
     this.categoryId,
     required this.priority,
     required this.userId,
