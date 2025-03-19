@@ -94,14 +94,14 @@ class Task {
     
     return Task(
       id: null,
-      title: data['title'] ?? '',
-      description: data['description'] ?? '',
-      date: data['date'] ?? '',
-      time: data['time'],
+      title: data['title'] as String? ?? '',
+      description: data['description'] as String? ?? '',
+      date: data['date'] as String? ?? '',
+      time: data['time'] as String?,
       isCompleted: data['isCompleted'] as bool? ?? false,
-      categoryId: data['categoryId'],
-      priority: data['priority'] ?? 1,
-      userId: data['userId'] ?? 0,
+      categoryId: data['categoryId'] as int?,
+      priority: data['priority'] as int? ?? 1,
+      userId: data['userId'] as int? ?? 0,
       uniqueId: doc.id,
     );
   }
