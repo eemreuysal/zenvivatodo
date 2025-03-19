@@ -1,10 +1,14 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'constants/app_texts.dart';
 import 'constants/app_theme.dart';
@@ -22,6 +26,15 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<Scaffol
 void main() async {
   // Flutter widget bağlantılarını başlat
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Firebase'i başlat
+  await Firebase.initializeApp();
+
+  // Geliştirme sırasında Firebase emülatörlerini kullan
+  if (kDebugMode) {
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  }
 
   // Türkçe tarih formatlamasını başlat
   await initializeDateFormatting('tr_TR');
