@@ -233,12 +233,9 @@ class SyncService {
           _logger.warning('Bilinmeyen görev işlemi: $action');
           return false;
       }
-    } on ArgumentError catch (e) {
-      // ArgumentError'u özel olarak yakalamak için on clause kullandık
-      _logger.warning('Görev işlemi işlenirken hata: $e');
-      return false;
+    // ArgumentError yakalamak yerine daha genel bir hata yakalama kullanıyoruz
     } on Exception catch (e) {
-      _logger.warning('Görev işlemi beklenmeyen hata: $e');
+      _logger.warning('Görev işlemi işlenirken hata: $e');
       return false;
     }
   }
@@ -246,7 +243,8 @@ class SyncService {
   // Alışkanlık işlemlerini işle
   Future<bool> _processHabitOperation(String action, Map<String, dynamic> data) async {
     // Burada alışkanlık işlemleri işlenecek
-    // TODO: Alışkanlık işlemlerini ekle
+    // İleri aşamalarda geliştirme yapılacak
+    _logger.info('Alışkanlık işlemleri henüz geliştirme aşamasında');
     return false;
   }
   
@@ -324,7 +322,8 @@ class SyncService {
   // Alışkanlıkları senkronize et
   Future<void> _syncHabits(int userId) async {
     // Benzer şekilde alışkanlıkları senkronize et
-    // TODO: Alışkanlık senkronizasyonunu ekle
+    // İleri aşamalarda geliştirme yapılacak
+    _logger.info('Alışkanlık senkronizasyonu geliştirme aşamasında');
   }
   
   // Senkronizasyon zamanını al
