@@ -12,18 +12,18 @@ class HabitService {
   HabitService._internal();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   // Kullanılmayan _notificationService alanını kaldıralım
-  
+
   // Singleton pattern
   static final HabitService _instance = HabitService._internal();
 
   /// Alışkanlık oluşturma
-  /// 
+  ///
   /// [habit] nesnesini veritabanına ekler ve başarı durumunu döndürür.
   /// Eğer alışkanlığın hatırlatma zamanı varsa, bildirimleri planlanır.
   Future<bool> createHabit(Habit habit) async {
     try {
       final id = await _dbHelper.insertHabit(habit.toMap());
-      
+
       if (id > 0) {
         // Hatırlatıcı varsa planla
         if (habit.reminderTime != null && habit.reminderTime!.isNotEmpty) {
@@ -40,12 +40,10 @@ class HabitService {
   }
 
   /// Tüm alışkanlıkları getirme
-  Future<List<Habit>> getHabits(int userId,
-      {bool includeArchived = false,}) async {
+  Future<List<Habit>> getHabits(int userId, {bool includeArchived = false}) async {
     try {
-      final maps =
-          await _dbHelper.getHabits(userId, includeArchived: includeArchived);
-      
+      final maps = await _dbHelper.getHabits(userId, includeArchived: includeArchived);
+
       // Yeni model sınıfı ile uyumlu hale getirme
       return maps.map((map) => Habit.fromMap(map)).toList();
     } on Exception catch (e) {
@@ -100,32 +98,28 @@ class HabitService {
         switch (habit.frequency) {
           case HabitFrequency.daily:
             return true;
-            
+
           case HabitFrequency.weekly:
             // Haftalık ve belirli günler seçildiyse
             if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-              final selectedDays = habit.frequencyDays!
-                  .split(',')
-                  .map((day) => int.parse(day))
-                  .toList();
+              final selectedDays =
+                  habit.frequencyDays!.split(',').map((day) => int.parse(day)).toList();
               return selectedDays.contains(weekday);
             }
             // Haftalık ama belirli gün seçilmediyse (her haftanın bugünü)
             final habitStartWeekday = DateTime.parse(habit.startDate).weekday;
             return weekday == habitStartWeekday;
-            
+
           case HabitFrequency.monthly:
             // Aylık (ayın aynı günü)
             final habitStartDay = DateTime.parse(habit.startDate).day;
             return now.day == habitStartDay;
-            
+
           case HabitFrequency.custom:
             // Özel sıklık (serbest tanımlı)
             if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-              final selectedDays = habit.frequencyDays!
-                  .split(',')
-                  .map((day) => int.parse(day))
-                  .toList();
+              final selectedDays =
+                  habit.frequencyDays!.split(',').map((day) => int.parse(day)).toList();
               return selectedDays.contains(weekday);
             }
             return false;
@@ -142,9 +136,9 @@ class HabitService {
     try {
       // Mevcut alışkanlık üzerinde işlem yapmıyoruz, değişkeni kaldıralım
       final rowsAffected = await _dbHelper.updateHabit(habit.toMap());
-      
+
       // Bildirimlerle ilgili güncelleme işlemleri (ileri aşama)
-      
+
       return rowsAffected > 0;
     } on Exception catch (e) {
       debugPrint('Alışkanlık güncelleme hatası: $e');
@@ -156,7 +150,7 @@ class HabitService {
   Future<bool> deleteHabit(int id) async {
     try {
       // Bildirimleri temizle (ileri aşama)
-      
+
       final rowsAffected = await _dbHelper.deleteHabit(id);
       return rowsAffected > 0;
     } on Exception catch (e) {
@@ -170,10 +164,10 @@ class HabitService {
     try {
       final habit = await getHabitById(id);
       if (habit == null) return false;
-      
+
       // Yeni modeli kullanarak immutable olarak güncelleme
       final updatedHabit = habit.toggleArchived();
-      
+
       final rowsAffected = await _dbHelper.updateHabit(updatedHabit.toMap());
       return rowsAffected > 0;
     } on Exception catch (e) {
@@ -187,10 +181,10 @@ class HabitService {
     try {
       final habit = await getHabitById(id);
       if (habit == null) return false;
-      
+
       // Yeni modeli kullanarak immutable olarak güncelleme
       final updatedHabit = habit.toggleDashboardVisibility();
-      
+
       final rowsAffected = await _dbHelper.updateHabit(updatedHabit.toMap());
       return rowsAffected > 0;
     } on Exception catch (e) {
@@ -200,18 +194,17 @@ class HabitService {
   }
 
   /// Bir alışkanlığı belirli bir tarih için tamamla/tamamlamayı geri al
-  Future<bool> toggleHabitCompletion(
-      int habitId, String date, bool completed,) async {
+  Future<bool> toggleHabitCompletion(int habitId, String date, bool completed) async {
     try {
-      final result =
-          await _dbHelper.toggleHabitCompletion(habitId, date, completed);
+      final result = await _dbHelper.toggleHabitCompletion(habitId, date, completed);
       if (result > 0) {
         // Tamamlanma durumunu güncelledikten sonra zinciri güncelle
         await updateHabitStreak(habitId);
         return true;
       }
       return false;
-    } on Exception catch (e) { // Exception eklendi
+    } on Exception catch (e) {
+      // Exception eklendi
       debugPrint('Alışkanlık tamamlama hatası: $e');
       return false;
     }
@@ -229,12 +222,11 @@ class HabitService {
   }
 
   /// Son belirli gün sayısına ait alışkanlık kayıtlarını getir
-  Future<List<HabitLog>> getRecentHabitLogs(int habitId,
-      {int days = 30,}) async {
+  Future<List<HabitLog>> getRecentHabitLogs(int habitId, {int days = 30}) async {
     try {
       final now = DateTime.now();
       final allLogs = await getHabitLogs(habitId);
-      
+
       return allLogs.where((log) {
         try {
           final logDate = DateTime.parse(log.date);
@@ -260,7 +252,7 @@ class HabitService {
 
       final now = DateTime.now();
       final today = DateFormat('yyyy-MM-dd').format(now);
-      
+
       // Başlangıç tarihini DateTime olarak elde et
       DateTime startDate;
       try {
@@ -269,11 +261,11 @@ class HabitService {
         debugPrint('Geçersiz başlangıç tarihi: ${habitObj.startDate}: $e');
         return;
       }
-      
+
       // Son 60 günlük kayıtları tarihe göre azalan sırayla getir
       final logs = await getRecentHabitLogs(habitId, days: 60);
       logs.sort((a, b) => b.date.compareTo(a.date)); // En son tarih en başta
-      
+
       // Kayıtları hızlı arama için Map'e dönüştür
       final completedDates = <String, bool>{};
       for (final log in logs) {
@@ -299,12 +291,12 @@ class HabitService {
       // Geriye doğru tüm günleri kontrol et ve kesintisiz tamamlanmış günleri say
       int streak = 0;
       DateTime currentDate = now;
-      
+
       // Maksimum 180 gün geriye git veya başlangıç tarihine kadar
       for (int i = 0; i < 180; i++) {
         // Başlangıç tarihinden önceyse çık
         if (currentDate.isBefore(startDate)) break;
-        
+
         if (_isDateRequired(currentDate, habitObj)) {
           final dateStr = DateFormat('yyyy-MM-dd').format(currentDate);
           final isCompleted = completedDates.containsKey(dateStr);
@@ -323,20 +315,20 @@ class HabitService {
       // Eğer mevcut streak değiştiği veya en uzun streakten büyükse güncelle
       if (streak != habitObj.currentStreak || streak > habitObj.longestStreak) {
         final updatedStreak = streak;
-        final updatedLongestStreak = streak > habitObj.longestStreak 
-            ? streak 
-            : habitObj.longestStreak;
-        
+        final updatedLongestStreak =
+            streak > habitObj.longestStreak ? streak : habitObj.longestStreak;
+
         // Yeni model sınıfı ile immutable güncelleme
         final updatedHabit = habitObj.copyWith(
           currentStreak: updatedStreak,
           longestStreak: updatedLongestStreak,
           updatedAt: DateTime.now().toIso8601String(),
         );
-        
+
         await _dbHelper.updateHabit(updatedHabit.toMap());
       }
-    } on Exception catch (e) { // Exception eklendi
+    } on Exception catch (e) {
+      // Exception eklendi
       debugPrint('Zincir güncelleme hatası: $e');
     }
   }
@@ -344,7 +336,7 @@ class HabitService {
   /// Belirli bir tarihte alışkanlığın gerekli olup olmadığını kontrol et
   bool _isDateRequired(DateTime date, Habit habit) {
     final weekday = date.weekday; // 1 (Pazartesi) - 7 (Pazar)
-    
+
     DateTime habitStartDate;
     try {
       habitStartDate = DateTime.parse(habit.startDate);
@@ -360,31 +352,27 @@ class HabitService {
     switch (habit.frequency) {
       case HabitFrequency.daily:
         return true;
-        
+
       case HabitFrequency.weekly:
         if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
           // Belirli günler seçildiyse
-          final selectedDays = habit.frequencyDays!
-              .split(',')
-              .map((day) => int.parse(day))
-              .toList();
+          final selectedDays =
+              habit.frequencyDays!.split(',').map((day) => int.parse(day)).toList();
           return selectedDays.contains(weekday);
         } else {
           // Belirli gün seçilmediyse (haftanın aynı günü)
           return weekday == habitStartDate.weekday;
         }
-        
+
       case HabitFrequency.monthly:
         // Ayın aynı günü
         return date.day == habitStartDate.day;
-        
+
       case HabitFrequency.custom:
         // Özel sıklıkta belirli günler seçildiyse
         if (habit.frequencyDays != null && habit.frequencyDays!.isNotEmpty) {
-          final selectedDays = habit.frequencyDays!
-              .split(',')
-              .map((day) => int.parse(day))
-              .toList();
+          final selectedDays =
+              habit.frequencyDays!.split(',').map((day) => int.parse(day)).toList();
           return selectedDays.contains(weekday);
         }
         return false;
@@ -398,7 +386,7 @@ class HabitService {
       if (habit == null) return 0.0;
 
       final now = DateTime.now();
-      
+
       DateTime startDate;
       try {
         startDate = DateTime.parse(habit.startDate);
@@ -444,7 +432,8 @@ class HabitService {
 
       if (totalRequiredDays == 0) return 0.0;
       return completedDays / totalRequiredDays;
-    } on Exception catch (e) { // Exception eklendi
+    } on Exception catch (e) {
+      // Exception eklendi
       debugPrint('Tamamlanma oranı hesaplama hatası: $e');
       return 0.0;
     }
@@ -458,7 +447,7 @@ class HabitService {
         debugPrint('Geçersiz tarih formatı: Boş string');
         return false;
       }
-      
+
       try {
         // Tarihin geçerli formatta olduğunu doğrula
         DateFormat('yyyy-MM-dd').parse(date);
@@ -466,70 +455,69 @@ class HabitService {
         debugPrint('Geçersiz tarih formatı: $date: $e');
         return false;
       }
-      
+
       // Log kayıtlarını doğrudan HabitLog modeli olarak al
       final logs = await getHabitLogs(habitId, date: date);
       return logs.isNotEmpty && logs.first.completed;
-    } on Exception catch (e) { // Exception eklendi
+    } on Exception catch (e) {
+      // Exception eklendi
       debugPrint('Alışkanlık tamamlanma kontrolü hatası: $e');
       return false;
     }
   }
-  
+
   /// Alışkanlık için not ekle veya güncelle
   Future<bool> addHabitNote(int habitId, String date, String note) async {
     try {
       final logs = await getHabitLogs(habitId, date: date);
-      
+
       if (logs.isEmpty) {
         // Yeni log oluştur
-        final newLog = HabitLog(
-          habitId: habitId,
-          date: date,
-          notes: note,
-        );
-        
+        final newLog = HabitLog(habitId: habitId, date: date, notes: note);
+
         final result = await _dbHelper.insertHabitLog(newLog.toMap());
         return result > 0;
       } else {
         // Mevcut logu güncelle
         final existingLog = logs.first;
         final updatedLog = existingLog.withNotes(note);
-        
+
         final result = await _dbHelper.updateHabitLog(updatedLog.toMap());
         return result > 0;
       }
-    } on Exception catch (e) { // Exception eklendi
+    } on Exception catch (e) {
+      // Exception eklendi
       debugPrint('Alışkanlık not ekleme hatası: $e');
       return false;
     }
   }
-  
+
   /// Özel tarih formatı
   String formatDateForDisplay(String date) {
     try {
       final dateTime = DateTime.parse(date);
       return DateFormat('d MMMM yyyy', 'tr_TR').format(dateTime);
-    } on FormatException catch (e) { // Exception eklendi
+    } on FormatException catch (e) {
+      // Exception eklendi
       debugPrint('Tarih formatı hatası: $e');
       return date;
     }
   }
-  
+
   /// Dönem bazında tamamlama istatistikleri (yeni)
   Future<Map<String, double>> getCompletionStatsByPeriod(int habitId) async {
     final results = <String, double>{};
-    
+
     try {
       // Son 7 gün
       results['last7days'] = await calculateCompletionRate(habitId, days: 7);
-      
+
       // Son 30 gün
       results['last30days'] = await calculateCompletionRate(habitId);
-      
+
       // Son 90 gün
       results['last90days'] = await calculateCompletionRate(habitId, days: 90);
-      
+
       // Tüm zamanlar
       final habit = await getHabitById(habitId);
       if (habit != null) {
@@ -537,9 +525,10 @@ class HabitService {
           final startDate = DateTime.parse(habit.startDate);
           final now = DateTime.now();
           final totalDays = now.difference(startDate).inDays;
-          
+
           results['allTime'] = await calculateCompletionRate(habitId, days: totalDays);
-        } on FormatException catch (e) { // Exception eklendi
+        } on FormatException catch (e) {
+          // Exception eklendi
           debugPrint('Tarih formatı hatası (allTime): $e');
           results['allTime'] = 0.0;
         }
@@ -549,7 +538,7 @@ class HabitService {
     } on Exception catch (e) {
       debugPrint('İstatistik hesaplama hatası: $e');
     }
-    
+
     return results;
   }
 }
