@@ -61,7 +61,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
           _isLoading = false;
         });
       }
-    } catch { // 'catch (e)' yerine sadece 'catch' kullanıldı
+    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -91,7 +91,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
       }
-    } catch { // 'catch (e)' yerine sadece 'catch' kullanıldı
+    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Durum güncellenirken bir hata oluştu');
     }
@@ -172,7 +172,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       } else {
         _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
       }
-    } catch { // 'catch (e)' yerine sadece 'catch' kullanıldı
+    } on Exception catch (_) { // '_' değişkeni ile düzeltildi
       if (!mounted) return; // Asenkron işlemden sonra mounted kontrolü ekledik
       _showErrorSnackBar('Alışkanlık silinirken bir hata oluştu');
     }
