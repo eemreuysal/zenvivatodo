@@ -159,26 +159,28 @@ class Task {
 
   // Veritabanı için Map'e dönüştürme - SQLite ile uyumluluk için
   Map<String, dynamic> toMap() {
-    return {
+    // 1 ve 0 değerlerini hesapla
+    final int completedValue = isCompleted ? 1 : 0;
+    
+    final map = <String, dynamic>{
       'id': id,
       'title': title,
       'description': description,
       'date': date,
       'time': time,
-      // 97. satır
-      'isCompleted': isCompleted ? 1 : 0, // 98. satır - muhtemelen hatanın olduğu yer
-      // 99. satır
+      'isCompleted': completedValue, // değişkeni kullan
       'categoryId': categoryId,
       'priority': priority.value,
       'userId': userId,
       'uniqueId': uniqueId,
     };
+    
+    return map;
   }
 
   // Firestore için Map'e dönüştürme
   Map<String, dynamic> toFirestore() {
-    // Farklı yaklaşım: Boolean değeri direkt kullanın, ? : operatörünü kaldırın
-    final Map<String, dynamic> result = {
+    final map = <String, dynamic>{
       'title': title,
       'description': description,
       'date': date,
@@ -190,7 +192,8 @@ class Task {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
-    return result;
+    
+    return map;
   }
 
   // JSON'a dönüştürme - API ile uyumluluk için
