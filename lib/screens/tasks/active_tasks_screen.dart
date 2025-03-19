@@ -78,7 +78,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
         // Update reminder service with current tasks
         _reminderService.setTasks(tasks);
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -145,7 +145,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,7 +182,7 @@ class _ActiveTasksScreenState extends State<ActiveTasksScreen> {
           ),
         );
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
